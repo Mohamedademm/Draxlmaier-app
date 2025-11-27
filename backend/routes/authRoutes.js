@@ -1,0 +1,21 @@
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
+const { authenticate } = require('../middleware/auth');
+const { authValidation } = require('../middleware/validation');
+const { strictRateLimiter } = require('../middleware/rateLimiter');
+
+/**
+ * Authentication Routes
+ */
+
+// Login
+router.post('/login', strictRateLimiter, authValidation.login, authController.login);
+
+// Get current user
+router.get('/me', authenticate, authController.getCurrentUser);
+
+// Update FCM token
+router.post('/fcm-token', authenticate, authController.updateFcmToken);
+
+module.exports = router;
