@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/notification_provider.dart';
 import '../utils/constants.dart';
+import 'team_management_screen.dart';
 
 /// Admin dashboard screen for managing the system
 class AdminDashboardScreen extends StatefulWidget {
@@ -16,7 +17,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   Future<void> _loadData() async {
@@ -109,6 +112,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 title: 'Send Notification',
                 subtitle: 'Broadcast message to employees',
                 onTap: _showSendNotificationDialog,
+              ),
+              _buildActionTile(
+                context,
+                icon: Icons.groups,
+                title: 'Team Management',
+                subtitle: 'Manage teams, departments, and permissions',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TeamManagementScreen(),
+                    ),
+                  );
+                },
               ),
               _buildActionTile(
                 context,

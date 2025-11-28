@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
+import '../utils/app_localizations.dart';
 
 /// Login screen for user authentication
 class LoginScreen extends StatefulWidget {
@@ -80,20 +81,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   
                   // Title
-                  Text(
-                    'Welcome Back',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to continue',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
-                        ),
-                    textAlign: TextAlign.center,
+                  Builder(
+                    builder: (context) {
+                      final localizations = AppLocalizations.of(context)!;
+                      return Column(
+                        children: [
+                          Text(
+                            localizations.translate('welcome'),
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            localizations.translate('sign_in_to_continue'),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Colors.grey,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 48),
                   

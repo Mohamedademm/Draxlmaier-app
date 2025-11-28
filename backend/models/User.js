@@ -35,14 +35,75 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'manager', 'employee'],
     default: 'employee'
   },
+  status: {
+    type: String,
+    enum: ['pending', 'active', 'inactive', 'rejected'],
+    default: 'pending'
+  },
   active: {
     type: Boolean,
     default: true
   },
+  
+  // Professional information
+  employeeId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true
+  },
+  position: {
+    type: String,
+    trim: true
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
+  },
+  team: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team'
+  },
+  
+  // Location & Transport
+  location: {
+    address: {
+      type: String,
+      trim: true
+    },
+    coordinates: {
+      latitude: Number,
+      longitude: Number
+    },
+    busStop: {
+      name: String,
+      stopId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BusStop'
+      }
+    }
+  },
+  
+  // Contact
+  phone: {
+    type: String,
+    trim: true
+  },
+  
+  // Validation info
+  validatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  validatedAt: Date,
+  rejectionReason: String,
+  
+  // Security
   fcmToken: {
     type: String,
     default: null
-  }
+  },
+  lastLogin: Date
 }, {
   timestamps: true
 });

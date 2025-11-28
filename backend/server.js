@@ -7,13 +7,16 @@ const http = require('http');
 const socketIo = require('socket.io');
 require('dotenv').config();
 
-// Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const teamRoutes = require('./routes/teams');
+const departmentRoutes = require('./routes/departments');
+const busStopRoutes = require('./routes/busStopRoutes');
+const objectiveRoutes = require('./routes/objectiveRoutes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -29,7 +32,14 @@ const server = http.createServer(app);
 // Initialize Socket.io
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:8080',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:8080'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -49,10 +59,33 @@ mongoose
 
 // Middleware
 app.use(helmet()); // Security headers
+
+// CORS configuration - Allow multiple origins including Flutter app ports
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:8080',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:8080'
+];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
-})); // Cross-Origin Resource Sharing
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.CORS_ORIGIN === '*') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(morgan('dev')); // HTTP request logger
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -76,6 +109,10 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/departments', departmentRoutes);
+app.use('/api/bus-stops', busStopRoutes);
+app.use('/api/objectives', objectiveRoutes);
 
 // 404 Handler
 app.use((req, res) => {

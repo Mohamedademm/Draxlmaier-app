@@ -41,6 +41,10 @@ dependencies:
   # Utilities
   json_annotation: ^4.9.0
   uuid: ^4.2.2
+  
+  # Internationalization
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

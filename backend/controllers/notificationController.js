@@ -39,6 +39,14 @@ exports.sendNotification = async (req, res, next) => {
     const { title, message, targetUsers } = req.body;
     const senderId = req.user._id;
 
+    // Validate required fields
+    if (!title || !message) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Title and message are required'
+      });
+    }
+
     // If targetUsers is empty, send to all active users
     let recipients = targetUsers;
     if (!recipients || recipients.length === 0) {

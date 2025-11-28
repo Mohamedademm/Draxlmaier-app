@@ -5,6 +5,7 @@ import '../providers/chat_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/location_provider.dart';
 import '../utils/constants.dart';
+import '../utils/app_localizations.dart';
 
 /// Home screen with bottom navigation
 class HomeScreen extends StatefulWidget {
@@ -66,35 +67,36 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Get navigation items based on user role
   List<BottomNavigationBarItem> _getNavigationItems() {
     final authProvider = context.read<AuthProvider>();
+    final localizations = AppLocalizations.of(context)!;
     
     final items = [
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.dashboard),
-        label: 'Dashboard',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.dashboard),
+        label: localizations.translate('home'),
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.chat),
-        label: 'Chats',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.chat),
+        label: localizations.translate('chats'),
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.notifications),
-        label: 'Notifications',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.notifications),
+        label: localizations.translate('notifications'),
       ),
     ];
     
     if (authProvider.canManageUsers) {
       items.add(
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.map),
-          label: 'Map',
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.map),
+          label: localizations.translate('map'),
         ),
       );
     }
     
     items.add(
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.person),
-        label: 'Profile',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.person),
+        label: localizations.translate('profile'),
       ),
     );
     

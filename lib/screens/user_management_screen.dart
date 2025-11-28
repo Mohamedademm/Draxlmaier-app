@@ -16,7 +16,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUsers();
+    });
   }
 
   Future<void> _loadUsers() async {

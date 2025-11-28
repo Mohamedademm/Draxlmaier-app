@@ -11,6 +11,9 @@ const { userValidation } = require('../middleware/validation');
 // Get all users (Admin/Manager only)
 router.get('/', authenticate, authorize('admin', 'manager'), userController.getAllUsers);
 
+// Get pending registrations (Manager/Admin only)
+router.get('/pending', authenticate, authorize('admin', 'manager'), userController.getPendingUsers);
+
 // Search users
 router.get('/search', authenticate, userController.searchUsers);
 
@@ -31,5 +34,17 @@ router.post('/:id/activate', authenticate, authorize('admin'), userValidation.ge
 
 // Deactivate user (Admin only)
 router.post('/:id/deactivate', authenticate, authorize('admin'), userValidation.getById, userController.deactivateUser);
+
+// Validate pending user (Manager/Admin)
+router.put('/:id/validate', authenticate, authorize('admin', 'manager'), userController.validateUser);
+
+// Reject pending user (Manager/Admin)
+router.put('/:id/reject', authenticate, authorize('admin', 'manager'), userController.rejectUser);
+
+// Update user position (Manager/Admin)
+router.put('/:id/position', authenticate, authorize('admin', 'manager'), userController.updateUserPosition);
+
+// Update my location (Employee)
+router.put('/me/location', authenticate, userController.updateMyLocation);
 
 module.exports = router;

@@ -173,6 +173,46 @@ const locationValidation = {
  * Auth validation rules
  */
 const authValidation = {
+  // Register
+  register: validate([
+    body('firstname')
+      .trim()
+      .notEmpty().withMessage('First name is required')
+      .isLength({ min: 2 }).withMessage('First name must be at least 2 characters'),
+    body('lastname')
+      .trim()
+      .notEmpty().withMessage('Last name is required')
+      .isLength({ min: 2 }).withMessage('Last name must be at least 2 characters'),
+    body('email')
+      .trim()
+      .notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Invalid email format')
+      .normalizeEmail(),
+    body('password')
+      .notEmpty().withMessage('Password is required')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('position')
+      .trim()
+      .notEmpty().withMessage('Position is required'),
+    body('location.address')
+      .trim()
+      .notEmpty().withMessage('Address is required'),
+    body('location.coordinates.latitude')
+      .notEmpty().withMessage('Latitude is required')
+      .isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
+    body('location.coordinates.longitude')
+      .notEmpty().withMessage('Longitude is required')
+      .isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude'),
+    body('location.busStop.name')
+      .trim()
+      .notEmpty().withMessage('Bus stop name is required'),
+    body('phone')
+      .optional()
+      .trim()
+      .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Invalid phone number format')
+  ]),
+  
   // Login
   login: validate([
     body('email')

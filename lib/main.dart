@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,6 +10,8 @@ import 'providers/chat_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/locale_provider.dart';
+import 'providers/team_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -20,6 +23,7 @@ import 'screens/admin_dashboard_screen.dart';
 import 'screens/user_management_screen.dart';
 import 'utils/app_theme.dart';
 import 'utils/constants.dart';
+import 'utils/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,15 +42,28 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => TeamProvider()),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, authProvider, _) {
+      child: Consumer2<AuthProvider, LocaleProvider>(
+        builder: (context, authProvider, localeProvider, _) {
           return MaterialApp(
             title: 'Employee Communication',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.light,
+            locale: localeProvider.locale,
+            supportedLocales: const [
+              Locale('fr', ''), // Français (par défaut)
+              Locale('en', ''), // English
+            ],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             initialRoute: Routes.splash,
             routes: {
               Routes.splash: (context) => const SplashScreen(),

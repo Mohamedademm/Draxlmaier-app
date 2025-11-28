@@ -211,6 +211,205 @@ exports.deactivateUser = async (req, res, next) => {
 };
 
 /**
+ * @route   GET /api/users/pending
+ * @desc    Get pending user registrations
+ * @access  Private (Manager/Admin)
+ */
+exports.getPendingUsers = async (req, res, next) => {
+  try {
+    const pendingUsers = await User.find({ status: 'pending' })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: 'success',
+      count: pendingUsers.length,
+      users: pendingUsers
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/users/:id/validate
+ * @desc    Validate/approve pending user registration
+ * @access  Private (Manager/Admin)
+ */
+exports.validateUser = async (req, res, next) => {
+  try {
+    const { employeeId, department, team } = req.body;
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    if (user.status !== 'pending') {
+      return res.status(400).json({
+        status: 'error',
+        message: `User status is ${user.status}, not pending`
+      });
+    }
+
+    // Update user status and related fields
+    user.status = 'active';
+    user.active = true;
+    user.validatedBy = req.user._id;
+    user.validatedAt = new Date();
+
+    if (employeeId) user.employeeId = employeeId;
+    if (department) user.department = department;
+    if (team) user.team = team;
+
+    await user.save();
+
+    // TODO: Send confirmation email to user
+
+    res.status(200).json({
+      status: 'success',
+      message: 'User validated successfully. Account is now active.',
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/users/:id/reject
+ * @desc    Reject pending user registration
+ * @access  Private (Manager/Admin)
+ */
+exports.rejectUser = async (req, res, next) => {
+  try {
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Rejection reason is required'
+      });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    if (user.status !== 'pending') {
+      return res.status(400).json({
+        status: 'error',
+        message: `User status is ${user.status}, not pending`
+      });
+    }
+
+    user.status = 'rejected';
+    user.active = false;
+    user.rejectionReason = reason;
+    user.validatedBy = req.user._id;
+    user.validatedAt = new Date();
+
+    await user.save();
+
+    // TODO: Send rejection email to user with reason
+
+    res.status(200).json({
+      status: 'success',
+      message: 'User registration rejected',
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/users/:id/position
+ * @desc    Update user position (Manager only)
+ * @access  Private (Manager/Admin)
+ */
+exports.updateUserPosition = async (req, res, next) => {
+  try {
+    const { position, department, team } = req.body;
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    if (position) user.position = position;
+    if (department) user.department = department;
+    if (team) user.team = team;
+
+    await user.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'User position updated successfully',
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/users/me/location
+ * @desc    Update current user's location
+ * @access  Private (Employee)
+ */
+exports.updateMyLocation = async (req, res, next) => {
+  try {
+    const { address, coordinates, busStop } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    if (address) user.location.address = address;
+    if (coordinates) {
+      user.location.coordinates = {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      };
+    }
+    if (busStop) {
+      user.location.busStop = {
+        name: busStop.name,
+        stopId: busStop.stopId
+      };
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Location updated successfully',
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * @route   GET /api/users/search
  * @desc    Search users by name or email
  * @access  Private

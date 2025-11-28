@@ -40,10 +40,13 @@ class ApiService {
   }
 
   /// GET request
-  Future<http.Response> get(String endpoint) async {
+  Future<http.Response> get(String endpoint, {Map<String, String>? queryParams}) async {
     try {
       final headers = await _getHeaders();
-      final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+      var uri = Uri.parse('${ApiConstants.baseUrl}$endpoint');
+      if (queryParams != null && queryParams.isNotEmpty) {
+        uri = uri.replace(queryParameters: queryParams);
+      }
       return await http.get(uri, headers: headers);
     } catch (e) {
       throw Exception('Network error: $e');

@@ -21,7 +21,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadNotifications();
+    });
   }
 
   @override

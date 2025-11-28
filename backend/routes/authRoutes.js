@@ -9,6 +9,9 @@ const { strictRateLimiter } = require('../middleware/rateLimiter');
  * Authentication Routes
  */
 
+// Register (public self-registration)
+router.post('/register', strictRateLimiter, authValidation.register, authController.register);
+
 // Login
 router.post('/login', strictRateLimiter, authValidation.login, authController.login);
 
