@@ -48,14 +48,25 @@ const io = socketIo(server, {
 // Make io accessible to routes
 app.set('io', io);
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Connect to MongoDB with fallback to local
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ MongoDB Atlas connected successfully');
+  } catch (err) {
+    console.error('❌ MongoDB Atlas connection failed:', err.message);
+    console.log('🔄 Trying local MongoDB...');
+    try {
+      await mongoose.connect('mongodb://localhost:27017/draxlmaier-app');
+      console.log('✅ Local MongoDB connected successfully');
+    } catch (localErr) {
+      console.error('❌ Local MongoDB connection failed:', localErr.message);
+      console.log('⚠️  Server running without database. Please check MongoDB connection.');
+    }
+  }
+};
+
+connectDB();
 
 // Middleware
 app.use(helmet()); // Security headers

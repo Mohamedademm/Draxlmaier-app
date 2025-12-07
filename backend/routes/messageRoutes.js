@@ -16,4 +16,7 @@ router.get('/conversations', authenticate, messageController.getConversations);
 // Mark messages as read
 router.post('/mark-read', authenticate, messageController.markAsRead);
 
+// Send message (HTTP alternative to socket)
+router.post('/', authenticate, messageController.sendMessage);
+
 module.exports = router;

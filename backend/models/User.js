@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
@@ -27,7 +26,6 @@ const userSchema = new mongoose.Schema({
   passwordHash: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: 6,
     select: false // Don't return password by default
   },
   role: {
@@ -57,15 +55,47 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department'
+    type: String,
+    trim: true
   },
   team: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Team'
   },
   
-  // Location & Transport
+  // Contact
+  phone: {
+    type: String,
+    trim: true
+  },
+  
+  // Profile Image (stored as base64 or URL)
+  profileImage: {
+    type: String,
+    trim: true
+  },
+  
+  // Address fields
+  address: {
+    type: String,
+    trim: true
+  },
+  city: {
+    type: String,
+    trim: true
+  },
+  postalCode: {
+    type: String,
+    trim: true
+  },
+  latitude: {
+    type: Number
+  },
+  longitude: {
+    type: Number
+  },
+  
+  // Legacy location field (kept for backward compatibility)
   location: {
     address: {
       type: String,
@@ -82,12 +112,6 @@ const userSchema = new mongoose.Schema({
         ref: 'BusStop'
       }
     }
-  },
-  
-  // Contact
-  phone: {
-    type: String,
-    trim: true
   },
   
   // Validation info
@@ -108,8 +132,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries
-userSchema.index({ email: 1 });
+// Index for faster queries (email already has unique: true)
 userSchema.index({ role: 1 });
 userSchema.index({ active: 1 });
 
@@ -135,6 +158,9 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
     throw new Error('Password comparison failed');
   }
 };
+
+// Create unique index for email
+userSchema.index({ email: 1 }, { unique: true });
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function() {

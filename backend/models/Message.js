@@ -26,6 +26,11 @@ const messageSchema = new mongoose.Schema({
     trim: true,
     maxlength: [5000, 'Message cannot exceed 5000 characters']
   },
+  type: {
+    type: String,
+    enum: ['direct', 'group'],
+    default: 'direct'
+  },
   status: {
     type: String,
     enum: ['sent', 'delivered', 'read'],

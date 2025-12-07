@@ -27,6 +27,17 @@ class User {
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? fcmToken;
   
+  final String? phone;
+  final String? position;
+  final String? department;
+  final String? address;
+  final String? city;
+  final String? postalCode;
+  final double? latitude;
+  final double? longitude;
+  final String? status;
+  final String? profileImage;
+  
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -38,6 +49,16 @@ class User {
     required this.role,
     this.active = true,
     this.fcmToken,
+    this.phone,
+    this.position,
+    this.department,
+    this.address,
+    this.city,
+    this.postalCode,
+    this.latitude,
+    this.longitude,
+    this.status,
+    this.profileImage,
     this.createdAt,
     this.updatedAt,
   });
@@ -72,6 +93,16 @@ class User {
     UserRole? role,
     bool? active,
     String? fcmToken,
+    String? phone,
+    String? position,
+    String? department,
+    String? address,
+    String? city,
+    String? postalCode,
+    double? latitude,
+    double? longitude,
+    String? status,
+    String? profileImage,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -83,6 +114,16 @@ class User {
       role: role ?? this.role,
       active: active ?? this.active,
       fcmToken: fcmToken ?? this.fcmToken,
+      phone: phone ?? this.phone,
+      position: position ?? this.position,
+      department: department ?? this.department,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      postalCode: postalCode ?? this.postalCode,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      status: status ?? this.status,
+      profileImage: profileImage ?? this.profileImage,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

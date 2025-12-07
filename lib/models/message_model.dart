@@ -1,23 +1,13 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'message_model.g.dart';
-
 /// Enum representing message status
 enum MessageStatus {
-  @JsonValue('sent')
   sent,
-  @JsonValue('delivered')
   delivered,
-  @JsonValue('read')
   read,
 }
 
 /// Message model representing a chat message
-@JsonSerializable()
 class Message {
-  @JsonKey(name: '_id')
   final String id;
-  
   final String senderId;
   final String? receiverId;
   final String? groupId;
@@ -25,10 +15,7 @@ class Message {
   final MessageStatus status;
   final DateTime timestamp;
   
-  @JsonKey(includeFromJson: false, includeToJson: false)
   String? senderName;
-  
-  @JsonKey(includeFromJson: false, includeToJson: false)
   bool isMe;
 
   Message({
@@ -50,10 +37,52 @@ class Message {
   bool get isDirectMessage => receiverId != null;
 
   /// Factory method to create Message from JSON
-  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      id: json['_id'] ?? json['id'] ?? '',
+      senderId: json['senderId'] is String 
+          ? json['senderId'] 
+          : (json['senderId']?['_id'] ?? json['senderId']?['id'] ?? ''),
+      receiverId: json['receiverId'],
+      groupId: json['groupId'],
+      content: json['content'] ?? '',
+      status: _parseStatus(json['status']),
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp']) 
+          : DateTime.now(),
+      senderName: json['senderName'],
+      isMe: json['isMe'] ?? false,
+    );
+  }
+
+  /// Parse status from string
+  static MessageStatus _parseStatus(dynamic status) {
+    if (status == null) return MessageStatus.sent;
+    final statusStr = status.toString().toLowerCase();
+    switch (statusStr) {
+      case 'delivered':
+        return MessageStatus.delivered;
+      case 'read':
+        return MessageStatus.read;
+      default:
+        return MessageStatus.sent;
+    }
+  }
 
   /// Method to convert Message to JSON
-  Map<String, dynamic> toJson() => _$MessageToJson(this);
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'senderId': senderId,
+      'receiverId': receiverId,
+      'groupId': groupId,
+      'content': content,
+      'status': status.name,
+      'timestamp': timestamp.toIso8601String(),
+      'senderName': senderName,
+      'isMe': isMe,
+    };
+  }
 
   /// Copy method for immutable updates
   Message copyWith({

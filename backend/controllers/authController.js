@@ -18,9 +18,14 @@ exports.register = async (req, res, next) => {
       lastname,
       email,
       password,
-      position,
       phone,
-      location
+      position,
+      department,
+      address,
+      city,
+      postalCode,
+      latitude,
+      longitude
     } = req.body;
 
     // Check if user already exists
@@ -32,45 +37,43 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Create new user with pending status
+    // Create new user with active status (direct access without manager validation)
     const user = new User({
       firstname,
       lastname,
       email: email.toLowerCase(),
       passwordHash: password,
       role: 'employee',
-      status: 'pending',
-      active: false,
-      position,
+      status: 'active',
+      active: true,
       phone,
-      location: {
-        address: location?.address,
-        coordinates: {
-          latitude: location?.coordinates?.latitude,
-          longitude: location?.coordinates?.longitude
-        },
-        busStop: {
-          name: location?.busStop?.name,
-          stopId: location?.busStop?.stopId
-        }
-      }
+      position,
+      department,
+      address,
+      city,
+      postalCode,
+      latitude,
+      longitude
     });
 
     await user.save();
 
-    // TODO: Send notification to managers about pending registration
-
     // Remove password from response
     user.passwordHash = undefined;
 
+    // Generate JWT token for immediate login
+    const token = generateToken(user._id);
+
     res.status(201).json({
       status: 'success',
-      message: 'Registration successful. Waiting for manager approval.',
+      message: 'Registration successful. You can now login.',
+      token,
       user: {
         id: user._id,
         email: user.email,
         firstname: user.firstname,
         lastname: user.lastname,
+        role: user.role,
         status: user.status
       }
     });
@@ -184,6 +187,183 @@ exports.updateFcmToken = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       message: 'FCM token updated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   POST /api/auth/create-manager
+ * @desc    Create a manager user (temporary for testing)
+ * @access  Public (should be removed in production)
+ */
+exports.createManager = async (req, res, next) => {
+  try {
+    // Check if manager already exists
+    const existingManager = await User.findOne({ email: 'manager@draxlmaier.com' });
+    if (existingManager) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Manager already exists',
+        credentials: {
+          email: 'manager@draxlmaier.com',
+          password: 'Manager123',
+          role: 'manager'
+        }
+      });
+    }
+
+    // Create manager user
+    const manager = new User({
+      firstname: 'Manager',
+      lastname: 'Test',
+      email: 'manager@draxlmaier.com',
+      passwordHash: 'Manager123',
+      role: 'manager',
+      status: 'active',
+      active: true,
+      phone: '+33612345678',
+      position: 'Chef de département',
+      department: 'Direction',
+      employeeId: 'MGR001'
+    });
+
+    await manager.save();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Manager created successfully',
+      credentials: {
+        email: 'manager@draxlmaier.com',
+        password: 'Manager123',
+        role: 'manager'
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   POST /api/auth/google
+ * @desc    Google Sign In / Sign Up
+ * @access  Public
+ */
+exports.googleAuth = async (req, res, next) => {
+  try {
+    const { email, displayName, photoUrl } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Email is required for Google authentication'
+      });
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+      // User exists, log them in
+      const token = generateToken(user._id);
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Login successful',
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          role: user.role,
+          status: user.status
+        }
+      });
+    }
+
+    // User doesn't exist, create new account
+    const names = displayName ? displayName.split(' ') : ['Google', 'User'];
+    const firstname = names[0] || 'Google';
+    const lastname = names.slice(1).join(' ') || 'User';
+
+    user = new User({
+      firstname,
+      lastname,
+      email: email.toLowerCase(),
+      passwordHash: Math.random().toString(36).substring(7), // Random password for Google users
+      role: 'employee',
+      status: 'active',
+      active: true
+    });
+
+    await user.save();
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Account created successfully with Google',
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        role: user.role,
+        status: user.status
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Create test employee (Development only)
+ * POST /api/auth/create-employee
+ */
+exports.createEmployee = async (req, res, next) => {
+  try {
+    // Check if employee already exists
+    const existingEmployee = await User.findOne({ email: 'jean.dupont@draxlmaier.com' });
+    
+    if (existingEmployee) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Test employee already exists',
+        credentials: {
+          email: 'jean.dupont@draxlmaier.com',
+          password: 'Employee123'
+        },
+        user: existingEmployee
+      });
+    }
+
+    // Create employee
+    const employee = await User.create({
+      firstname: 'Jean',
+      lastname: 'Dupont',
+      email: 'jean.dupont@draxlmaier.com',
+      password: 'Employee123',
+      role: 'employee',
+      employeeId: 'EMP001',
+      department: 'Production',
+      position: 'Technicien',
+      active: true,
+      status: 'active'
+    });
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Test employee created successfully',
+      credentials: {
+        email: 'jean.dupont@draxlmaier.com',
+        password: 'Employee123'
+      },
+      user: employee
     });
   } catch (error) {
     next(error);

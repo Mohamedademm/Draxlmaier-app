@@ -164,3 +164,52 @@ exports.markAsRead = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @route   POST /api/messages
+ * @desc    Send a message (direct or group)
+ * @access  Private
+ */
+exports.sendMessage = async (req, res, next) => {
+  try {
+    const { receiverId, groupId, content, type } = req.body;
+    const senderId = req.user._id;
+
+    // Validate input
+    if (!content || content.trim() === '') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Message content is required'
+      });
+    }
+
+    if (!groupId && !receiverId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Either receiverId or groupId is required'
+      });
+    }
+
+    // Create message
+    const message = await Message.create({
+      senderId,
+      receiverId: groupId ? null : receiverId,
+      groupId: groupId || null,
+      content: content.trim(),
+      type: type || (groupId ? 'group' : 'direct'),
+      status: 'sent'
+    });
+
+    // Populate sender info
+    const populatedMessage = await Message.findById(message._id)
+      .populate('senderId', 'firstname lastname email');
+
+    res.status(201).json({
+      success: true,
+      status: 'success',
+      message: populatedMessage
+    });
+  } catch (error) {
+    next(error);
+  }
+};

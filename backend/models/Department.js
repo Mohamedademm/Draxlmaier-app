@@ -8,7 +8,6 @@ const departmentSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Department name is required'],
-    unique: true,
     trim: true
   },
   description: {
@@ -54,6 +53,9 @@ const departmentSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+// Create unique index for name
+departmentSchema.index({ name: 1 }, { unique: true });
+
 // Virtual to populate teams in this department
 departmentSchema.virtual('teams', {
   ref: 'Team',
@@ -61,8 +63,7 @@ departmentSchema.virtual('teams', {
   foreignField: 'department'
 });
 
-// Index for faster queries
-departmentSchema.index({ name: 1 });
+// Index for faster queries (name already has unique: true)
 departmentSchema.index({ isActive: 1 });
 
 // Methods

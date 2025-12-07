@@ -99,4 +99,16 @@ class AuthProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
+  /// Refresh current user data (used after profile updates)
+  Future<void> refreshUser() async {
+    if (_currentUser != null) {
+      try {
+        _currentUser = await _authService.getCurrentUser();
+        notifyListeners();
+      } catch (e) {
+        debugPrint('Error refreshing user: $e');
+      }
+    }
+  }
 }

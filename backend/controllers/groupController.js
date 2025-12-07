@@ -185,3 +185,51 @@ exports.removeMember = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @route   GET /api/groups/department
+ * @desc    Get or create department group for current user
+ * @access  Private
+ */
+exports.getDepartmentGroup = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Get current user to find their department
+    const User = require('../models/User');
+    const user = await User.findById(userId);
+
+    if (!user.department) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'User does not have a department assigned'
+      });
+    }
+
+    // Find or create department group
+    const group = await ChatGroup.findOrCreateDepartmentGroup(user.department);
+
+    // Ensure current user is a member
+    if (!group.isMember(userId)) {
+      await group.addMember(userId);
+    }
+
+    // If user is a manager and not already an admin, make them admin
+    if (user.role === 'manager' && !group.isAdmin(userId)) {
+      group.admins.push(userId);
+      await group.save();
+    }
+
+    const populatedGroup = await ChatGroup.findById(group._id)
+      .populate('members', 'firstname lastname email role department')
+      .populate('admins', 'firstname lastname email')
+      .populate('createdBy', 'firstname lastname');
+
+    res.status(200).json({
+      status: 'success',
+      group: populatedGroup
+    });
+  } catch (error) {
+    next(error);
+  }
+};

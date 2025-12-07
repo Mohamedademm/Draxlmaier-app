@@ -28,7 +28,15 @@ class ChatService {
       final data = _apiService.handleResponse(response);
       
       final List<dynamic> messagesJson = data['messages'];
-      return messagesJson.map((json) => Message.fromJson(json)).toList();
+      return messagesJson.map((json) {
+        // Handle senderId as object or string
+        if (json['senderId'] is Map) {
+          final sender = json['senderId'];
+          json['senderName'] = '${sender['firstname']} ${sender['lastname']}';
+          json['senderId'] = sender['_id'] ?? sender['id'];
+        }
+        return Message.fromJson(json);
+      }).toList();
     } catch (e) {
       throw Exception('Failed to get chat history: $e');
     }
@@ -116,6 +124,45 @@ class ChatService {
       return ChatGroup.fromJson(data['group']);
     } catch (e) {
       throw Exception('Failed to remove group member: $e');
+    }
+  }
+
+  /// Get or create department group for current user
+  Future<ChatGroup> getDepartmentGroup() async {
+    try {
+      final response = await _apiService.get('/groups/department/my-group');
+      final data = _apiService.handleResponse(response);
+      return ChatGroup.fromJson(data['group']);
+    } catch (e) {
+      throw Exception('Failed to get department group: $e');
+    }
+  }
+
+  /// Send message to group
+  Future<Message> sendGroupMessage({
+    required String groupId,
+    required String content,
+  }) async {
+    try {
+      final response = await _apiService.post('/messages', {
+        'groupId': groupId,
+        'content': content,
+        'type': 'group',
+      });
+      
+      final data = _apiService.handleResponse(response);
+      final messageJson = data['message'];
+      
+      // Handle senderId as object
+      if (messageJson['senderId'] is Map) {
+        final sender = messageJson['senderId'];
+        messageJson['senderName'] = '${sender['firstname']} ${sender['lastname']}';
+        messageJson['senderId'] = sender['_id'] ?? sender['id'];
+      }
+      
+      return Message.fromJson(messageJson);
+    } catch (e) {
+      throw Exception('Failed to send group message: $e');
     }
   }
 }

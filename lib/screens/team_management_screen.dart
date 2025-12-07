@@ -254,7 +254,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (team.description != null) Text(team.description!),
+            if (team.description != null) Text(team.description ?? ''),
             const SizedBox(height: 4),
             Row(
               children: [
@@ -386,7 +386,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (department.description != null) Text(department.description!),
+            if (department.description != null) Text(department.description ?? ''),
             const SizedBox(height: 4),
             Row(
               children: [
@@ -407,7 +407,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   const SizedBox(width: 16),
                   const Icon(Icons.location_on, size: 16),
                   const SizedBox(width: 4),
-                  Text(department.location!, style: const TextStyle(fontSize: 12)),
+                  Text(department.location ?? '', style: const TextStyle(fontSize: 12)),
                 ],
               ],
             ),

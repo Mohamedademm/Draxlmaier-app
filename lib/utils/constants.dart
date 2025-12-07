@@ -26,6 +26,8 @@ class Routes {
   static const String map = '/map';
   static const String adminDashboard = '/admin-dashboard';
   static const String userManagement = '/user-management';
+  static const String debugUserCreation = '/debug-user-creation';
+  static const String editProfile = '/edit-profile';
 }
 
 /// App constants

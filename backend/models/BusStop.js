@@ -8,7 +8,6 @@ const busStopSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Bus stop name is required'],
-    unique: true,
     trim: true
   },
   code: {
@@ -59,10 +58,12 @@ const busStopSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Create unique index for name
+busStopSchema.index({ name: 1 }, { unique: true });
+
 // Index for geospatial queries
 busStopSchema.index({ 'coordinates.latitude': 1, 'coordinates.longitude': 1 });
 busStopSchema.index({ active: 1 });
-busStopSchema.index({ name: 1 });
 
 // Virtual to get employees count
 busStopSchema.virtual('employeeCount', {

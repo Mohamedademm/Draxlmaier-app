@@ -47,7 +47,7 @@ const userValidation = {
       .normalizeEmail(),
     body('password')
       .notEmpty().withMessage('Password is required')
-      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+      .isLength({ min: 1 }).withMessage('Password is required'),
     body('role')
       .optional()
       .isIn(['admin', 'manager', 'employee']).withMessage('Invalid role')
@@ -143,8 +143,10 @@ const notificationValidation = {
       .notEmpty().withMessage('Message is required')
       .isLength({ max: 1000 }).withMessage('Message cannot exceed 1000 characters'),
     body('targetUsers')
-      .isArray({ min: 1 }).withMessage('At least one target user is required')
+      .optional()
+      .isArray().withMessage('Target users must be an array')
       .custom((users) => {
+        if (!users || users.length === 0) return true; // Allow empty array for "all users"
         return users.every(id => /^[0-9a-fA-F]{24}$/.test(id));
       }).withMessage('Invalid user IDs')
   ]),
@@ -190,27 +192,32 @@ const authValidation = {
       .normalizeEmail(),
     body('password')
       .notEmpty().withMessage('Password is required')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
-    body('position')
-      .trim()
-      .notEmpty().withMessage('Position is required'),
-    body('location.address')
-      .trim()
-      .notEmpty().withMessage('Address is required'),
-    body('location.coordinates.latitude')
-      .notEmpty().withMessage('Latitude is required')
-      .isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
-    body('location.coordinates.longitude')
-      .notEmpty().withMessage('Longitude is required')
-      .isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude'),
-    body('location.busStop.name')
-      .trim()
-      .notEmpty().withMessage('Bus stop name is required'),
+      .isLength({ min: 1 }).withMessage('Password is required'),
     body('phone')
       .optional()
       .trim()
-      .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Invalid phone number format')
+      .matches(/^[\d\s\-\+\(\)]+$/).withMessage('Invalid phone number format'),
+    body('position')
+      .optional()
+      .trim(),
+    body('department')
+      .optional()
+      .trim(),
+    body('address')
+      .optional()
+      .trim(),
+    body('city')
+      .optional()
+      .trim(),
+    body('postalCode')
+      .optional()
+      .trim(),
+    body('latitude')
+      .optional()
+      .isFloat({ min: -90, max: 90 }).withMessage('Invalid latitude'),
+    body('longitude')
+      .optional()
+      .isFloat({ min: -180, max: 180 }).withMessage('Invalid longitude')
   ]),
   
   // Login

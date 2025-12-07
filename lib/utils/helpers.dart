@@ -88,7 +88,7 @@ class ValidationHelper {
 
   /// Validate password (minimum 6 characters)
   static bool isValidPassword(String password) {
-    return password.length >= 6;
+    return password.length >= 3;
   }
 
   /// Validate name (not empty and contains only letters)

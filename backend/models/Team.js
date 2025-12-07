@@ -8,8 +8,7 @@ const teamSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Team name is required'],
-    trim: true,
-    unique: true
+    trim: true
   },
   description: {
     type: String,
@@ -54,13 +53,15 @@ const teamSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+// Create unique index for name
+teamSchema.index({ name: 1 }, { unique: true });
+
 // Virtual for member count
 teamSchema.virtual('memberCount').get(function() {
   return this.members ? this.members.length : 0;
 });
 
-// Index for faster queries
-teamSchema.index({ name: 1 });
+// Index for faster queries (name already has unique: true)
 teamSchema.index({ department: 1 });
 teamSchema.index({ isActive: 1 });
 

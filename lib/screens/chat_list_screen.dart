@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
+import 'create_group_screen.dart';
+import 'group_chat_screen.dart';
 
 /// Chat list screen showing all conversations
 class ChatListScreen extends StatefulWidget {
@@ -79,14 +81,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
                             )
                           : null,
                       onTap: () {
-                        Navigator.pushNamed(
+                        Navigator.push(
                           context,
-                          Routes.chatDetail,
-                          arguments: {
-                            'chatId': group.id,
-                            'recipientName': group.name,
-                            'isGroupChat': true,
-                          },
+                          MaterialPageRoute(
+                            builder: (context) => GroupChatScreen(group: group),
+                          ),
                         );
                       },
                     )),
@@ -169,24 +168,37 @@ class _ChatListScreenState extends State<ChatListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('New Chat'),
+        title: const Text('Nouveau Chat'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Direct Message'),
+              title: const Text('Message Direct'),
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Show user selection dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.group),
-              title: const Text('Create Group'),
-              onTap: () {
+              leading: const Icon(Icons.group_add),
+              title: const Text('Créer un Groupe'),
+              onTap: () async {
                 Navigator.pop(context);
-                // TODO: Show group creation dialog
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateGroupScreen(),
+                  ),
+                );
+                
+                if (result == true) {
+                  // Reload groups after creation
+                  _loadConversations();
+                }
               },
             ),
           ],

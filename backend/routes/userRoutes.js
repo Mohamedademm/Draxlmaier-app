@@ -20,20 +20,20 @@ router.get('/search', authenticate, userController.searchUsers);
 // Get user by ID
 router.get('/:id', authenticate, userValidation.getById, userController.getUserById);
 
-// Create user (Admin only)
-router.post('/', authenticate, authorize('admin'), userValidation.create, userController.createUser);
+// Create user (Admin/Manager)
+router.post('/', authenticate, authorize('admin', 'manager'), userValidation.create, userController.createUser);
 
-// Update user (Admin only)
-router.put('/:id', authenticate, authorize('admin'), userValidation.update, userController.updateUser);
+// Update user (Admin/Manager)
+router.put('/:id', authenticate, authorize('admin', 'manager'), userValidation.update, userController.updateUser);
 
-// Delete user (Admin only)
-router.delete('/:id', authenticate, authorize('admin'), userValidation.getById, userController.deleteUser);
+// Delete user (Admin/Manager)
+router.delete('/:id', authenticate, authorize('admin', 'manager'), userValidation.getById, userController.deleteUser);
 
-// Activate user (Admin only)
-router.post('/:id/activate', authenticate, authorize('admin'), userValidation.getById, userController.activateUser);
+// Activate user (Admin/Manager)
+router.post('/:id/activate', authenticate, authorize('admin', 'manager'), userValidation.getById, userController.activateUser);
 
-// Deactivate user (Admin only)
-router.post('/:id/deactivate', authenticate, authorize('admin'), userValidation.getById, userController.deactivateUser);
+// Deactivate user (Admin/Manager)
+router.post('/:id/deactivate', authenticate, authorize('admin', 'manager'), userValidation.getById, userController.deactivateUser);
 
 // Validate pending user (Manager/Admin)
 router.put('/:id/validate', authenticate, authorize('admin', 'manager'), userController.validateUser);
@@ -46,5 +46,8 @@ router.put('/:id/position', authenticate, authorize('admin', 'manager'), userCon
 
 // Update my location (Employee)
 router.put('/me/location', authenticate, userController.updateMyLocation);
+
+// Update user profile (own profile or admin/manager)
+router.put('/:id/profile', authenticate, userController.updateProfile);
 
 module.exports = router;

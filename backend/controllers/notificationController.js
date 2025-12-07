@@ -15,9 +15,17 @@ exports.getNotifications = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    const notifications = await Notification.find({ targetUsers: userId })
+    // Find notifications where user is in targetUsers array OR targetUsers is empty (broadcast)
+    const notifications = await Notification.find({
+      $or: [
+        { targetUsers: userId },
+        { targetUsers: { $exists: true, $size: 0 } }
+      ]
+    })
       .populate('senderId', 'firstname lastname email')
       .sort({ timestamp: -1 });
+
+    console.log(`Found ${notifications.length} notifications for user ${userId}`);
 
     res.status(200).json({
       status: 'success',
@@ -25,6 +33,7 @@ exports.getNotifications = async (req, res, next) => {
       notifications
     });
   } catch (error) {
+    console.error('Error fetching notifications:', error);
     next(error);
   }
 };

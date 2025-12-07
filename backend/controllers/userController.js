@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 /**
  * User Controller
@@ -52,11 +53,32 @@ exports.getUserById = async (req, res, next) => {
 /**
  * @route   POST /api/users
  * @desc    Create new user
- * @access  Private (Admin)
+ * @access  Private (Admin/Manager with restrictions)
  */
 exports.createUser = async (req, res, next) => {
   try {
-    const { firstname, lastname, email, password, role } = req.body;
+    const { firstname, lastname, email, password, role, phone, department, team } = req.body;
+
+    // Vérifier les permissions selon le rôle de l'utilisateur connecté
+    const currentUserRole = req.user.role;
+    const requestedRole = role || 'employee';
+
+    // Règles de permissions:
+    // Admin peut créer: admin, manager, employee
+    // Manager peut créer: manager, employee
+    if (currentUserRole === 'manager') {
+      if (requestedRole === 'admin') {
+        return res.status(403).json({
+          status: 'error',
+          message: 'Les managers ne peuvent pas créer des admins'
+        });
+      }
+    } else if (currentUserRole !== 'admin') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Permission refusée. Seuls les admins et managers peuvent créer des utilisateurs'
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -68,18 +90,37 @@ exports.createUser = async (req, res, next) => {
     }
 
     // Create user
-    const user = await User.create({
+    const userData = {
       firstname,
       lastname,
       email,
       passwordHash: password, // Will be hashed by pre-save hook
-      role: role || 'employee'
-    });
+      role: requestedRole,
+      phone: phone || '',
+      department: department || 'Non assigné',
+      status: 'active',
+      profileImage: `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=1976d2&color=fff`
+    };
+    
+    // Only add team if it's a valid ObjectId
+    if (team && mongoose.Types.ObjectId.isValid(team)) {
+      userData.team = team;
+    }
+    
+    const user = await User.create(userData);
 
     res.status(201).json({
       status: 'success',
       message: 'User created successfully',
-      user
+      user: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+        team: user.team
+      }
     });
   } catch (error) {
     next(error);
@@ -438,6 +479,92 @@ exports.searchUsers = async (req, res, next) => {
       status: 'success',
       count: users.length,
       users
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/users/:id/profile
+ * @desc    Update user profile (own profile or admin/manager)
+ * @access  Private
+ */
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const currentUser = req.user;
+    
+    // Vérifier les permissions: l'utilisateur peut modifier son propre profil
+    // ou être admin/manager
+    if (userId !== currentUser._id.toString() && 
+        currentUser.role !== 'admin' && 
+        currentUser.role !== 'manager') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Vous ne pouvez modifier que votre propre profil'
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    // Champs modifiables
+    const { firstname, lastname, phone, department, position, 
+            address, city, postalCode, profileImageBase64 } = req.body;
+
+    // Mise à jour des champs
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (phone !== undefined) user.phone = phone;
+    if (department) user.department = department;
+    if (position !== undefined) user.position = position;
+    if (address !== undefined) user.address = address;
+    if (city !== undefined) user.city = city;
+    if (postalCode !== undefined) user.postalCode = postalCode;
+
+    // Gestion de l'image de profil (base64)
+    if (profileImageBase64) {
+      // On stocke directement le base64 dans profileImage
+      // Le frontend envoie déjà le format complet: data:image/png;base64,xxx
+      user.profileImage = profileImageBase64;
+    }
+
+    await user.save();
+
+    // Prepare user response without null values
+    const userResponse = {
+      _id: user._id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      active: user.active
+    };
+
+    // Only include non-null optional fields
+    if (user.phone) userResponse.phone = user.phone;
+    if (user.department) userResponse.department = user.department;
+    if (user.position) userResponse.position = user.position;
+    if (user.address) userResponse.address = user.address;
+    if (user.city) userResponse.city = user.city;
+    if (user.postalCode) userResponse.postalCode = user.postalCode;
+    if (user.profileImage) userResponse.profileImage = user.profileImage;
+    if (user.team) userResponse.team = user.team;
+    if (user.createdAt) userResponse.createdAt = user.createdAt;
+    if (user.updatedAt) userResponse.updatedAt = user.updatedAt;
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Profil mis à jour avec succès',
+      user: userResponse
     });
   } catch (error) {
     next(error);

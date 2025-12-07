@@ -11,6 +11,9 @@ const { groupValidation } = require('../middleware/validation');
 // Get all groups
 router.get('/', authenticate, groupController.getAllGroups);
 
+// Get or create department group for current user
+router.get('/department/my-group', authenticate, groupController.getDepartmentGroup);
+
 // Get group by ID
 router.get('/:id', authenticate, groupValidation.getById, groupController.getGroupById);
 

@@ -57,4 +57,48 @@ class AuthService {
       throw Exception('Failed to update FCM token: $e');
     }
   }
+
+  /// Register new user (public endpoint)
+  Future<Map<String, dynamic>> register({
+    required String firstname,
+    required String lastname,
+    required String email,
+    required String password,
+    required String phone,
+    required String position,
+    required String department,
+    required String address,
+    required String city,
+    required String postalCode,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final response = await _apiService.post('/auth/register', {
+        'firstname': firstname,
+        'lastname': lastname,
+        'email': email,
+        'password': password,
+        'phone': phone,
+        'position': position,
+        'department': department,
+        'address': address,
+        'city': city,
+        'postalCode': postalCode,
+        if (latitude != null) 'latitude': latitude,
+        if (longitude != null) 'longitude': longitude,
+      });
+
+      final data = _apiService.handleResponse(response);
+      
+      // Save token for automatic login after registration
+      if (data['token'] != null) {
+        await _apiService.setToken(data['token']);
+      }
+      
+      return data;
+    } catch (e) {
+      throw Exception('Registration failed: $e');
+    }
+  }
 }

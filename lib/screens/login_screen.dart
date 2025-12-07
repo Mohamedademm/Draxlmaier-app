@@ -4,6 +4,8 @@ import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../utils/app_localizations.dart';
+import '../widgets/draexlmaier_logo.dart';
+import '../services/google_auth_service.dart';
 
 /// Login screen for user authentication
 class LoginScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _googleAuthService = GoogleAuthService();
   bool _obscurePassword = true;
 
   @override
@@ -59,6 +62,62 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  /// Handle Google Sign In
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      // Show loading dialog
+      UiHelper.showLoadingDialog(context);
+
+      final result = await _googleAuthService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      // Hide loading dialog
+      UiHelper.hideLoadingDialog(context);
+
+      if (result != null && result['token'] != null) {
+        // Navigate to home screen
+        Navigator.pushReplacementNamed(context, Routes.home);
+      } else if (result == null) {
+        // User cancelled sign in
+        UiHelper.showSnackBar(
+          context,
+          'Connexion Google annulée',
+          isError: false,
+        );
+      } else {
+        UiHelper.showSnackBar(
+          context,
+          'Erreur: Token non reçu du serveur',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      
+      UiHelper.hideLoadingDialog(context);
+      
+      String errorMessage = e.toString();
+      
+      // Message plus clair selon l'erreur
+      if (errorMessage.contains('MissingPluginException')) {
+        errorMessage = 'Configuration Google Sign-In manquante.\n\nPour activer:\n'
+            '1. Créez un projet Google Cloud Console\n'
+            '2. Activez Google Sign-In API\n'
+            '3. Configurez OAuth 2.0\n\n'
+            'En attendant, utilisez email/mot de passe.';
+      } else if (errorMessage.contains('PlatformException')) {
+        errorMessage = 'Erreur de plateforme Google.\nUtilisez email/mot de passe.';
+      }
+      
+      UiHelper.showSnackBar(
+        context,
+        errorMessage,
+        isError: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,11 +131,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo
-                  const Icon(
-                    Icons.business,
-                    size: 80,
-                    color: Colors.blue,
+                  // Logo Dräxlmaier
+                  const DraexlmaierLogo(
+                    height: 120,
+                    showShadow: false,
                   ),
                   const SizedBox(height: 24),
                   
@@ -152,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return 'Please enter your password';
                       }
                       if (!ValidationHelper.isValidPassword(value)) {
-                        return 'Password must be at least 6 characters';
+                        return 'Le mot de passe doit contenir au moins 3 caractères';
                       }
                       return null;
                     },
@@ -184,6 +242,58 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                       );
                     },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Divider
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.grey[300])),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'OU',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey[300])),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Google Sign In button
+                  OutlinedButton.icon(
+                    onPressed: _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    icon: const Icon(Icons.g_mobiledata, size: 24, color: Colors.red),
+                    label: const Text(
+                      'Continuer avec Google',
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Registration link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Pas encore de compte ?',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/registration');
+                        },
+                        child: const Text(
+                          'S\'inscrire',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

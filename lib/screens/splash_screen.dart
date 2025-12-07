@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../utils/constants.dart';
+import '../utils/constants.dart' as routes_constants;
+import '../widgets/draexlmaier_logo.dart';
+import '../theme/draexlmaier_theme.dart';
+import '../constants/app_constants.dart';
 
 /// Splash screen - Initial screen that checks authentication
 class SplashScreen extends StatefulWidget {
@@ -32,42 +35,69 @@ class _SplashScreenState extends State<SplashScreen> {
     
     // Navigate to appropriate screen
     if (isAuthenticated) {
-      Navigator.pushReplacementNamed(context, Routes.home);
+      Navigator.pushReplacementNamed(context, routes_constants.Routes.home);
     } else {
-      Navigator.pushReplacementNamed(context, Routes.login);
+      Navigator.pushReplacementNamed(context, routes_constants.Routes.login);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App logo placeholder
-            const Icon(
-              Icons.business,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              AppConstants.appName,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppConstants.companyName,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(),
-          ],
+      backgroundColor: DraexlmaierTheme.primaryBlue,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              DraexlmaierTheme.primaryBlue,
+              DraexlmaierTheme.secondaryBlue,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo Draexlmaier avec animation
+              const DraexlmaierLogo(
+                height: AppConstants.logoSizeLarge,
+                isWhite: true,
+                animate: true,
+                showShadow: true,
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'DRAEXLMAIER',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 4,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Employee Management',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                      letterSpacing: 1,
+                    ),
+              ),
+              const SizedBox(height: 64),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Chargement...',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

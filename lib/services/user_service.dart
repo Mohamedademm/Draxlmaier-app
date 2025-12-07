@@ -121,4 +121,55 @@ class UserService {
       throw Exception('Failed to search users: $e');
     }
   }
+
+  /// Get pending users (Manager only)
+  Future<List<User>> getPendingUsers() async {
+    try {
+      final response = await _apiService.get('/users/pending');
+      final data = _apiService.handleResponse(response);
+      
+      final List<dynamic> usersJson = data['users'];
+      return usersJson.map((json) => User.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get pending users: $e');
+    }
+  }
+
+  /// Validate user registration (Manager only)
+  Future<User> validateUser(String userId, String matricule, String? team) async {
+    try {
+      final body = <String, dynamic>{
+        'matricule': matricule,
+      };
+      if (team != null) body['team'] = team;
+
+      final response = await _apiService.post('/users/$userId/validate', body);
+      final data = _apiService.handleResponse(response);
+      return User.fromJson(data['user']);
+    } catch (e) {
+      throw Exception('Failed to validate user: $e');
+    }
+  }
+
+  /// Reject user registration (Manager only)
+  Future<void> rejectUser(String userId, String reason) async {
+    try {
+      await _apiService.post('/users/$userId/reject', {
+        'reason': reason.isNotEmpty ? reason : 'Non précisée',
+      });
+    } catch (e) {
+      throw Exception('Failed to reject user: $e');
+    }
+  }
+
+  /// Update user profile (own profile)
+  Future<User> updateUserProfile(String userId, Map<String, dynamic> updates) async {
+    try {
+      final response = await _apiService.put('/users/$userId/profile', updates);
+      final data = _apiService.handleResponse(response);
+      return User.fromJson(data['user']);
+    } catch (e) {
+      throw Exception('Failed to update profile: $e');
+    }
+  }
 }

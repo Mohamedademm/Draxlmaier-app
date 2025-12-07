@@ -42,6 +42,9 @@ dependencies:
   json_annotation: ^4.9.0
   uuid: ^4.2.2
   
+  # Google Sign In
+  google_sign_in: ^6.2.1
+  
   # Internationalization
   flutter_localizations:
     sdk: flutter
@@ -56,13 +59,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
+  assets:
+    - assets/images/
+    - assets/icons/
 
   # fonts:
-  #   - family: Roboto
+  #   - family: Montserrat
   #     fonts:
-  #       - asset: assets/fonts/Roboto-Regular.ttf
-  #       - asset: assets/fonts/Roboto-Bold.ttf
+  #       - asset: assets/fonts/Montserrat-Regular.ttf
+  #       - asset: assets/fonts/Montserrat-Bold.ttf
   #         weight: 700

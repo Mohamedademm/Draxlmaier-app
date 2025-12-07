@@ -33,8 +33,14 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   }
 
   Future<void> _loadNotifications() async {
-    final notificationProvider = context.read<NotificationProvider>();
-    await notificationProvider.loadNotifications();
+    try {
+      final notificationProvider = context.read<NotificationProvider>();
+      print('Loading notifications...');
+      await notificationProvider.loadNotifications();
+      print('Notifications loaded: ${notificationProvider.notifications.length}');
+    } catch (e) {
+      print('Error loading notifications: $e');
+    }
   }
 
   @override
@@ -52,6 +58,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadNotifications,
+            tooltip: 'Rafraîchir',
+          ),
           if (authProvider.canManageUsers)
             IconButton(
               icon: const Icon(Icons.add),
