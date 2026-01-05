@@ -1,8 +1,21 @@
+import 'package:flutter/foundation.dart';
+
 /// API and network constants
 class ApiConstants {
   // Backend base URL - Update this with your actual backend URL
-  static const String baseUrl = 'http://localhost:3000/api';
-  static const String socketUrl = 'http://localhost:3000';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000/api';
+    }
+    return 'http://10.134.184.43:3000/api';
+  }
+
+  static String get socketUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000';
+    }
+    return 'http://10.134.184.43:3000';
+  }
   
   // Request timeout
   static const Duration timeout = Duration(seconds: 30);
@@ -26,8 +39,16 @@ class Routes {
   static const String map = '/map';
   static const String adminDashboard = '/admin-dashboard';
   static const String userManagement = '/user-management';
+  static const String departmentGroups = '/department-groups';
   static const String debugUserCreation = '/debug-user-creation';
   static const String editProfile = '/edit-profile';
+  static const String themeCustomization = '/theme-customization';
+  static const String matriculeManagement = '/matricule-management';
+  static const String pendingUsers = '/pending-users';
+  static const String managerObjectives = '/manager-objectives';
+  static const String settings = '/settings';
+  static const String matriculeRegistration = '/matricule-registration';
+  static const String pendingApproval = '/pending-approval';
 }
 
 /// App constants

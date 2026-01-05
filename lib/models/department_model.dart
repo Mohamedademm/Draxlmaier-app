@@ -12,9 +12,17 @@ class Department {
   final String name;
   final String? description;
   
-  @JsonKey(name: 'manager')
-  final User manager;
+  @JsonKey(name: 'manager', fromJson: _userFromJson)
+  final User? manager;
   
+  // Helper method to handle user field that can be String or Object
+  static User? _userFromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is String) return null; // Just an ID, can't create full object
+    if (json is Map<String, dynamic>) return User.fromJson(json);
+    return null;
+  }
+
   final String? location;
   final String? color;
   final int? budget;
@@ -41,7 +49,7 @@ class Department {
     required this.id,
     required this.name,
     this.description,
-    required this.manager,
+    this.manager,
     this.location,
     this.color,
     this.budget,
@@ -61,7 +69,7 @@ class Department {
 
   /// Check if user is the manager
   bool isManager(String userId) {
-    return manager.id == userId;
+    return manager?.id == userId;
   }
 
   /// Get display info
@@ -114,7 +122,7 @@ class Department {
 
   @override
   String toString() {
-    return 'Department(id: $id, name: $name, manager: ${manager.fullName}, employees: $employeeCount)';
+    return 'Department(id: $id, name: $name, manager: ${manager?.fullName ?? "No manager"}, employees: $employeeCount)';
   }
 
   @override

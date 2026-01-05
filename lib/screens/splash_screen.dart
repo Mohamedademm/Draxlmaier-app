@@ -35,7 +35,11 @@ class _SplashScreenState extends State<SplashScreen> {
     
     // Navigate to appropriate screen
     if (isAuthenticated) {
-      Navigator.pushReplacementNamed(context, routes_constants.Routes.home);
+      if (authProvider.isPending) {
+        Navigator.pushReplacementNamed(context, routes_constants.Routes.pendingApproval);
+      } else {
+        Navigator.pushReplacementNamed(context, routes_constants.Routes.home);
+      }
     } else {
       Navigator.pushReplacementNamed(context, routes_constants.Routes.login);
     }

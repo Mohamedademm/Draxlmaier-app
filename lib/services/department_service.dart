@@ -20,7 +20,15 @@ class DepartmentService {
       
       if (data['status'] == 'success') {
         final List<dynamic> depts = data['data'] ?? [];
-        return depts.map((json) => Department.fromJson(json)).toList();
+        return depts.map((json) {
+          try {
+            return Department.fromJson(json);
+          } catch (e) {
+            print('Error parsing department JSON: $json');
+            print('Error details: $e');
+            rethrow;
+          }
+        }).toList();
       }
       
       throw Exception('Failed to load departments: ${data['message']}');

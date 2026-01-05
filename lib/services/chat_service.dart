@@ -165,4 +165,38 @@ class ChatService {
       throw Exception('Failed to send group message: $e');
     }
   }
+
+  /// Get all department groups
+  /// Returns all department groups for admin, or user's department group for employees
+  Future<List<ChatGroup>> getDepartmentGroups() async {
+    try {
+      final response = await _apiService.get('/groups/department/all');
+      final data = _apiService.handleResponse(response);
+      
+      final List<dynamic> groupsJson = data['groups'];
+      return groupsJson.map((json) => ChatGroup.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Failed to get department groups: $e');
+    }
+  }
+
+  /// Create a department group
+  Future<ChatGroup> createDepartmentGroup({
+    required String name,
+    required String department,
+    String? description,
+  }) async {
+    try {
+      final response = await _apiService.post('/groups/department/create', {
+        'name': name,
+        'department': department,
+        'description': description,
+      });
+      
+      final data = _apiService.handleResponse(response);
+      return ChatGroup.fromJson(data['group']);
+    } catch (e) {
+      throw Exception('Failed to create department group: $e');
+    }
+  }
 }

@@ -80,6 +80,9 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Check if user status is pending
+  bool get isPending => _currentUser?.status == 'pending' || (_currentUser?.active == false);
+
   /// Check if user is authenticated on app start
   Future<bool> checkAuthentication() async {
     try {
@@ -109,6 +112,34 @@ class AuthProvider with ChangeNotifier {
       } catch (e) {
         debugPrint('Error refreshing user: $e');
       }
+    }
+  }
+
+  /// Register with matricule
+  Future<bool> registerWithMatricule({
+    required String matricule,
+    required String email,
+    required String password,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final data = await _authService.registerWithMatricule(
+        matricule: matricule,
+        email: email,
+        password: password,
+      );
+      _currentUser = User.fromJson(data['user']);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 }

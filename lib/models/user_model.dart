@@ -79,10 +79,79 @@ class User {
   bool get canManageUsers => isAdmin || isManager;
 
   /// Factory method to create User from JSON
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory User.fromJson(Map<String, dynamic> json) {
+    UserRole parseRole(dynamic roleData) {
+      if (roleData == null) return UserRole.employee;
+      
+      String? roleStr;
+      if (roleData is String) {
+        roleStr = roleData;
+      } else if (roleData is Map && roleData.containsKey('name')) {
+        roleStr = roleData['name'];
+      } else if (roleData is Map && roleData.containsKey('role')) {
+        roleStr = roleData['role'];
+      }
+
+      if (roleStr == null) return UserRole.employee;
+
+      switch (roleStr.toLowerCase()) {
+        case 'admin':
+          return UserRole.admin;
+        case 'manager':
+          return UserRole.manager;
+        case 'employee':
+          return UserRole.employee;
+        default:
+          return UserRole.employee;
+      }
+    }
+
+    return User(
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      firstname: (json['firstname'] ?? json['first_name'] ?? '').toString(),
+      lastname: (json['lastname'] ?? json['last_name'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      role: parseRole(json['role']),
+      active: json['active'] == true || json['active'] == null,
+      fcmToken: json['fcmToken']?.toString(),
+      phone: json['phone']?.toString(),
+      position: json['position']?.toString(),
+      department: json['department']?.toString(),
+      address: json['address']?.toString(),
+      city: json['city']?.toString(),
+      postalCode: json['postalCode']?.toString(),
+      latitude: json['latitude'] is num ? (json['latitude'] as num).toDouble() : null,
+      longitude: json['longitude'] is num ? (json['longitude'] as num).toDouble() : null,
+      status: json['status']?.toString(),
+      profileImage: json['profileImage']?.toString(),
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'].toString()) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'].toString()) : null,
+    );
+  }
 
   /// Method to convert User to JSON
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'firstname': firstname,
+      'lastname': lastname,
+      'email': email,
+      'role': role.name,
+      'active': active,
+      'phone': phone,
+      'position': position,
+      'department': department,
+      'address': address,
+      'city': city,
+      'postalCode': postalCode,
+      'latitude': latitude,
+      'longitude': longitude,
+      'status': status,
+      'profileImage': profileImage,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
 
   /// Copy method for immutable updates
   User copyWith({

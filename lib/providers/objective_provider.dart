@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../models/objective_model.dart';
 import '../services/objective_service.dart';
@@ -246,6 +247,110 @@ class ObjectiveProvider with ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Ajouter une pièce jointe
+  Future<bool> uploadAttachment({
+    required String id,
+    required File file,
+  }) async {
+    try {
+      _error = null;
+      notifyListeners(); // Optional: show loading state if needed
+
+      final updatedObjective = await _objectiveService.uploadAttachment(
+        id: id,
+        file: file,
+      );
+
+      // Mettre à jour dans la liste
+      final index = _objectives.indexWhere((o) => o.id == id);
+      if (index != -1) {
+        _objectives[index] = updatedObjective;
+      }
+
+      if (_selectedObjective?.id == id) {
+        _selectedObjective = updatedObjective;
+      }
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Ajouter une sous-tâche
+  Future<bool> addSubTask({
+    required String id,
+    required String title,
+  }) async {
+    try {
+      _error = null;
+      final updatedObjective = await _objectiveService.addSubTask(
+        id: id,
+        title: title,
+      );
+      _updateObjectiveInLists(updatedObjective);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Basculer l'état d'une sous-tâche
+  Future<bool> toggleSubTask({
+    required String objectiveId,
+    required String subTaskId,
+  }) async {
+    try {
+      _error = null;
+      final updatedObjective = await _objectiveService.toggleSubTask(
+        objectiveId: objectiveId,
+        subTaskId: subTaskId,
+      );
+      _updateObjectiveInLists(updatedObjective);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Supprimer une sous-tâche
+  Future<bool> deleteSubTask({
+    required String objectiveId,
+    required String subTaskId,
+  }) async {
+    try {
+      _error = null;
+      final updatedObjective = await _objectiveService.deleteSubTask(
+        objectiveId: objectiveId,
+        subTaskId: subTaskId,
+      );
+      _updateObjectiveInLists(updatedObjective);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  void _updateObjectiveInLists(Objective updatedObjective) {
+    final index = _objectives.indexWhere((o) => o.id == updatedObjective.id);
+    if (index != -1) {
+      _objectives[index] = updatedObjective;
+    }
+    if (_selectedObjective?.id == updatedObjective.id) {
+      _selectedObjective = updatedObjective;
+    }
+    notifyListeners();
   }
 
   /// Mettre à jour un objectif (manager)

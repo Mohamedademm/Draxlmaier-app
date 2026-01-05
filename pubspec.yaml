@@ -45,9 +45,20 @@ dependencies:
   # Google Sign In
   google_sign_in: ^6.2.1
   
+  # Color Picker
+  flutter_colorpicker: ^1.0.3
+  
+  # Image Picker
+  image_picker: ^1.0.7
+  
   # Internationalization
   flutter_localizations:
     sdk: flutter
+  google_fonts: ^6.3.0
+  fl_chart: ^0.68.0
+  file_picker: ^10.3.7
+  http_parser: ^4.0.2
+  table_calendar: ^3.1.0
 
 dev_dependencies:
   flutter_test:

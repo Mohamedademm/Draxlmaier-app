@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/objective_model.dart';
 import '../utils/constants.dart';
@@ -147,7 +148,7 @@ class ObjectiveService {
 
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
-        return Objective.fromJson(data['objective']);
+        return Objective.fromJson(data['data']);
       } else {
         final error = json.decode(response.body);
         throw Exception(error['message'] ?? 'Erreur lors de la création de l\'objectif');
@@ -323,6 +324,121 @@ class ObjectiveService {
       };
 
       return stats;
+    } catch (e) {
+      throw Exception('Erreur: $e');
+    }
+  }
+  /// Ajouter une pièce jointe
+  Future<Objective> uploadAttachment({
+    required String id,
+    required File file,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      // Remove Content-Type from headers as MultipartRequest sets it automatically
+      headers.remove('Content-Type');
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/$id/attachments'),
+      );
+
+      request.headers.addAll(headers);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          file.path,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Objective.fromJson(data['objective']);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Erreur lors de l\'upload du fichier');
+      }
+    } catch (e) {
+      throw Exception('Erreur: $e');
+    }
+  }
+
+  /// Ajouter une sous-tâche
+  Future<Objective> addSubTask({
+    required String id,
+    required String title,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final body = json.encode({
+        'title': title,
+      });
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/$id/subtasks'),
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Objective.fromJson(data['objective']);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Erreur lors de l\'ajout de la sous-tâche');
+      }
+    } catch (e) {
+      throw Exception('Erreur: $e');
+    }
+  }
+
+  /// Basculer l'état d'une sous-tâche
+  Future<Objective> toggleSubTask({
+    required String objectiveId,
+    required String subTaskId,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl/$objectiveId/subtasks/$subTaskId/toggle'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Objective.fromJson(data['objective']);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Erreur lors de la mise à jour de la sous-tâche');
+      }
+    } catch (e) {
+      throw Exception('Erreur: $e');
+    }
+  }
+
+  /// Supprimer une sous-tâche
+  Future<Objective> deleteSubTask({
+    required String objectiveId,
+    required String subTaskId,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$objectiveId/subtasks/$subTaskId'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Objective.fromJson(data['objective']);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Erreur lors de la suppression de la sous-tâche');
+      }
     } catch (e) {
       throw Exception('Erreur: $e');
     }

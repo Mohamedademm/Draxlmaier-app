@@ -67,10 +67,15 @@ class TeamProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.wait([
-        loadTeams(isActive: true),
-        loadDepartments(isActive: true),
+      // Load both in parallel without triggering individual loading states
+      final results = await Future.wait([
+        _teamService.getTeams(isActive: true),
+        _departmentService.getDepartments(isActive: true),
       ]);
+      
+      _teams = results[0] as List<Team>;
+      _departments = results[1] as List<Department>;
+      _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Failed to load data: ${e.toString()}';
       print('Error loading all data: $e');

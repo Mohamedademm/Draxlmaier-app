@@ -15,6 +15,9 @@ class NotificationModel {
   final List<String> readBy;
   final DateTime timestamp;
   
+  // Alias for compatibility
+  DateTime get createdAt => timestamp;
+  
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? senderName;
 
@@ -42,8 +45,43 @@ class NotificationModel {
   int get unreadCount => targetUsers.length - readBy.length;
 
   /// Factory method to create NotificationModel from JSON
-  factory NotificationModel.fromJson(Map<String, dynamic> json) => 
-      _$NotificationModelFromJson(json);
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    String senderId = '';
+    String? senderName;
+
+    final senderData = json['senderId'];
+    if (senderData is String) {
+      senderId = senderData;
+    } else if (senderData is Map<String, dynamic>) {
+      senderId = senderData['_id'] ?? senderData['id'] ?? '';
+      final first = senderData['firstname'] ?? '';
+      final last = senderData['lastname'] ?? '';
+      if (first.isNotEmpty || last.isNotEmpty) {
+        senderName = '$first $last'.trim();
+      }
+    }
+
+    return NotificationModel(
+      id: json['_id'] ?? json['id'] ?? '',
+      title: json['title'] ?? '',
+      message: json['message'] ?? '',
+      senderId: senderId,
+      senderName: senderName,
+      targetUsers: (json['targetUsers'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      readBy: (json['readBy'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'])
+          : (json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'])
+              : DateTime.now()),
+    );
+  }
 
   /// Method to convert NotificationModel to JSON
   Map<String, dynamic> toJson() => _$NotificationModelToJson(this);

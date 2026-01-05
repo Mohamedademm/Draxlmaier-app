@@ -7,6 +7,8 @@ import '../widgets/objective_card.dart';
 import '../theme/draexlmaier_theme.dart';
 import '../constants/app_constants.dart';
 import 'objective_detail_screen.dart';
+import '../widgets/skeleton_loader.dart';
+import '../utils/animations.dart';
 
 /// Écran des objectifs pour les employés
 class ObjectivesScreen extends StatefulWidget {
@@ -19,7 +21,9 @@ class ObjectivesScreen extends StatefulWidget {
 class _ObjectivesScreenState extends State<ObjectivesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
   String? _selectedPriority;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -31,6 +35,7 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -50,7 +55,16 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
       body: Consumer<ObjectiveProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.objectives.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: const [
+                  SkeletonStatCard(),
+                  SizedBox(height: 16),
+                  SkeletonList(itemCount: 6, itemHeight: 100),
+                ],
+              ),
+            );
           }
 
           if (provider.error != null) {
@@ -82,55 +96,55 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
             );
           }
 
-          return RefreshIndicator(
-            onRefresh: _loadObjectives,
-            child: Column(
-              children: [
-                // Statistiques en haut
-                _buildStatsSection(provider),
+          return Column(
+            children: [
+              // Statistiques en haut
+              _buildStatsSection(provider),
 
-                // Filtre par priorité
-                _buildPriorityFilter(),
+              // Barre de recherche
+              _buildSearchBar(),
 
-                // Onglets
-                Container(
-                  color: Colors.white,
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: DraexlmaierTheme.primaryBlue,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: DraexlmaierTheme.primaryBlue,
-                    tabs: [
-                      Tab(
-                        text: 'Tous (${provider.objectives.length})',
-                      ),
-                      Tab(
-                        text: 'En cours (${provider.inProgressObjectives.length})',
-                      ),
-                      Tab(
-                        text: 'À faire (${provider.todoObjectives.length})',
-                      ),
-                      Tab(
-                        text: 'Terminés (${provider.completedObjectives.length})',
-                      ),
-                    ],
-                  ),
+              // Filtre par priorité
+              _buildPriorityFilter(),
+
+              // Onglets
+              Container(
+                color: Colors.white,
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: DraexlmaierTheme.primaryBlue,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: DraexlmaierTheme.primaryBlue,
+                  tabs: [
+                    Tab(
+                      text: 'Tous (${provider.objectives.length})',
+                    ),
+                    Tab(
+                      text: 'En cours (${provider.inProgressObjectives.length})',
+                    ),
+                    Tab(
+                      text: 'À faire (${provider.todoObjectives.length})',
+                    ),
+                    Tab(
+                      text: 'Terminés (${provider.completedObjectives.length})',
+                    ),
+                  ],
                 ),
+              ),
 
-                // Liste des objectifs
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildObjectivesList(provider.objectives),
-                      _buildObjectivesList(provider.inProgressObjectives),
-                      _buildObjectivesList(provider.todoObjectives),
-                      _buildObjectivesList(provider.completedObjectives),
-                    ],
-                  ),
+              // Liste des objectifs
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildObjectivesList(_filterList(provider.objectives)),
+                    _buildObjectivesList(_filterList(provider.inProgressObjectives)),
+                    _buildObjectivesList(_filterList(provider.todoObjectives)),
+                    _buildObjectivesList(_filterList(provider.completedObjectives)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
@@ -262,45 +276,104 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
 
   Widget _buildObjectivesList(List<Objective> objectives) {
     if (objectives.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.assignment_outlined,
-              size: 80,
-              color: Colors.grey[300],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Aucun objectif',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.grey[400],
+      return RefreshIndicator(
+        onRefresh: _loadObjectives,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.assignment_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
                   ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Vous n\'avez pas d\'objectifs dans cette catégorie',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[400],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Aucun objectif',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.grey[400],
+                        ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Vous n\'avez pas d\'objectifs dans cette catégorie',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[400],
+                        ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingSmall),
-      itemCount: objectives.length,
-      itemBuilder: (context, index) {
-        final objective = objectives[index];
-        return ObjectiveCard(
-          objective: objective,
-          onTap: () => _navigateToDetail(objective),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: _loadObjectives,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingSmall),
+        itemCount: objectives.length,
+        itemBuilder: (context, index) {
+          final objective = objectives[index];
+          return AppAnimations.staggeredList(
+            index: index,
+            child: ObjectiveCard(
+              objective: objective,
+              onTap: () => _navigateToDetail(objective),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Rechercher...',
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  onPressed: () {
+                    setState(() {
+                      _searchController.clear();
+                      _searchQuery = '';
+                    });
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+        ),
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+      ),
+    );
+  }
+
+  List<Objective> _filterList(List<Objective> list) {
+    if (_searchQuery.isEmpty) return list;
+    return list.where((obj) => 
+      obj.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      obj.description.toLowerCase().contains(_searchQuery.toLowerCase())
+    ).toList();
   }
 
   void _navigateToDetail(Objective objective) {

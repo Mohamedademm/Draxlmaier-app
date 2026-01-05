@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:html' as html;
+import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart';
 import '../theme/draexlmaier_theme.dart';
@@ -94,21 +97,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final input = html.FileUploadInputElement()..accept = 'image/*';
-    input.click();
-
-    input.onChange.listen((event) async {
-      final file = input.files?.first;
-      if (file != null) {
-        final reader = html.FileReader();
-        reader.readAsDataUrl(file);
-        reader.onLoadEnd.listen((event) {
-          setState(() {
-            _profileImageBase64 = reader.result as String;
-          });
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        final base64String = base64Encode(bytes);
+        
+        // Determine mime type from extension or default to jpeg
+        String mimeType = 'image/jpeg';
+        if (image.name.toLowerCase().endsWith('.png')) {
+          mimeType = 'image/png';
+        }
+        
+        setState(() {
+          _profileImageBase64 = 'data:$mimeType;base64,$base64String';
         });
       }
-    });
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
   }
 
   Future<void> _saveProfile() async {

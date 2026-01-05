@@ -60,6 +60,7 @@ class AuthService {
 
   /// Register new user (public endpoint)
   Future<Map<String, dynamic>> register({
+    String? matricule,
     required String firstname,
     required String lastname,
     required String email,
@@ -75,6 +76,7 @@ class AuthService {
   }) async {
     try {
       final response = await _apiService.post('/auth/register', {
+        if (matricule != null) 'matricule': matricule,
         'firstname': firstname,
         'lastname': lastname,
         'email': email,
@@ -99,6 +101,31 @@ class AuthService {
       return data;
     } catch (e) {
       throw Exception('Registration failed: $e');
+    }
+  }
+
+  /// Register with matricule
+  Future<Map<String, dynamic>> registerWithMatricule({
+    required String matricule,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _apiService.post('/auth/register-with-matricule', {
+        'matricule': matricule,
+        'email': email,
+        'password': password,
+      });
+
+      final data = _apiService.handleResponse(response);
+      
+      if (data['token'] != null) {
+        await _apiService.setToken(data['token']);
+      }
+      
+      return data;
+    } catch (e) {
+      throw Exception('Registration with matricule failed: $e');
     }
   }
 }

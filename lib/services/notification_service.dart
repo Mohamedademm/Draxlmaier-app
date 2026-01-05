@@ -45,17 +45,31 @@ class NotificationService {
     }
   }
 
+  /// Mark all notifications as read
+  Future<void> markAllAsRead(String userId) async {
+    try {
+      final response = await _apiService.put('/notifications/mark-all-read', {});
+      // Note: Assuming the API returns 200 OK on success
+    } catch (e) {
+      throw Exception('Failed to mark all as read: $e');
+    }
+  }
+
   /// Create and send notification (Admin/Manager only)
   Future<void> sendNotification({
     required String title,
     required String message,
-    required List<String> targetUserIds,
+    List<String>? targetUserIds,
+    String? targetDepartment,
+    bool sendToAll = false,
   }) async {
     try {
       await _apiService.post('/notifications/send', {
         'title': title,
         'message': message,
-        'targetUsers': targetUserIds,
+        'targetUsers': targetUserIds ?? [],
+        'targetDepartment': targetDepartment,
+        'sendToAll': sendToAll,
       });
     } catch (e) {
       throw Exception('Failed to send notification: $e');

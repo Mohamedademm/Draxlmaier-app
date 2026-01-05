@@ -96,19 +96,37 @@ class ApiService {
 
   /// Handle API response
   Map<String, dynamic> handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json.decode(response.body);
-    } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized - Please login again');
-    } else if (response.statusCode == 403) {
-      throw Exception('Forbidden - You do not have permission');
-    } else if (response.statusCode == 404) {
-      throw Exception('Not found');
-    } else if (response.statusCode >= 500) {
-      throw Exception('Server error - Please try again later');
-    } else {
-      final body = json.decode(response.body);
-      throw Exception(body['message'] ?? 'Request failed');
+    try {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return json.decode(response.body);
+      }
+      
+      // Try to parse error message from response body
+      String errorMessage = 'Request failed';
+      try {
+        final body = json.decode(response.body);
+        errorMessage = body['message'] ?? body['error'] ?? errorMessage;
+      } catch (e) {
+        // If body parsing fails, use default messages
+      }
+      
+      // Handle specific status codes
+      if (response.statusCode == 401) {
+        throw Exception('Session expirée - Veuillez vous reconnecter');
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé - Permissions insuffisantes');
+      } else if (response.statusCode == 404) {
+        throw Exception('Ressource introuvable');
+      } else if (response.statusCode == 400) {
+        throw Exception('Requête invalide: $errorMessage');
+      } else if (response.statusCode >= 500) {
+        throw Exception('Erreur serveur - Veuillez réessayer plus tard');
+      } else {
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Erreur de traitement de la réponse: $e');
     }
   }
 }

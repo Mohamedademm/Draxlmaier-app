@@ -72,17 +72,42 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
+  /// Mark all notifications as read
+  Future<void> markAllAsRead(String userId) async {
+    try {
+      await _notificationService.markAllAsRead(userId);
+      
+      // Update local state
+      for (var i = 0; i < _notifications.length; i++) {
+        if (!_notifications[i].readBy.contains(userId)) {
+          final updatedReadBy = [..._notifications[i].readBy, userId];
+          _notifications[i] = _notifications[i].copyWith(readBy: updatedReadBy);
+        }
+      }
+      
+      await _updateUnreadCount();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+    }
+  }
+
   /// Send notification (Admin/Manager only)
   Future<bool> sendNotification({
     required String title,
     required String message,
-    required List<String> targetUserIds,
+    List<String>? targetUserIds,
+    String? targetDepartment,
+    bool sendToAll = false,
   }) async {
     try {
       await _notificationService.sendNotification(
         title: title,
         message: message,
         targetUserIds: targetUserIds,
+        targetDepartment: targetDepartment,
+        sendToAll: sendToAll,
       );
       return true;
     } catch (e) {

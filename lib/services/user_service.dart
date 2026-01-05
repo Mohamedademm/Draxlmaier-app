@@ -136,11 +136,10 @@ class UserService {
   }
 
   /// Validate user registration (Manager only)
-  Future<User> validateUser(String userId, String matricule, String? team) async {
+  Future<User> validateUser(String userId, String? matricule, String? team) async {
     try {
-      final body = <String, dynamic>{
-        'matricule': matricule,
-      };
+      final body = <String, dynamic>{};
+      if (matricule != null) body['matricule'] = matricule;
       if (team != null) body['team'] = team;
 
       final response = await _apiService.post('/users/$userId/validate', body);

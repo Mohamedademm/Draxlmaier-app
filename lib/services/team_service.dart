@@ -23,7 +23,15 @@ class TeamService {
       
       if (data['status'] == 'success') {
         final List<dynamic> teams = data['data'] ?? [];
-        return teams.map((json) => Team.fromJson(json)).toList();
+        return teams.map((json) {
+          try {
+            return Team.fromJson(json);
+          } catch (e) {
+            print('Error parsing team JSON: $json');
+            print('Error details: $e');
+            rethrow;
+          }
+        }).toList();
       }
       
       throw Exception('Failed to load teams: ${data['message']}');

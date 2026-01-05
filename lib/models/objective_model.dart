@@ -17,6 +17,7 @@ class Objective {
   final DateTime? completedAt;
   final List<ObjectiveComment> comments;
   final List<FileAttachment> files;
+  final List<SubTask> subTasks;
   final List<String> links;
   final String? notes;
   final String? blockReason;
@@ -39,6 +40,7 @@ class Objective {
     this.completedAt,
     this.comments = const [],
     this.files = const [],
+    this.subTasks = const [],
     this.links = const [],
     this.notes,
     this.blockReason,
@@ -47,35 +49,82 @@ class Objective {
   });
 
   factory Objective.fromJson(Map<String, dynamic> json) {
+    // Helper to safely parse User
+    User parseUser(dynamic userJson) {
+      if (userJson == null) {
+        return User(
+          id: '',
+          firstname: 'Utilisateur',
+          lastname: 'Inconnu',
+          email: '',
+          role: UserRole.employee,
+          active: false,
+        );
+      }
+      if (userJson is String) {
+        return User(
+          id: userJson,
+          firstname: 'Utilisateur',
+          lastname: 'Inconnu',
+          email: '',
+          role: UserRole.employee,
+          active: false,
+        );
+      }
+      if (userJson is Map<String, dynamic>) {
+        return User.fromJson(userJson);
+      }
+      return User(
+        id: '',
+        firstname: 'Utilisateur',
+        lastname: 'Inconnu',
+        email: '',
+        role: UserRole.employee,
+        active: false,
+      );
+    }
+
+    DateTime parseDate(dynamic dateJson) {
+      if (dateJson == null) return DateTime.now();
+      try {
+        return DateTime.parse(dateJson.toString());
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+
     return Objective(
-      id: json['_id'] ?? json['id'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      assignedTo: User.fromJson(json['assignedTo'] ?? {}),
-      assignedBy: User.fromJson(json['assignedBy'] ?? {}),
-      teamId: json['team'],
-      departmentId: json['department'],
-      status: ObjectiveStatus.fromString(json['status'] ?? 'todo'),
-      priority: ObjectivePriority.fromString(json['priority'] ?? 'medium'),
-      progress: json['progress'] ?? 0,
-      startDate: DateTime.parse(json['startDate']),
-      dueDate: DateTime.parse(json['dueDate']),
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      title: (json['title'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+      assignedTo: parseUser(json['assignedTo']),
+      assignedBy: parseUser(json['assignedBy']),
+      teamId: json['team']?.toString(),
+      departmentId: json['department']?.toString(),
+      status: ObjectiveStatus.fromString((json['status'] ?? 'todo').toString()),
+      priority: ObjectivePriority.fromString((json['priority'] ?? 'medium').toString()),
+      progress: json['progress'] is num ? (json['progress'] as num).toInt() : 0,
+      startDate: parseDate(json['startDate']),
+      dueDate: parseDate(json['dueDate']),
       completedAt: json['completedAt'] != null 
-          ? DateTime.parse(json['completedAt']) 
+          ? DateTime.tryParse(json['completedAt'].toString()) 
           : null,
       comments: (json['comments'] as List<dynamic>?)
-          ?.map((c) => ObjectiveComment.fromJson(c))
+          ?.map((c) => ObjectiveComment.fromJson(c is Map<String, dynamic> ? c : {}))
           .toList() ?? [],
       files: (json['files'] as List<dynamic>?)
-          ?.map((f) => FileAttachment.fromJson(f))
+          ?.map((f) => FileAttachment.fromJson(f is Map<String, dynamic> ? f : {}))
+          .toList() ?? [],
+      subTasks: (json['subTasks'] as List<dynamic>?)
+          ?.map((s) => SubTask.fromJson(s is Map<String, dynamic> ? s : {}))
           .toList() ?? [],
       links: (json['links'] as List<dynamic>?)
           ?.map((l) => l.toString())
           .toList() ?? [],
-      notes: json['notes'],
-      blockReason: json['blockReason'],
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      notes: json['notes']?.toString(),
+      blockReason: json['blockReason']?.toString(),
+      createdAt: parseDate(json['createdAt']),
+      updatedAt: parseDate(json['updatedAt']),
     );
   }
 
@@ -111,6 +160,7 @@ class Objective {
     DateTime? completedAt,
     List<ObjectiveComment>? comments,
     List<FileAttachment>? files,
+    List<SubTask>? subTasks,
     List<String>? links,
     String? notes,
     String? blockReason,
@@ -131,6 +181,7 @@ class Objective {
       completedAt: completedAt ?? this.completedAt,
       comments: comments ?? this.comments,
       files: files ?? this.files,
+      subTasks: subTasks ?? this.subTasks,
       links: links ?? this.links,
       notes: notes ?? this.notes,
       blockReason: blockReason ?? this.blockReason,
@@ -259,5 +310,44 @@ class FileAttachment {
     if (size < 1024) return '$size B';
     if (size < 1024 * 1024) return '${(size / 1024).toStringAsFixed(1)} KB';
     return '${(size / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+}
+
+/// Sous-tâche d'un objectif
+class SubTask {
+  final String id;
+  final String title;
+  final bool isCompleted;
+
+  SubTask({
+    required this.id,
+    required this.title,
+    this.isCompleted = false,
+  });
+
+  factory SubTask.fromJson(Map<String, dynamic> json) {
+    return SubTask(
+      id: json['_id'] ?? json['id'] ?? '',
+      title: json['title'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'isCompleted': isCompleted,
+    };
+  }
+
+  SubTask copyWith({
+    String? title,
+    bool? isCompleted,
+  }) {
+    return SubTask(
+      id: id,
+      title: title ?? this.title,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
   }
 }
