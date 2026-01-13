@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
@@ -7,7 +8,7 @@ import '../utils/app_localizations.dart';
 import '../widgets/draexlmaier_logo.dart';
 import '../services/google_auth_service.dart';
 
-/// Login screen for user authentication
+/// Modern Login screen with animations and turquoise theme
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,15 +16,36 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _googleAuthService = GoogleAuthService();
   bool _obscurePassword = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
+    _animationController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -50,14 +72,14 @@ class _LoginScreenState extends State<LoginScreen> {
     UiHelper.hideLoadingDialog(context);
     
     if (success) {
-      // Navigate to home screen
-      Navigator.pushReplacementNamed(context, Routes.home);
+      // Navigate to main screen
+      Navigator.of(context).pushReplacementNamed('/main');
     } else {
-      // Show error message
-      UiHelper.showSnackBar(
+      // Show error
+      UiHelper.showErrorDialog(
         context,
-        authProvider.errorMessage ?? ErrorMessages.invalidCredentials,
-        isError: true,
+        AppLocalizations.of(context).translate('error_login_failed'),
+        authProvider.errorMessage ?? AppLocalizations.of(context).translate('error_login_failed'),
       );
     }
   }
@@ -65,237 +87,444 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Handle Google Sign In
   Future<void> _handleGoogleSignIn() async {
     try {
-      // Show loading dialog
       UiHelper.showLoadingDialog(context);
-
+      
       final result = await _googleAuthService.signInWithGoogle();
-
+      
       if (!mounted) return;
-
-      // Hide loading dialog
       UiHelper.hideLoadingDialog(context);
-
+      
       if (result != null && result['token'] != null) {
-        // Navigate to home screen
-        Navigator.pushReplacementNamed(context, Routes.home);
-      } else if (result == null) {
-        // User cancelled sign in
-        UiHelper.showSnackBar(
-          context,
-          'Connexion Google annulée',
-          isError: false,
-        );
+        // Save token and navigate
+        final authProvider = context.read<AuthProvider>();
+        await authProvider.saveGoogleToken(result['token'], result['user']);
+        
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/main');
+        }
       } else {
-        UiHelper.showSnackBar(
-          context,
-          'Erreur: Token non reçu du serveur',
-          isError: true,
-        );
+        if (mounted) {
+          UiHelper.showErrorDialog(
+            context,
+            'Erreur',
+            'La connexion avec Google a été annulée',
+          );
+        }
       }
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      UiHelper.hideLoadingDialog(context);
+      
+      String errorMessage = 'Erreur lors de la connexion avec Google';
+      if (e.code == 'sign_in_failed') {
+        errorMessage = 'Échec de la connexion. Veuillez réessayer.';
+      } else if (e.code == 'network_error') {
+        errorMessage = 'Erreur réseau. Vérifiez votre connexion internet.';
+      }
+      
+      UiHelper.showErrorDialog(context, 'Erreur', errorMessage);
     } catch (e) {
       if (!mounted) return;
-      
       UiHelper.hideLoadingDialog(context);
       
-      String errorMessage = e.toString();
-      
-      // Message plus clair selon l'erreur
-      if (errorMessage.contains('MissingPluginException')) {
-        errorMessage = 'Configuration Google Sign-In manquante.\n\nPour activer:\n'
-            '1. Créez un projet Google Cloud Console\n'
-            '2. Activez Google Sign-In API\n'
-            '3. Configurez OAuth 2.0\n\n'
-            'En attendant, utilisez email/mot de passe.';
-      } else if (errorMessage.contains('PlatformException')) {
-        errorMessage = 'Erreur de plateforme Google.\nUtilisez email/mot de passe.';
-      }
-      
-      UiHelper.showSnackBar(
+      UiHelper.showErrorDialog(
         context,
-        errorMessage,
-        isError: true,
+        'Erreur',
+        'Une erreur inattendue s\'est produite: ${e.toString()}',
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Logo Dräxlmaier
-                  const DraexlmaierLogo(
-                    height: 120,
-                    showShadow: false,
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Title
-                  Builder(
-                    builder: (context) {
-                      final localizations = AppLocalizations.of(context)!;
-                      return Column(
-                        children: [
-                          Text(
-                            localizations.translate('welcome'),
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            localizations.translate('sign_in_to_continue'),
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 48),
-                  
-                  // Email field
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!ValidationHelper.isValidEmail(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Password field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (!ValidationHelper.isValidPassword(value)) {
-                        return 'Le mot de passe doit contenir au moins 3 caractères';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  // Login button
-                  Consumer<AuthProvider>(
-                    builder: (context, authProvider, _) {
-                      return ElevatedButton(
-                        onPressed: authProvider.isLoading ? null : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: authProvider.isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                              )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Divider
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.grey[300])),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'OU',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: Colors.grey[300])),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Google Sign In button
-                  OutlinedButton.icon(
-                    onPressed: _handleGoogleSignIn,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    icon: const Icon(Icons.g_mobiledata, size: 24, color: Colors.red),
-                    label: const Text(
-                      'Continuer avec Google',
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Registration link
-                  Row(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFF0EA5E9),
+              const Color(0xFF06B6D4),
+              const Color(0xFF0891B2),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Pas encore de compte ?',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/registration');
+                      // Draxlmaier Logo with animation
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeOutBack,
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Opacity(
+                              opacity: value,
+                              child: child,
+                            ),
+                          );
                         },
-                        child: const Text(
-                          'S\'inscrire',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 30,
+                                spreadRadius: 5,
+                                offset: const Offset(0, 10),
+                              ),
+                              BoxShadow(
+                                color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                blurRadius: 40,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 15),
+                              ),
+                            ],
+                          ),
+                          child: const DraexlmaierLogo(size: 90),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Welcome Text
+                      Text(
+                        'Bienvenue',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Connectez-vous à votre compte',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                      
+                      // Login Card
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 400),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 60,
+                              offset: const Offset(0, 20),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(32),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Email Field
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      const Color(0xFF0EA5E9).withOpacity(0.1),
+                                      const Color(0xFF06B6D4).withOpacity(0.05),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'votre.email@draxlmaier.com',
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.email, color: Colors.white, size: 20),
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Veuillez entrer votre email';
+                                    }
+                                    if (!value.contains('@')) {
+                                      return 'Email invalide';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Password Field
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      const Color(0xFF0EA5E9).withOpacity(0.1),
+                                      const Color(0xFF06B6D4).withOpacity(0.05),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  decoration: InputDecoration(
+                                    labelText: 'Mot de passe',
+                                    hintText: '••••••••',
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.lock, color: Colors.white, size: 20),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                        color: const Color(0xFF0EA5E9),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Veuillez entrer votre mot de passe';
+                                    }
+                                    if (value.length < 6) {
+                                      return 'Minimum 6 caractères';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              // Forgot Password
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    // TODO: Implement forgot password
+                                  },
+                                  child: const Text(
+                                    'Mot de passe oublié ?',
+                                    style: TextStyle(
+                                      color: Color(0xFF0EA5E9),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              // Login Button
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.95, end: 1.0),
+                                duration: const Duration(milliseconds: 600),
+                                curve: Curves.easeOutBack,
+                                builder: (context, value, child) {
+                                  return Transform.scale(
+                                    scale: value,
+                                    child: child,
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF0EA5E9), Color(0xFF0891B2)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF0EA5E9).withOpacity(0.4),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: _handleLogin,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      padding: const EdgeInsets.symmetric(vertical: 18),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Se connecter',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              // Divider
+                              Row(
+                                children: [
+                                  Expanded(child: Divider(color: Colors.grey.shade300)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text(
+                                      'OU',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(child: Divider(color: Colors.grey.shade300)),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              // Google Sign In Icon Button
+                              Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: IconButton(
+                                    onPressed: _handleGoogleSignIn,
+                                    icon: Image.asset(
+                                      'assets/icons/google_icon.png',
+                                      width: 32,
+                                      height: 32,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Icon(Icons.g_mobiledata, size: 40, color: Colors.red);
+                                      },
+                                    ),
+                                    iconSize: 56,
+                                    padding: const EdgeInsets.all(12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              // Register Button
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed('/register');
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.person_add,
+                                        color: Color(0xFF0EA5E9),
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Inscription',
+                                        style: TextStyle(
+                                          color: Color(0xFF0EA5E9),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
