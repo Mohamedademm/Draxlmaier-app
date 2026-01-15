@@ -38,15 +38,19 @@ class SocketService {
     _socket!.connect();
 
     _socket!.onConnect((_) {
-      print('Socket connected');
+      print('✅ Socket connected to ${ApiConstants.socketUrl}');
     });
 
     _socket!.onDisconnect((_) {
-      print('Socket disconnected');
+      print('❌ Socket disconnected');
     });
 
     _socket!.onError((error) {
-      print('Socket error: $error');
+      print('⚠️ Socket error: $error');
+    });
+
+    _socket!.onConnectError((error) {
+      print('⚠️ Socket connect error: $error');
     });
   }
 
@@ -77,16 +81,19 @@ class SocketService {
 
   /// Join a chat room
   void joinRoom(String roomId) {
-    emit('joinRoom', {'roomId': roomId});
+    print('🚪 Socket emitting joinRoom: $roomId');
+    emit('joinRoom', roomId);
   }
 
   /// Leave a chat room
   void leaveRoom(String roomId) {
-    emit('leaveRoom', {'roomId': roomId});
+    print('👋 Socket emitting leaveRoom: $roomId');
+    emit('leaveRoom', roomId);
   }
 
   /// Send a message
   void sendMessage(Map<String, dynamic> messageData) {
+    print('📤 Socket emitting sendMessage: $messageData');
     emit('sendMessage', messageData);
   }
 
