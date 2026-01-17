@@ -10,6 +10,8 @@ class NotificationModel {
   
   final String title;
   final String message;
+  final String type;
+  final Map<String, dynamic>? metadata;
   final String senderId;
   final List<String> targetUsers;
   final List<String> readBy;
@@ -18,6 +20,9 @@ class NotificationModel {
   // Alias for compatibility
   DateTime get createdAt => timestamp;
   
+  // Convenience getter to check if read
+  bool get isRead => readBy.isNotEmpty;
+  
   @JsonKey(includeFromJson: false, includeToJson: false)
   String? senderName;
 
@@ -25,6 +30,8 @@ class NotificationModel {
     required this.id,
     required this.title,
     required this.message,
+    this.type = 'general',
+    this.metadata,
     required this.senderId,
     required this.targetUsers,
     this.readBy = const [],
@@ -65,6 +72,8 @@ class NotificationModel {
       id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
       message: json['message'] ?? '',
+      type: json['type'] ?? 'general',
+      metadata: json['metadata'] as Map<String, dynamic>?,
       senderId: senderId,
       senderName: senderName,
       targetUsers: (json['targetUsers'] as List<dynamic>?)

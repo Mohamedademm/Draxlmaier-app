@@ -162,11 +162,14 @@ class UserService {
   }
 
   /// Update user profile (own profile)
-  Future<User> updateUserProfile(String userId, Map<String, dynamic> updates) async {
+  Future<Map<String, dynamic>> updateUserProfile(String userId, Map<String, dynamic> updates) async {
     try {
       final response = await _apiService.put('/users/$userId/profile', updates);
       final data = _apiService.handleResponse(response);
-      return User.fromJson(data['user']);
+      return {
+        'user': User.fromJson(data['user']),
+        'addressChanged': data['addressChanged'] ?? false,
+      };
     } catch (e) {
       throw Exception('Failed to update profile: $e');
     }

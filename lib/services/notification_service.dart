@@ -86,4 +86,28 @@ class NotificationService {
       throw Exception('Failed to get unread count: $e');
     }
   }
+
+  /// Get admin notifications (filtered by type)
+  Future<Map<String, dynamic>> getAdminNotifications({String? type, bool? unreadOnly}) async {
+    try {
+      final queryParams = <String, String>{};
+      if (type != null) queryParams['type'] = type;
+      if (unreadOnly != null) queryParams['unreadOnly'] = unreadOnly.toString();
+
+      final response = await _apiService.get('/notifications/admin', queryParams: queryParams);
+      final data = _apiService.handleResponse(response);
+      
+      final List<dynamic> notificationsJson = data['notifications'];
+      final notifications = notificationsJson
+          .map((json) => NotificationModel.fromJson(json))
+          .toList();
+      
+      return {
+        'notifications': notifications,
+        'unreadCountsByType': data['unreadCountsByType'] ?? {},
+      };
+    } catch (e) {
+      throw Exception('Failed to get admin notifications: $e');
+    }
+  }
 }
