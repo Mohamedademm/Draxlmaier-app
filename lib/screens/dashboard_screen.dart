@@ -538,6 +538,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: const Color(0xFF10B981), // Emerald
                 onTap: () => Navigator.pushNamed(context, Routes.matriculeManagement),
               ),
+              if (authProvider.isAdmin)
+                _buildModernManagerCard(
+                  context,
+                  icon: Icons.business_outlined,
+                  title: 'Admin Départements',
+                  subtitle: 'Créer & Gérer',
+                  color: const Color(0xFFF59E0B), // Amber
+                  onTap: () => Navigator.pushNamed(context, Routes.adminDepartments),
+                ),
               _buildModernManagerCard(
                 context,
                 icon: Icons.hub_outlined,

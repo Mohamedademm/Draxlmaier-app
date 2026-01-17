@@ -1,20 +1,13 @@
-import 'package:flutter/foundation.dart';
-
-/// API and network constants
 class ApiConstants {
-  // Backend base URL - Update this with your actual backend URL
+  // Backend base URL
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:3000/api';
-    }
-    return 'http://10.134.184.43:3000/api';
+    // Always use Render backend as requested
+    return 'https://backend-draxlmaier-app.onrender.com/api';
   }
 
   static String get socketUrl {
-    if (kIsWeb) {
-      return 'http://localhost:3000';
-    }
-    return 'http://10.134.184.43:3000';
+    // Always use Render backend as requested
+    return 'https://backend-draxlmaier-app.onrender.com';
   }
   
   // Request timeout
@@ -40,6 +33,7 @@ class Routes {
   static const String adminDashboard = '/admin-dashboard';
   static const String userManagement = '/user-management';
   static const String departmentGroups = '/department-groups';
+  static const String adminDepartments = '/admin-departments';
   static const String debugUserCreation = '/debug-user-creation';
   static const String editProfile = '/edit-profile';
   static const String themeCustomization = '/theme-customization';

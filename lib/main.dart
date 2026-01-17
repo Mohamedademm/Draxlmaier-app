@@ -15,32 +15,25 @@ import 'providers/objective_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/matricule_provider.dart';
 import 'screens/splash_screen.dart';
-import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/chat_list_screen.dart';
 import 'screens/chat_detail_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/admin_dashboard_screen.dart';
 import 'screens/user_management_screen.dart';
-import 'screens/registration_screen.dart';
 import 'screens/pending_users_screen.dart';
-import 'screens/objectives_screen.dart';
 import 'screens/objective_detail_screen.dart';
-import 'screens/manager_objectives_screen.dart';
 import 'screens/manager_objectives_dashboard_screen.dart';
-import 'screens/department_chat_screen.dart';
 import 'screens/department_group_list_screen.dart';
 import 'screens/debug_user_creation_screen.dart';
 import 'screens/edit_profile_screen.dart';
-import 'screens/modern_login_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/theme_customization_screen.dart';
 import 'screens/matricule_management_screen.dart';
 import 'screens/matricule_registration_screen.dart';
-import 'screens/modern_registration_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/pending_approval_screen.dart';
-import 'theme/draexlmaier_theme.dart';
+import 'screens/admin/admin_departments_screen.dart';
 import 'theme/modern_theme.dart';
 import 'utils/constants.dart';
 import 'utils/app_localizations.dart';
@@ -100,9 +93,9 @@ class MyApp extends StatelessWidget {
             initialRoute: Routes.splash,
             routes: {
               Routes.splash: (context) => const SplashScreen(),
-              Routes.login: (context) => const ModernLoginScreen(),
+              Routes.login: (context) => const LoginScreen(),
               Routes.home: (context) => const HomeScreen(),
-              Routes.chatList: (context) => const ChatListScreen(),
+              Routes.chatList: (context) => const DepartmentGroupListScreen(),
               Routes.notifications: (context) => const NotificationsScreen(),
               Routes.map: (context) => const MapScreen(),
               Routes.adminDashboard: (context) => const AdminDashboardScreen(),
@@ -114,6 +107,7 @@ class MyApp extends StatelessWidget {
               Routes.pendingUsers: (context) => const PendingUsersScreen(),
               Routes.managerObjectives: (context) => const ManagerObjectivesDashboardScreen(),
               Routes.departmentGroups: (context) => const DepartmentGroupListScreen(),
+              Routes.adminDepartments: (context) => const AdminDepartmentsScreen(),
               Routes.settings: (context) => const SettingsScreen(),
               Routes.matriculeRegistration: (context) => const MatriculeRegistrationScreen(),
               Routes.pendingApproval: (context) => const PendingApprovalScreen(),
