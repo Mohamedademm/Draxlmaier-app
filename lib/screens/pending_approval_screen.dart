@@ -4,7 +4,6 @@ import '../providers/auth_provider.dart';
 import '../theme/modern_theme.dart';
 import '../widgets/modern_widgets.dart';
 import '../utils/constants.dart';
-import '../utils/animations.dart';
 
 class PendingApprovalScreen extends StatefulWidget {
   const PendingApprovalScreen({super.key});

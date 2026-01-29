@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/modern_theme.dart';
 import '../widgets/modern_widgets.dart';
 
 /// Chat Detail Screen - Conversation individuelle

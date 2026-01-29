@@ -24,7 +24,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _matriculeVerified = false;
   Matricule? _matriculeData;
   int _currentStep = 0;
 
@@ -47,15 +46,26 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
     UiHelper.showLoadingDialog(context);
 
     try {
-      final matricule = await provider.getMatriculeByNumber(_matriculeController.text.trim());
+      final result = await provider.checkMatricule(_matriculeController.text.trim());
       
       if (!mounted) return;
       UiHelper.hideLoadingDialog(context);
 
-      if (matricule != null && !matricule.isUsed) {
+      if (result != null && result.exists && result.available) {
+        // Créer un objet Matricule à partir du résultat
+        _matriculeData = Matricule(
+          id: '', // L'ID sera généré côté serveur
+          matricule: _matriculeController.text.trim(),
+          nom: result.nom ?? '',
+          prenom: result.prenom ?? '',
+          poste: result.poste ?? '',
+          department: result.department ?? '',
+          isUsed: false,
+          createdBy: 'system', // Créé lors de l'inscription
+          createdAt: DateTime.now(),
+        );
+        
         setState(() {
-          _matriculeData = matricule;
-          _matriculeVerified = true;
           _currentStep = 1;
         });
         UiHelper.showSnackBar(
@@ -63,7 +73,7 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
           '✅ Matricule valide ! Informations chargées.',
           isError: false,
         );
-      } else if (matricule?.isUsed == true) {
+      } else if (result != null && result.exists && !result.available) {
         UiHelper.showSnackBar(
           context,
           'Ce matricule est déjà utilisé',
@@ -462,7 +472,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
             onPressed: () {
               setState(() {
                 _currentStep = 0;
-                _matriculeVerified = false;
                 _matriculeData = null;
               });
             },

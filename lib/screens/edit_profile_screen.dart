@@ -284,7 +284,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           // Content
           SliverToBoxAdapter(
             child: _isLoading
-                ? Container(
+                ? SizedBox(
                     height: MediaQuery.of(context).size.height - 200,
                     child: const Center(
                       child: CircularProgressIndicator(
@@ -494,12 +494,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 controller: _departmentController,
                                 label: 'Département',
                                 icon: Icons.business_rounded,
+                                enabled: user?.isAdmin == true || user?.isManager == true,
                               ),
                               const SizedBox(height: 16),
                               _buildModernTextField(
                                 controller: _positionController,
                                 label: 'Poste',
                                 icon: Icons.badge_rounded,
+                                enabled: user?.isAdmin == true || user?.isManager == true,
                               ),
                             ],
                           ),

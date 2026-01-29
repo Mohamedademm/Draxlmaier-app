@@ -17,6 +17,8 @@ class DashboardStatisticsSection extends StatelessWidget {
     final inProgress = stats!['byStatus']?['in_progress'] ?? 0;
     final completed = stats!['byStatus']?['completed'] ?? 0;
     final blocked = stats!['byStatus']?['blocked'] ?? 0;
+    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,6 +27,7 @@ class DashboardStatisticsSection extends StatelessWidget {
           'Vue d\'ensemble',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
               ),
         ),
         const SizedBox(height: ModernTheme.spacingM),
@@ -41,12 +44,12 @@ class DashboardStatisticsSection extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Répartition par Statut',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: ModernTheme.textPrimary,
+                              color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -61,7 +64,7 @@ class DashboardStatisticsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: ModernCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,11 +74,11 @@ class DashboardStatisticsSection extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: ModernTheme.textPrimary,
+                              color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
                             ),
                           ),
-                          SizedBox(height: 16),
-                          WeeklyProgressBarChart(),
+                          const SizedBox(height: 16),
+                          const WeeklyProgressBarChart(),
                         ],
                       ),
                     ),
@@ -89,12 +92,12 @@ class DashboardStatisticsSection extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Répartition par Statut',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: ModernTheme.textPrimary,
+                            color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -108,7 +111,7 @@ class DashboardStatisticsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const ModernCard(
+                  ModernCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -117,11 +120,11 @@ class DashboardStatisticsSection extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: ModernTheme.textPrimary,
+                            color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
                           ),
                         ),
-                        SizedBox(height: 16),
-                        WeeklyProgressBarChart(),
+                        const SizedBox(height: 16),
+                        const WeeklyProgressBarChart(),
                       ],
                     ),
                   ),
@@ -134,25 +137,25 @@ class DashboardStatisticsSection extends StatelessWidget {
         const SizedBox(height: ModernTheme.spacingM),
         
         // Key Metrics Row
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: ModernTheme.spacingM,
-          crossAxisSpacing: ModernTheme.spacingM,
-          childAspectRatio: 1.4, // Adjusted from 1.6 to prevent overflow
+        // Using Row + Expanded instead of GridView to avoid overflow and manage height flexibility
+        Row(
           children: [
-            ModernStatCard(
-              title: 'Total',
-              value: '${stats!['total'] ?? 0}',
-              icon: Icons.assignment,
-              gradient: const LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent]),
+            Expanded(
+              child: ModernStatCard(
+                title: 'Total',
+                value: '${stats!['total'] ?? 0}',
+                icon: Icons.assignment,
+                gradient: const LinearGradient(colors: [Colors.blue, Colors.lightBlueAccent]),
+              ),
             ),
-            ModernStatCard(
-              title: 'En Retard',
-              value: '${stats!['overdue'] ?? 0}',
-              icon: Icons.warning,
-              gradient: const LinearGradient(colors: [Colors.red, Colors.redAccent]),
+             const SizedBox(width: ModernTheme.spacingM),
+            Expanded(
+              child: ModernStatCard(
+                title: 'En Retard',
+                value: '${stats!['overdue'] ?? 0}',
+                icon: Icons.warning,
+                gradient: const LinearGradient(colors: [Colors.red, Colors.redAccent]),
+              ),
             ),
           ],
         ),
@@ -237,24 +240,34 @@ class DashboardFiltersSection extends StatelessWidget {
     required List<Map<String, String>> items,
     required ValueChanged<String?> onChanged,
   }) {
-    return PopupMenuButton<String>(
-      child: Chip(
-        label: Text(value == null ? label : items.firstWhere((i) => i['value'] == value)['label']!),
-        avatar: const Icon(Icons.filter_list, size: 18),
-        backgroundColor: value != null ? ModernTheme.primaryBlue.withOpacity(0.1) : ModernTheme.surface,
-        side: BorderSide(color: value != null ? ModernTheme.primaryBlue : Colors.grey.shade300),
-      ),
-      itemBuilder: (context) => [
-        ...items.map((item) => PopupMenuItem(
-          value: item['value'],
-          child: Text(item['label']!),
-        )),
-        const PopupMenuItem(
-          value: null,
-          child: Text('Tous'),
-        ),
-      ],
-      onSelected: onChanged,
+    return Builder(
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        
+        return PopupMenuButton<String>(
+          color: isDark ? ModernTheme.darkSurface : ModernTheme.surface,
+          itemBuilder: (context) => [
+            ...items.map((item) => PopupMenuItem(
+              value: item['value'],
+              child: Text(item['label']!, style: TextStyle(color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary)),
+            )),
+            PopupMenuItem(
+              value: null,
+              child: Text('Tous', style: TextStyle(color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary)),
+            ),
+          ],
+          onSelected: onChanged,
+          child: Chip(
+            label: Text(
+              value == null ? label : items.firstWhere((i) => i['value'] == value)['label']!,
+              style: TextStyle(color: value != null ? ModernTheme.primaryBlue : (isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary)),
+            ),
+            avatar: Icon(Icons.filter_list, size: 18, color: value != null ? ModernTheme.primaryBlue : (isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary)),
+            backgroundColor: value != null ? ModernTheme.primaryBlue.withOpacity(0.1) : (isDark ? ModernTheme.darkSurface : ModernTheme.surface),
+            side: BorderSide(color: value != null ? ModernTheme.primaryBlue : (isDark ? Colors.white24 : Colors.grey.shade300)),
+          ),
+        );
+      }
     );
   }
 }
@@ -275,9 +288,14 @@ class DashboardObjectiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if context is dark for correct color choice
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ModernCard(
       onTap: () => onToggleSelection(objective.id),
-      color: isSelected ? ModernTheme.primaryBlue.withOpacity(0.05) : null,
+      color: isSelected 
+          ? ModernTheme.primaryBlue.withOpacity(0.05) 
+          : (isDark ? ModernTheme.darkSurface : ModernTheme.surface),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -287,6 +305,7 @@ class DashboardObjectiveCard extends StatelessWidget {
                 value: isSelected,
                 onChanged: (_) => onToggleSelection(objective.id),
                 activeColor: ModernTheme.primaryBlue,
+                side: BorderSide(color: isDark ? Colors.white54 : Colors.grey, width: 2),
               ),
               Expanded(
                 child: Column(
@@ -294,24 +313,68 @@ class DashboardObjectiveCard extends StatelessWidget {
                   children: [
                     Text(
                       objective.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: ModernTheme.textPrimary,
+                        color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Assigné à: ${objective.assignedTo.fullName}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: ModernTheme.textSecondary,
-                      ),
+                    Row(
+                      children: [
+                        // Show department icon and name if it's a department objective
+                        if (objective.departmentId != null && objective.departmentId!.isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.business_rounded, color: Colors.white, size: 14),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Département: ${objective.departmentId}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ] else ...[
+                          // Show assigned user for individual objectives
+                          Icon(
+                            Icons.person_rounded,
+                            size: 16,
+                            color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              'Assigné à: ${objective.assignedTo.fullName}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
               ),
               PopupMenuButton(
+                icon: Icon(Icons.more_vert, color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary),
+                color: isDark ? ModernTheme.darkSurface : ModernTheme.surface,
                 itemBuilder: (context) => [
                   const PopupMenuItem(
                     value: 'delete',
@@ -352,7 +415,7 @@ class DashboardObjectiveCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: objective.isOverdue ? ModernTheme.error : ModernTheme.textTertiary,
+                  color: objective.isOverdue ? ModernTheme.error : (isDark ? ModernTheme.darkTextTertiary : ModernTheme.textTertiary),
                 ),
               ),
             ],
@@ -362,7 +425,7 @@ class DashboardObjectiveCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: objective.progress / 100,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: isDark ? Colors.white12 : Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(
                 objective.progress == 100 ? ModernTheme.success : ModernTheme.primaryBlue,
               ),

@@ -28,7 +28,7 @@ class AppTheme {
   // Light theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: primaryColor,
       secondary: accentColor,
       error: errorColor,
@@ -103,11 +103,11 @@ class AppTheme {
   // Dark theme
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: primaryColor,
       secondary: accentColor,
       error: errorColor,
-      surface: const Color(0xFF1E1E1E),
+      surface: Color(0xFF1E1E1E),
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(

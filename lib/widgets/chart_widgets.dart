@@ -159,6 +159,8 @@ class _Indicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Row(
       children: <Widget>[
         Container(
@@ -173,10 +175,10 @@ class _Indicator extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: ModernTheme.textSecondary,
+            color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
           ),
         )
       ],
@@ -248,35 +250,43 @@ class WeeklyProgressBarChart extends StatelessWidget {
           borderData: FlBorderData(show: false),
           barGroups: List.generate(7, (i) {
             switch (i) {
-              case 0: return makeGroupData(0, 5);
-              case 1: return makeGroupData(1, 6.5);
-              case 2: return makeGroupData(2, 5);
-              case 3: return makeGroupData(3, 7.5);
-              case 4: return makeGroupData(4, 9);
-              case 5: return makeGroupData(5, 11.5);
-              case 6: return makeGroupData(6, 6.5);
+              case 0: return makeGroupData(context, 0, 5);
+              case 1: return makeGroupData(context, 1, 6.5);
+              case 2: return makeGroupData(context, 2, 5);
+              case 3: return makeGroupData(context, 3, 7.5);
+              case 4: return makeGroupData(context, 4, 9);
+              case 5: return makeGroupData(context, 5, 11.5);
+              case 6: return makeGroupData(context, 6, 6.5);
               default: return throw Error();
             }
           }),
           gridData: const FlGridData(show: false),
         ),
+        swapAnimationDuration: const Duration(milliseconds: 150), // Optional
+        swapAnimationCurve: Curves.linear, // Optional
       ),
     );
   }
 
-  BarChartGroupData makeGroupData(int x, double y) {
+  BarChartGroupData makeGroupData(BuildContext context, int x, double y) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return BarChartGroupData(
       x: x,
       barRods: [
         BarChartRodData(
           toY: y,
-          color: ModernTheme.primaryBlue,
+          gradient: const LinearGradient(
+            colors: [ModernTheme.primaryBlue, ModernTheme.secondaryBlue],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
           width: 22,
           borderSide: const BorderSide(color: Colors.white, width: 0),
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: 20,
-            color: ModernTheme.surfaceVariant,
+            color: isDark ? ModernTheme.darkSurfaceVariant : ModernTheme.surfaceVariant,
           ),
         ),
       ],
@@ -284,26 +294,36 @@ class WeeklyProgressBarChart extends StatelessWidget {
   }
 
   Widget getTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: ModernTheme.textSecondary,
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 0: text = const Text('L', style: style); break;
-      case 1: text = const Text('M', style: style); break;
-      case 2: text = const Text('M', style: style); break;
-      case 3: text = const Text('J', style: style); break;
-      case 4: text = const Text('V', style: style); break;
-      case 5: text = const Text('S', style: style); break;
-      case 6: text = const Text('D', style: style); break;
-      default: text = const Text('', style: style); break;
-    }
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 16,
-      child: text,
+    // This needs context to work with Theme, but getTitles is a callback.
+    // We can rely on a Builder or just standard styles if we want, 
+    // but the issue is acquiring context inside this callback cleanly without wrapping.
+    // However, since it is a widget, we can use a statless widget with context builder inside.
+    
+    return Builder(
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final style = TextStyle(
+          color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        );
+        Widget text;
+        switch (value.toInt()) {
+          case 0: text = Text('L', style: style); break;
+          case 1: text = Text('M', style: style); break;
+          case 2: text = Text('M', style: style); break;
+          case 3: text = Text('J', style: style); break;
+          case 4: text = Text('V', style: style); break;
+          case 5: text = Text('S', style: style); break;
+          case 6: text = Text('D', style: style); break;
+          default: text = Text('', style: style); break;
+        }
+        return SideTitleWidget(
+          axisSide: meta.axisSide,
+          space: 16,
+          child: text,
+        );
+      }
     );
   }
 }

@@ -15,6 +15,11 @@ class Message {
   final MessageStatus status;
   final DateTime timestamp;
   
+  // File attachments
+  final String? fileUrl;
+  final String? fileName;
+  final String? fileType; // 'image', 'pdf', 'document'
+  
   String? senderName;
   bool isMe;
 
@@ -26,6 +31,9 @@ class Message {
     required this.content,
     this.status = MessageStatus.sent,
     required this.timestamp,
+    this.fileUrl,
+    this.fileName,
+    this.fileType,
     this.senderName,
     this.isMe = false,
   });
@@ -50,6 +58,9 @@ class Message {
       timestamp: json['timestamp'] != null 
           ? DateTime.parse(json['timestamp']) 
           : DateTime.now(),
+      fileUrl: json['fileUrl'],
+      fileName: json['fileName'],
+      fileType: json['fileType'],
       senderName: json['senderName'],
       isMe: json['isMe'] ?? false,
     );
@@ -79,6 +90,9 @@ class Message {
       'content': content,
       'status': status.name,
       'timestamp': timestamp.toIso8601String(),
+      'fileUrl': fileUrl,
+      'fileName': fileName,
+      'fileType': fileType,
       'senderName': senderName,
       'isMe': isMe,
     };

@@ -10,7 +10,7 @@ class PasswordGenerator {
   /// Génère un mot de passe aléatoire sécurisé
   static String generate({int length = 10}) {
     final random = Random.secure();
-    final chars = _uppercase + _lowercase + _numbers + _special;
+    const chars = _uppercase + _lowercase + _numbers + _special;
     
     // S'assurer qu'on a au moins un de chaque type
     String password = '';

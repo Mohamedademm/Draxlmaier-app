@@ -1,5 +1,7 @@
 /// Constants for department names
 class DepartmentConstants {
+  // Predefined departments (kept for backward compatibility and default colors/icons)
+  // Note: Validation now accepts ANY non-empty department to support custom departments
   static const List<String> allowedDepartments = [
     'Qualité',
     'Logistique',
@@ -10,9 +12,11 @@ class DepartmentConstants {
   ];
 
   /// Check if a department name is valid
+  /// Now accepts any non-empty department to support custom departments
   static bool isValidDepartment(String? department) {
     if (department == null) return false;
-    return allowedDepartments.contains(department);
+    // Accept any non-empty department string to support custom departments
+    return department.trim().isNotEmpty;
   }
 
   /// Get department color

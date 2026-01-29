@@ -1,43 +1,43 @@
-Starting a Gradle Daemon, 1 busy and 1 incompatible and 1 stopped Daemons could not be reused, use --status for details
-> Task :gradle:compileJava NO-SOURCE
-> Task :gradle:compileGroovy
-> Task :gradle:pluginDescriptors UP-TO-DATE
-> Task :gradle:processResources
-> Task :gradle:classes
-> Task :gradle:jar
 
-FAILURE: Build completed with 2 failures.
+Running Gradle task 'assembleRelease'...                        
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 28900 bytes (98.2% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+C:\Users\azizb\Desktop\Project\projet flutter\flutter\android\app\src\main\AndroidManifest.xml Error:
+	uses-sdk:minSdkVersion 21 cannot be smaller than version 23 declared in library [:record_android] C:\Users\azizb\Desktop\Project\projet flutter\flutter\build\record_android\intermediates\merged_manifest\release\AndroidManifest.xml as the library might be using APIs not available in 21
+	Suggestion: use a compatible library with a minSdk of at most 21,
+		or increase this project's minSdk version to at least 23,
+		or use tools:overrideLibrary="com.llfbandit.record" to force usage (may lead to runtime failures)
 
-1: Task failed with an exception.
------------
-* Where:
-Build file 'C:\Users\azizb\AppData\Local\Pub\Cache\hosted\pub.dev\file_picker-10.3.7\android\build.gradle' line: 30
+FAILURE: Build failed with an exception.
 
 * What went wrong:
-A problem occurred evaluating project ':file_picker'.
-> Could not get unknown property 'flutter' for extension 'android' of type com.android.build.gradle.LibraryExtension.
+Execution failed for task ':app:processReleaseMainManifest'.
+> Manifest merger failed : uses-sdk:minSdkVersion 21 cannot be smaller than version 23 declared in library [:record_android] C:\Users\azizb\Desktop\Project\projet flutter\flutter\build\record_android\intermediates\merged_manifest\release\AndroidManifest.xml as the library might be using APIs not available in 21
+  	Suggestion: use a compatible library with a minSdk of at most 21,
+  		or increase this project's minSdk version to at least 23,
+  		or use tools:overrideLibrary="com.llfbandit.record" to force usage (may lead to runtime failures)
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
 > Run with --info or --debug option to get more log output.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
-==============================================================================
 
-2: Task failed with an exception.
------------
-* What went wrong:
-A problem occurred configuring project ':file_picker'.
-> Failed to notify project evaluation listener.
-   > Cannot invoke method substring() on null object
-   > com.android.builder.errors.EvalIssueException: compileSdkVersion is not specified. Please add it to build.gradle
+BUILD FAILED in 14s
+Running Gradle task 'assembleRelease'...                           15,8s
 
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-==============================================================================
-
-BUILD FAILED in 37s
-4 actionable tasks: 3 executed, 1 up-to-date
+┌─ Flutter Fix ─────────────────────────────────────────────────────────────────────────────────┐
+│ The plugin record_android requires a higher Android SDK version.                              │
+│ Fix this issue by adding the following to the file C:\Users\azizb\Desktop\Project\projet      │
+│ flutter\flutter\android\app\build.gradle:                                                     │
+│ android {                                                                                     │
+│   defaultConfig {                                                                             │
+│     minSdkVersion 23                                                                          │
+│   }                                                                                           │
+│ }                                                                                             │
+│                                                                                               │
+│ Following this change, your app will not be available to users running Android SDKs below 23. │
+│ Consider searching for a version of this plugin that supports these lower versions of the     │
+│ Android SDK instead.                                                                          │
+│ For more information, see: https://flutter.dev/to/review-gradle-config                        │
+└───────────────────────────────────────────────────────────────────────────────────────────────┘
+Gradle task assembleRelease failed with exit code 1

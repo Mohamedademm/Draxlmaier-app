@@ -7,7 +7,7 @@ import '../widgets/draexlmaier_logo.dart';
 import '../utils/constants.dart' hide AppConstants;
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({Key? key}) : super(key: key);
+  const RegistrationScreen({super.key});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -277,7 +277,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -382,7 +382,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           onPressed: _isLoading ? null : _previousStep,
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: DraexlmaierTheme.primaryBlue),
+                            side: const BorderSide(color: DraexlmaierTheme.primaryBlue),
                           ),
                           child: const Text('Précédent'),
                         ),

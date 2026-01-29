@@ -30,13 +30,13 @@ class ModernTheme {
   // Alias for compatibility
   static const Color primary = primaryBlue;
 
-  // --- Dark Theme Colors ---
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color darkSurface = Color(0xFF1E1E1E);
-  static const Color darkSurfaceVariant = Color(0xFF2C2C2C);
-  static const Color darkTextPrimary = Color(0xFFE1E1E1);
-  static const Color darkTextSecondary = Color(0xFFA0A0A0);
-  static const Color darkTextTertiary = Color(0xFF757575);
+  // --- Nouveau Palette Dark Mode (Modern Midnight) ---
+  static const Color darkBackground = Color(0xFF0F172A); // Slate 900 (Fond Profond)
+  static const Color darkSurface = Color(0xFF1E293B); // Slate 800 (Cartes)
+  static const Color darkSurfaceVariant = Color(0xFF334155); // Slate 700 (Inputs/Elements)
+  static const Color darkTextPrimary = Color(0xFFF1F5F9); // Slate 100 (Texte Principal)
+  static const Color darkTextSecondary = Color(0xFFCBD5E1); // Slate 300 (Texte Secondaire)
+  static const Color darkTextTertiary = Color(0xFF94A3B8); // Slate 400 (Texte Tertiaire)
 
   /// Thème Sombre Dynamique
   static ThemeData darkTheme(BuildContext context, {Color primary = primaryBlue, Color secondary = secondaryBlue}) {
@@ -79,28 +79,30 @@ class ModernTheme {
       ),
       
       // AppBar
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: darkSurface,
         foregroundColor: darkTextPrimary,
         elevation: 0,
         scrolledUnderElevation: 2,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: TextStyle(
           color: darkTextPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
           fontFamily: 'Inter',
         ),
-        iconTheme: const IconThemeData(color: darkTextPrimary),
+        iconTheme: IconThemeData(color: darkTextPrimary),
+        actionsIconTheme: IconThemeData(color: darkTextPrimary),
       ),
       
-      // Cards
+      // Cards - Amélioration du contraste et des bordures
       cardTheme: CardTheme(
         color: darkSurface,
-        elevation: 0,
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusM),
-          side: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
+          side: BorderSide(color: Colors.white.withOpacity(0.08), width: 1),
         ),
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
@@ -110,7 +112,7 @@ class ModernTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          elevation: 0,
+          elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -120,7 +122,7 @@ class ModernTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primary,
-          side: BorderSide(color: primary, width: 1.5),
+          side: BorderSide(color: primary.withOpacity(0.7), width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -130,7 +132,7 @@ class ModernTheme {
       // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: darkSurfaceVariant,
+        fillColor: darkSurfaceVariant.withOpacity(0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusM),
@@ -148,9 +150,9 @@ class ModernTheme {
           borderRadius: BorderRadius.circular(radiusM),
           borderSide: const BorderSide(color: error),
         ),
-        labelStyle: TextStyle(color: darkTextSecondary.withOpacity(0.8)),
+        labelStyle: const TextStyle(color: darkTextSecondary),
         floatingLabelStyle: TextStyle(color: primary, fontWeight: FontWeight.w600),
-        hintStyle: TextStyle(color: darkTextTertiary),
+        hintStyle: const TextStyle(color: darkTextTertiary),
       ),
       
       // FAB
@@ -262,20 +264,21 @@ class ModernTheme {
         bodyMedium: const TextStyle(color: textSecondary, fontSize: 14),
       ),
       
-      // AppBar Moderne
-      appBarTheme: AppBarTheme(
-        backgroundColor: surface,
-        foregroundColor: textPrimary,
+      // AppBar Moderne - Updated to White Text on Primary Background
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primaryBlue,
+        foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 2,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          color: textPrimary,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
           fontSize: 18,
           fontWeight: FontWeight.w600,
           fontFamily: 'Inter',
         ),
-        iconTheme: const IconThemeData(color: textPrimary),
+        iconTheme: IconThemeData(color: Colors.white),
+        actionsIconTheme: IconThemeData(color: Colors.white),
       ),
       
       // Cards

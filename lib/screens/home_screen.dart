@@ -4,10 +4,10 @@ import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/location_provider.dart';
-import '../utils/constants.dart';
 import '../utils/app_localizations.dart';
 import '../widgets/modern_layout.dart';
 import 'dashboard_screen.dart';
+import 'department_group_list_screen.dart';
 import 'profile_screen.dart';
 
 /// Home screen with bottom navigation
@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeServices() async {
     final chatProvider = context.read<ChatProvider>();
     final notificationProvider = context.read<NotificationProvider>();
-    final locationProvider = context.read<LocationProvider>();
     
     // Initialize socket connection
     await chatProvider.initializeSocket();
@@ -39,8 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Initialize notifications
     await notificationProvider.initialize();
     
-    // Request location permission
-    await locationProvider.requestPermission();
+    // Location permission removed - not required for app functionality
   }
 
   /// Get pages based on user role
@@ -51,59 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
       // Admin/Manager view
       return [
         const DashboardScreen(),
-        _buildChatPage(),
-        _buildNotificationsPage(),
-        _buildMapPage(),
+        const DepartmentGroupListScreen(),
         const ProfileScreen(),
       ];
     } else {
       // Employee view
       return [
         const DashboardScreen(),
-        _buildChatPage(),
-        _buildNotificationsPage(),
+        const DepartmentGroupListScreen(),
         const ProfileScreen(),
       ];
     }
-  }
-
-  Widget _buildChatPage() {
-    return Container(
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, Routes.chatList);
-          },
-          child: const Text('Go to Chats'),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationsPage() {
-    return Container(
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, Routes.notifications);
-          },
-          child: const Text('View Notifications'),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapPage() {
-    return Container(
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, Routes.map);
-          },
-          child: const Text('View Team Map'),
-        ),
-      ),
-    );
   }
 
   @override
@@ -125,11 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Get modern navigation items based on user role
   List<NavigationItem> _getModernNavigationItems() {
-    final authProvider = context.read<AuthProvider>();
-    final notificationProvider = context.watch<NotificationProvider>();
     final localizations = AppLocalizations.of(context)!;
-    
-    final unreadCount = notificationProvider.unreadCount;
     
     final items = [
       NavigationItem(
@@ -141,27 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
         label: localizations.translate('chats'),
       ),
       NavigationItem(
-        icon: Icons.notifications_outlined,
-        label: localizations.translate('notifications'),
-        badgeCount: unreadCount > 0 ? unreadCount : null,
-      ),
-    ];
-    
-    if (authProvider.canManageUsers) {
-      items.add(
-        NavigationItem(
-          icon: Icons.map_outlined,
-          label: localizations.translate('map'),
-        ),
-      );
-    }
-    
-    items.add(
-      NavigationItem(
         icon: Icons.person_outline,
         label: localizations.translate('profile'),
       ),
-    );
+    ];
     
     return items;
   }

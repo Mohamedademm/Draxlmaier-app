@@ -44,8 +44,8 @@ class AppConstants {
   static const Duration animationDurationNormal = Duration(milliseconds: 300);
   static const Duration animationDurationSlow = Duration(milliseconds: 500);
   
-  // API Endpoints (déjà définis dans api_service.dart mais centralisés ici)
-  static const String baseUrl = 'http://localhost:3000/api';
+  // API Endpoints
+  static const String baseUrl = 'https://backend-draxlmaier-app.onrender.com/api';
   
   // Statuts des objectifs
   static const String statusTodo = 'todo';

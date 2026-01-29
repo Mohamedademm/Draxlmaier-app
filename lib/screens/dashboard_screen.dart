@@ -191,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 6),
               Text(
                 subtitle,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: ModernTheme.textSecondary,
                   fontWeight: FontWeight.w500,
@@ -460,7 +460,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Accéder aux outils avancés',
+                                  'Gestion de votre équipe et des opérations',
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.9),
                                     fontSize: 13,

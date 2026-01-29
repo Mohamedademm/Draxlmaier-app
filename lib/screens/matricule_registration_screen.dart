@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/matricule_service.dart';
 import '../theme/modern_theme.dart';
-import '../widgets/modern_widgets.dart';
 import '../utils/constants.dart';
 
 /// Écran d'inscription moderne avec système de matricule
@@ -33,6 +32,20 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
   String? _prenom;
   String? _poste;
   String? _department;
+
+  // Localisation
+  String? _selectedLocation;
+  String? _selectedSubLocation;
+
+  final List<String> _locations = ['Monastir', 'Sousse', 'Siliana', 'El Jem'];
+  final Map<String, List<String>> _subLocationsMap = {
+    'Monastir': ['Sidi Masoud', 'Jemmal', 'Ksibet el-Médiouni','Sayeda','Kassrahlell','Moknine','taboulba','Bekalta','Bagdadi'],
+    'Sousse': ['Sidi Abdelhamid', 'Msaken'],
+    'Mahdia': ['zonne', 'centre Mahdia','hiboune','rajiche'],
+
+    'Siliana': ['Zone Industrielle'],
+    'El Jem': ['Zone Industrielle'],
+  };
 
   @override
   void dispose() {
@@ -83,6 +96,11 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
       _showError('Veuillez d\'abord vérifier votre matricule');
       return;
     }
+    
+    if (_selectedLocation == null || _selectedSubLocation == null) {
+      _showError('Veuillez sélectionner votre localisation et sous-localisation');
+      return;
+    }
 
     setState(() => _isRegistering = true);
 
@@ -96,8 +114,8 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
         phone: '',
         position: _poste!,
         department: _department!,
-        address: '',
-        city: '',
+        address: _selectedSubLocation!,
+        city: _selectedLocation!,
         postalCode: '',
       );
 
@@ -144,80 +162,171 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: ModernTheme.primaryGradient,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0EA5E9),
+              Color(0xFF06B6D4),
+              Color(0xFF0891B2),
+            ],
+          ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(ModernTheme.spacingL),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: ModernCard(
-                  padding: const EdgeInsets.all(ModernTheme.spacingXL),
+              padding: const EdgeInsets.all(24),
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 800),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Opacity(
+                      opacity: value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF0EA5E9).withOpacity(0.2),
+                        blurRadius: 50,
+                        offset: const Offset(0, 20),
+                      ),
+                    ],
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo
-                        const Icon(
-                          Icons.badge,
-                          size: 64,
-                          color: ModernTheme.primary,
-                        ),
-                        const SizedBox(height: ModernTheme.spacingM),
-                        
-                        // Titre
-                        const Text(
-                          'Inscription',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: ModernTheme.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: ModernTheme.spacingS),
-                        Text(
-                          'Entrez votre matricule pour commencer',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: ModernTheme.spacingXL),
-
-                        // Étape 1: Matricule
-                        _buildMatriculeSection(),
-
-                        // Étape 2: Informations (affichées après vérification)
-                        if (_matriculeVerified) ...[
-                          const SizedBox(height: ModernTheme.spacingL),
-                          _buildInfoSection(),
-                          const SizedBox(height: ModernTheme.spacingL),
-                          _buildAccountSection(),
-                          const SizedBox(height: ModernTheme.spacingXL),
-                          _buildRegisterButton(),
-                        ],
-
-                        const SizedBox(height: ModernTheme.spacingL),
-                        
-                        // Lien vers connexion
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Déjà inscrit ? ',
-                              style: TextStyle(color: Colors.grey.shade600),
+                        // Header with gradient
+                        Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF0EA5E9), Color(0xFF0891B2)],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushReplacementNamed(context, Routes.login);
-                              },
-                              child: const Text('Se connecter'),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(28),
+                              topRight: Radius.circular(28),
                             ),
-                          ],
+                          ),
+                          child: Column(
+                            children: [
+                              // Logo with animation
+                              TweenAnimationBuilder<double>(
+                                duration: const Duration(milliseconds: 1000),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                curve: Curves.elasticOut,
+                                builder: (context, value, child) {
+                                  return Transform.scale(
+                                    scale: value,
+                                    child: child,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.badge_rounded,
+                                    size: 48,
+                                    color: Color(0xFF0EA5E9),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Inscription',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Entrez votre matricule pour commencer',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Content
+                        Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+
+                              // Étape 1: Matricule
+                              _buildMatriculeSection(),
+
+                              // Étape 2: Informations (affichées après vérification)
+                              if (_matriculeVerified) ...[
+                                const SizedBox(height: 24),
+                                _buildInfoSection(),
+                                const SizedBox(height: 24),
+                                _buildLocationSection(),
+                                const SizedBox(height: 24),
+                                _buildAccountSection(),
+                                const SizedBox(height: 32),
+                                _buildRegisterButton(),
+                              ],
+
+                              const SizedBox(height: 24),
+                              
+                              // Lien vers connexion
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Déjà inscrit ? ',
+                                    style: TextStyle(color: Colors.grey.shade600),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacementNamed(context, Routes.login);
+                                    },
+                                    child: const Text(
+                                      'Se connecter',
+                                      style: TextStyle(
+                                        color: Color(0xFF0EA5E9),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -235,57 +344,121 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextFormField(
-          controller: _matriculeController,
-          enabled: !_matriculeVerified,
-          decoration: InputDecoration(
-            labelText: 'Matricule *',
-            hintText: 'Ex: 001, 014',
-            prefixIcon: const Icon(Icons.badge),
-            suffixIcon: _matriculeVerified
-                ? const Icon(Icons.check_circle, color: Colors.green)
-                : null,
-            filled: true,
-            fillColor: _matriculeVerified 
-                ? Colors.green.shade50 
-                : Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: _matriculeVerified
+                  ? [const Color(0xFF10B981).withOpacity(0.1), const Color(0xFF059669).withOpacity(0.05)]
+                  : [const Color(0xFF0EA5E9).withOpacity(0.1), const Color(0xFF06B6D4).withOpacity(0.05)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _matriculeVerified
+                  ? const Color(0xFF10B981).withOpacity(0.4)
+                  : const Color(0xFF0EA5E9).withOpacity(0.3),
+              width: 2,
             ),
           ),
-          textCapitalization: TextCapitalization.characters,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Matricule requis';
-            }
-            return null;
-          },
+          child: TextFormField(
+            controller: _matriculeController,
+            enabled: !_matriculeVerified,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: _matriculeVerified ? const Color(0xFF10B981) : Colors.black87,
+            ),
+            decoration: InputDecoration(
+              labelText: 'Matricule *',
+              labelStyle: TextStyle(
+                color: _matriculeVerified ? const Color(0xFF10B981) : const Color(0xFF0EA5E9),
+                fontWeight: FontWeight.w600,
+              ),
+              hintText: 'Ex: 001, 014',
+              hintStyle: TextStyle(color: Colors.grey.shade400),
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: _matriculeVerified
+                        ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                        : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.badge_rounded, color: Colors.white, size: 20),
+              ),
+              suffixIcon: _matriculeVerified
+                  ? Container(
+                      margin: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF10B981),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check, color: Colors.white, size: 20),
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            ),
+            textCapitalization: TextCapitalization.characters,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Matricule requis';
+              }
+              return null;
+            },
+          ),
         ),
-        const SizedBox(height: ModernTheme.spacingM),
+        const SizedBox(height: 20),
         
         if (!_matriculeVerified)
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: _isVerifying ? null : _verifyMatricule,
-              icon: _isVerifying
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(_isVerifying ? 'Vérification...' : 'Vérifier le matricule'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ModernTheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: _isVerifying ? null : _verifyMatricule,
+              borderRadius: BorderRadius.circular(16),
+              child: Ink(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0EA5E9), Color(0xFF0891B2)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0EA5E9).withOpacity(0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Container(
+                  height: 56,
+                  alignment: Alignment.center,
+                  child: _isVerifying
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+                            SizedBox(width: 8),
+                            Text(
+                              'Vérifier le matricule',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ),
@@ -295,36 +468,114 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
   }
 
   Widget _buildInfoSection() {
-    return Container(
-      padding: const EdgeInsets.all(ModernTheme.spacingM),
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 600),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.95 + (0.05 * value),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF10B981), Color(0xFF059669)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF10B981).withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 24),
+                SizedBox(width: 12),
+                Text(
+                  'Informations du matricule',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 17,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  _buildModernInfoRow('Nom', _nom ?? '-', Icons.person_rounded),
+                  const Divider(color: Colors.white24, height: 24),
+                  _buildModernInfoRow('Prénom', _prenom ?? '-', Icons.person_outline_rounded),
+                  const Divider(color: Colors.white24, height: 24),
+                  _buildModernInfoRow('Poste', _poste ?? '-', Icons.work_rounded),
+                  const Divider(color: Colors.white24, height: 24),
+                  _buildModernInfoRow('Département', _department ?? '-', Icons.business_rounded),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    );
+  }
+
+  Widget _buildModernInfoRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 20),
-              const SizedBox(width: 8),
               Text(
-                'Informations du matricule',
+                label,
                 style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green.shade900,
+                  color: Colors.white,
                 ),
               ),
             ],
           ),
-          const Divider(height: 20),
-          _buildInfoRow('Nom', _nom ?? '-'),
-          _buildInfoRow('Prénom', _prenom ?? '-'),
-          _buildInfoRow('Poste', _poste ?? '-'),
-          _buildInfoRow('Département', _department ?? '-'),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -353,6 +604,119 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLocationSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Localisation',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4B5563), // Hex color for grey-800 to match ModernTheme somewhat
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF0F4C81), width: 1.5), // ModernTheme.primary
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedLocation,
+              hint: const Row(
+                children: [
+                  Icon(Icons.business, color: Color(0xFF4B5563)),
+                  SizedBox(width: 8),
+                  Text('Localisation'),
+                ],
+              ),
+              isExpanded: true,
+              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF0F4C81)),
+              items: _locations.map((String location) {
+                return DropdownMenuItem<String>(
+                  value: location,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.business, color: Color(0xFF0F4C81)),
+                      const SizedBox(width: 8),
+                      Text(location),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedLocation = newValue;
+                  _selectedSubLocation = null; // Reset sub-location
+                });
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Sous-localisation',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF4B5563),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: _selectedLocation == null ? Colors.grey.shade100 : Colors.grey.shade200, // Background
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300), // Lighter border for disabled look or normal
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedSubLocation,
+              hint: const Row(
+                children: [
+                  Icon(Icons.place, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Text('Ex: Centre Monastir'),
+                ],
+              ),
+              isExpanded: true,
+              icon: Icon(
+                Icons.arrow_drop_down, 
+                color: _selectedLocation == null ? Colors.grey : const Color(0xFF4B5563)
+              ),
+              items: _selectedLocation == null
+                  ? []
+                  : _subLocationsMap[_selectedLocation!]?.map((String subLocation) {
+                      return DropdownMenuItem<String>(
+                        value: subLocation,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.place, color: Color(0xFF4B5563)),
+                            const SizedBox(width: 8),
+                            Text(subLocation),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+              onChanged: _selectedLocation == null
+                  ? null
+                  : (newValue) {
+                      setState(() {
+                        _selectedSubLocation = newValue;
+                      });
+                    },
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -466,34 +830,55 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
   }
 
   Widget _buildRegisterButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: _isRegistering ? null : _register,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: _isRegistering ? null : _register,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF10B981), Color(0xFF059669)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF10B981).withOpacity(0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Container(
+            height: 56,
+            alignment: Alignment.center,
+            child: _isRegistering
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person_add_rounded, color: Colors.white, size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        'S\'inscrire',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        child: _isRegistering
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                'S\'inscrire',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
       ),
     );
   }

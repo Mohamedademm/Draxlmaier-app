@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/chat_group_model.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import '../services/chat_service.dart';
 import '../theme/modern_theme.dart';
 import '../utils/department_constants.dart';
+import '../utils/constants.dart';
 import '../widgets/modern_widgets.dart';
 import 'group_chat_screen.dart';
 
-/// Screen showing department group chats
+/// Screen showing department group chats with full department management
 /// Employees see only their department group
-/// Admins see all department groups
+/// Admins see all department groups and can add/delete departments
 class DepartmentGroupListScreen extends StatefulWidget {
   const DepartmentGroupListScreen({super.key});
 
@@ -69,14 +71,29 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
         filteredGroups = allGroups;
       } else {
         // Employee sees only their department group
-        final userDepartment = currentUser.department;
-        if (userDepartment == null || !DepartmentConstants.isValidDepartment(userDepartment)) {
-          throw Exception('Département non valide ou non assigné');
+        final userDepartment = currentUser.department?.trim();
+        
+        // Check if user has a department assigned
+        if (userDepartment == null || userDepartment.isEmpty) {
+          throw Exception('Aucun département assigné. Veuillez contacter l\'administrateur.');
         }
         
+        // Validate department format
+        if (!DepartmentConstants.isValidDepartment(userDepartment)) {
+          throw Exception('Département non valide. Veuillez contacter l\'administrateur.');
+        }
+        
+        // Filter groups by user's department
         filteredGroups = allGroups.where((group) {
           return group.department == userDepartment;
         }).toList();
+        
+        // If no group found for this department, show helpful message
+        if (filteredGroups.isEmpty) {
+          print('⚠️ No group found for department: $userDepartment');
+          // Don't throw error - just show empty list
+          // Admin might not have created the group yet
+        }
       }
 
       setState(() {
@@ -102,8 +119,18 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Groupe $department créé avec succès'),
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Groupe $department créé avec succès'),
+                ),
+              ],
+            ),
             backgroundColor: ModernTheme.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
         _loadDepartmentGroups();
@@ -112,8 +139,709 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: $e'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('Erreur: $e'),
+                ),
+              ],
+            ),
             backgroundColor: ModernTheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteDepartmentGroup(ChatGroup group) async {
+    // Show confirmation dialog with options
+    int? selectedOption = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        int option = 0; // 0: Cancel, 1: Delete all messages, 2: Delete entire group
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: ModernTheme.error.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.warning_rounded, color: ModernTheme.error, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Action requise',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Que souhaitez-vous faire avec le groupe "${group.name}" ?',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Option 1: Clean history
+                  InkWell(
+                    onTap: () => setState(() => option = 1),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: option == 1 ? ModernTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: option == 1 ? ModernTheme.primaryBlue : Colors.grey.shade300,
+                          width: option == 1 ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Radio<int>(
+                            value: 1,
+                            groupValue: option,
+                            onChanged: (v) => setState(() => option = v!),
+                            activeColor: ModernTheme.primaryBlue,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Vider les messages',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                Text(
+                                  'Supprime l\'historique, garde le groupe.',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.cleaning_services_rounded, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Option 2: Delete completely
+                  InkWell(
+                    onTap: () => setState(() => option = 2),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: option == 2 ? ModernTheme.error.withOpacity(0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: option == 2 ? ModernTheme.error : Colors.grey.shade300,
+                          width: option == 2 ? 2 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Radio<int>(
+                            value: 2,
+                            groupValue: option,
+                            onChanged: (v) => setState(() => option = v!),
+                            activeColor: ModernTheme.error,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Supprimer le département',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: ModernTheme.error),
+                                ),
+                                Text(
+                                  'Supprime le groupe et son contenu. Irréversible.',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.delete_forever_rounded, color: ModernTheme.error),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 0),
+                  child: const Text('Annuler'),
+                ),
+                ElevatedButton(
+                  onPressed: option == 0 ? null : () => Navigator.pop(context, option),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: option == 2 ? ModernTheme.error : ModernTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(option == 1 ? 'Vider' : 'Supprimer'),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
+
+    if (selectedOption == null || selectedOption == 0) return;
+
+    // Show loading
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(selectedOption == 1 ? 'Suppression des messages...' : 'Suppression du groupe...'),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    try {
+      if (selectedOption == 1) {
+        await _chatService.clearGroupMessages(group.id);
+      } else if (selectedOption == 2) {
+        await _chatService.deleteGroup(group.id);
+      }
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        
+        final String message = selectedOption == 1 
+            ? 'Messages du groupe ${group.name} effacés' 
+            : 'Groupe ${group.name} supprimé avec succès';
+            
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(message)),
+              ],
+            ),
+            backgroundColor: ModernTheme.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+        _loadDepartmentGroups();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Erreur: $e')),
+              ],
+            ),
+            backgroundColor: ModernTheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+
+  // Old implementation commented out to be replaced
+  /*
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: ModernTheme.error.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.warning_rounded, color: ModernTheme.error, size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Confirmer la suppression',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Êtes-vous sûr de vouloir supprimer ce groupe de département ?',
+              style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    DepartmentConstants.getDepartmentIcon(group.department ?? ''),
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          group.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${group.memberCount} membres',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ModernTheme.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: ModernTheme.error.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: ModernTheme.error, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Cette action est irréversible. Tous les messages seront supprimés.',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ModernTheme.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    */
+
+
+
+  void _showCreateCustomDepartmentDialog() {
+    final TextEditingController nameController = TextEditingController();
+    final List<String> availableIcons = ['🏢', '🏭', '⚙️', '📦', '🚚', '💼', '🔧', '📊', '🎯', '👥', '📱', '💻', '🛠️', '📈', '🏗️', '🎨'];
+    final List<Color> availableColors = [
+      const Color(0xFF3B82F6), // Blue
+      const Color(0xFF10B981), // Green
+      const Color(0xFFF59E0B), // Amber
+      const Color(0xFFEF4444), // Red
+      const Color(0xFF8B5CF6), // Purple
+      const Color(0xFFEC4899), // Pink
+      const Color(0xFF14B8A6), // Teal
+      const Color(0xFF6366F1), // Indigo
+      const Color(0xFFF97316), // Orange
+      const Color(0xFF06B6D4), // Cyan
+    ];
+    
+    String selectedIcon = availableIcons[0];
+    Color selectedColor = availableColors[0];
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (builderContext, setDialogState) => AlertDialog(
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Nouveau Département',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Créez un nouveau département personnalisé',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Nom du département
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nom du département',
+                      hintText: 'Ex: Production, RH, IT...',
+                      prefixIcon: const Icon(Icons.label_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Sélection de l'icône
+                  Text(
+                    'Choisir une icône',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 70,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: availableIcons.length,
+                      itemBuilder: (context, index) {
+                        final icon = availableIcons[index];
+                        final isSelected = icon == selectedIcon;
+                        return GestureDetector(
+                          onTap: () {
+                            setDialogState(() {
+                              selectedIcon = icon;
+                            });
+                          },
+                          child: Container(
+                            width: 50,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? selectedColor.withOpacity(0.2) : Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected ? selectedColor : Colors.grey[300]!,
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                icon,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Sélection de la couleur
+                  Text(
+                    'Choisir une couleur',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: availableColors.map((color) {
+                      final isSelected = color == selectedColor;
+                      return GestureDetector(
+                        onTap: () {
+                          setDialogState(() {
+                            selectedColor = color;
+                          });
+                        },
+                        child: Container(
+                          width: 45,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? Colors.black : Colors.transparent,
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: isSelected
+                              ? const Icon(Icons.check, color: Colors.white, size: 20)
+                              : null,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Aperçu
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: selectedColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: selectedColor.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [selectedColor.withOpacity(0.2), selectedColor.withOpacity(0.1)],
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: selectedColor.withOpacity(0.4),
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            selectedIcon,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                nameController.text.isEmpty ? 'Aperçu' : nameController.text,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Groupe de département',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                if (nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.warning, color: Colors.white),
+                          SizedBox(width: 12),
+                          Text('Veuillez entrer un nom de département'),
+                        ],
+                      ),
+                      backgroundColor: ModernTheme.warning,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(dialogContext);
+                _createCustomDepartmentGroup(
+                  nameController.text.trim(),
+                  selectedIcon,
+                  selectedColor,
+                );
+              },
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Créer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B5CF6),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _createCustomDepartmentGroup(String name, String icon, Color color) async {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Création du groupe en cours...'),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      await _chatService.createDepartmentGroup(
+        name: name,
+        department: name, // Use the name as department for custom departments
+        description: 'Groupe personnalisé créé par l\'administrateur',
+      );
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text('Groupe "$name" créé avec succès ! 🎉'),
+              ],
+            ),
+            backgroundColor: ModernTheme.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        _loadDepartmentGroups();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Erreur: $e')),
+              ],
+            ),
+            backgroundColor: ModernTheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -124,48 +852,260 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Créer un groupe de département'),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [ModernTheme.primaryBlue, Color(0xFF06B6D4)],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Créer un groupe de département',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
         content: SizedBox(
           width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: DepartmentConstants.allowedDepartments.map((dept) {
-              // Check if group already exists
-              final exists = _groups.any((g) => g.department == dept);
-              final color = _parseColor(DepartmentConstants.getDepartmentColor(dept));
-              
-              return ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    DepartmentConstants.getDepartmentIcon(dept),
-                    style: const TextStyle(fontSize: 20),
-                  ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sélectionnez un département pour créer son groupe de discussion',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Bouton pour créer un département personnalisé
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showCreateCustomDepartmentDialog();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.add_rounded,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Créer un département personnalisé',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2),
+                                      Text(
+                                        'Ajouter un nouveau département',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    // Divider
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'OU SÉLECTIONNER UN DÉPARTEMENT EXISTANT',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // Liste des départements existants
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: DepartmentConstants.allowedDepartments.length,
+                        itemBuilder: (context, index) {
+                          final dept = DepartmentConstants.allowedDepartments[index];
+                          final exists = _groups.any((g) => g.department == dept);
+                          final color = _parseColor(DepartmentConstants.getDepartmentColor(dept));
+                          
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: exists ? Colors.grey[300]! : color.withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                              color: exists ? Colors.grey[100] : Colors.white,
+                            ),
+                            child: ListTile(
+                              enabled: !exists,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              leading: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  gradient: exists
+                                      ? LinearGradient(colors: [Colors.grey[400]!, Colors.grey[300]!])
+                                      : LinearGradient(
+                                          colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
+                                        ),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: exists ? Colors.grey[400]! : color.withOpacity(0.4),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Text(
+                                  DepartmentConstants.getDepartmentIcon(dept),
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              title: Text(
+                                dept,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: exists ? Colors.grey[500] : ModernTheme.textPrimary,
+                                ),
+                              ),
+                              subtitle: exists
+                                  ? const Text(
+                                      'Groupe déjà créé',
+                                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                                    )
+                                  : null,
+                              trailing: exists
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[50],
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.green[200]!),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.check_circle, color: Colors.green[700], size: 16),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            'Actif',
+                                            style: TextStyle(
+                                              color: Colors.green[700],
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [color.withOpacity(0.15), color.withOpacity(0.08)],
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.add_circle_outline, color: color, size: 20),
+                                    ),
+                              onTap: exists
+                                  ? null
+                                  : () {
+                                      Navigator.pop(context);
+                                      _createDepartmentGroup(dept);
+                                    },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                title: Text(dept, style: const TextStyle(fontWeight: FontWeight.w600)),
-                trailing: exists
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.add_circle_outline, color: ModernTheme.primaryBlue),
-                enabled: !exists,
-                onTap: exists
-                    ? null
-                    : () {
-                        Navigator.pop(context);
-                        _createDepartmentGroup(dept);
-                      },
-              );
-            }).toList(),
+              ),
+            ],
           ),
         ),
         actions: [
-          TextButton(
+          TextButton.icon(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            icon: const Icon(Icons.close),
+            label: const Text('Fermer'),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
           ),
         ],
       ),
@@ -181,36 +1121,58 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 120.0,
+            expandedHeight: 160.0,
             floating: true,
             pinned: true,
             elevation: 0,
-            backgroundColor: ModernTheme.primaryBlue,
+            backgroundColor: const Color(0xFF0EA5E9),
             flexibleSpace: FlexibleSpaceBar(
               title: const Text(
-                'Groupes de Département',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'Discussions',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
               ),
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      ModernTheme.primaryBlue,
-                      ModernTheme.primaryBlue.withBlue(180),
+                      Color(0xFF0EA5E9),
+                      Color(0xFF06B6D4),
+                      Color(0xFF0891B2),
                     ],
                   ),
                 ),
                 child: Stack(
                   children: [
                     Positioned(
-                      right: -20,
-                      top: -20,
+                      right: -60,
+                      top: -60,
+                      child: Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Colors.white.withOpacity(0.15),
+                              Colors.white.withOpacity(0.05),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 20,
+                      bottom: 60,
                       child: Icon(
-                        Icons.forum_outlined,
-                        size: 150,
-                        color: Colors.white.withOpacity(0.1),
+                        Icons.forum_rounded,
+                        size: 80,
+                        color: Colors.white.withOpacity(0.15),
                       ),
                     ),
                   ],
@@ -218,12 +1180,54 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
               ),
             ),
             actions: [
-              if (authProvider.isAdmin)
+              if (authProvider.isAdmin) ...[
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline, color: Colors.white),
                   onPressed: _showCreateGroupDialog,
                   tooltip: 'Créer un groupe',
                 ),
+                const SizedBox(width: 8),
+              ],
+              Consumer<NotificationProvider>(
+                builder: (context, provider, child) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pushNamed(context, Routes.notifications);
+                        },
+                      ),
+                      if (provider.unreadCount > 0)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: ModernTheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              provider.unreadCount > 99 ? '99+' : provider.unreadCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 onPressed: _loadDepartmentGroups,
@@ -232,8 +1236,33 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
             ],
           ),
           if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: ModernTheme.primaryBlue.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Chargement des groupes...',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             )
           else if (_error != null)
             SliverFillRemaining(
@@ -291,163 +1320,278 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
   }
 
   Widget _buildGroupCard(ChatGroup group) {
+    final authProvider = context.watch<AuthProvider>();
     final department = group.department ?? 'Inconnu';
     final color = _parseColor(DepartmentConstants.getDepartmentColor(department));
     final icon = DepartmentConstants.getDepartmentIcon(department);
 
-    return ModernCard(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupChatScreen(group: group),
-          ),
-        );
-      },
-      margin: const EdgeInsets.only(bottom: ModernTheme.spacingM),
-      padding: EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: ModernTheme.cardRadius,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              color.withOpacity(0.05),
-            ],
-          ),
-        ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Colored Side Indicator
-              Container(
-                width: 6,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
-                ),
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutBack,
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: ModernTheme.spacingM),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  color.withOpacity(0.03),
+                ],
               ),
-              const SizedBox(width: 20),
-              // Department Icon
-              Center(
-                child: Hero(
-                  tag: 'group_icon_${group.id}',
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        icon,
-                        style: const TextStyle(fontSize: 26),
-                      ),
-                    ),
-                  ),
-                ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: color.withOpacity(0.2),
+                width: 1.5,
               ),
-              const SizedBox(width: 20),
-              // Group Info
-              Expanded(
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GroupChatScreen(group: group),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(20),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
                     children: [
-                      Text(
-                        group.name,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: ModernTheme.textPrimary,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        department.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: color,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildMemberBadge(group.memberCount),
-                          const SizedBox(width: 8),
-                          if (group.isDepartmentGroup)
-                            const StatusBadge(
-                              label: 'OFFICIEL',
-                              color: ModernTheme.primaryBlue,
+                      // Department Icon with gradient
+                      Hero(
+                        tag: 'group_icon_${group.id}',
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                color.withOpacity(0.2),
+                                color.withOpacity(0.1),
+                              ],
                             ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: color.withOpacity(0.3),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              icon,
+                              style: const TextStyle(fontSize: 28),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      // Group Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              group.name,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: ModernTheme.textPrimary,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    color.withOpacity(0.2),
+                                    color.withOpacity(0.1),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: color.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                department.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: color,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                _buildMemberBadge(group.memberCount, color),
+                                const SizedBox(width: 8),
+                                if (group.isDepartmentGroup)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF10B981),
+                                          Color(0xFF059669),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF10B981).withOpacity(0.3),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.verified,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'OFFICIEL',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Action Icons
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: color,
+                            ),
+                          ),
+                          // Admin can delete groups
+                          if (authProvider.isAdmin) ...[
+                            const SizedBox(width: 8),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  // Prevent navigation to chat when deleting
+                                  _deleteDepartmentGroup(group);
+                                },
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: ModernTheme.error.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                    color: ModernTheme.error,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
-              // Action Icon
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.05),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
-                      color: ModernTheme.textTertiary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildMemberBadge(int count) {
+  Widget _buildMemberBadge(int count, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: ModernTheme.textSecondary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.15),
+            color.withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.25),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.people_outline, size: 14, color: ModernTheme.textSecondary),
+          Icon(Icons.people_rounded, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
             '$count',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: ModernTheme.textSecondary,
+              color: color,
             ),
           ),
         ],

@@ -11,11 +11,11 @@ class ObjectiveCard extends StatelessWidget {
   final bool showAssignedTo;
 
   const ObjectiveCard({
-    Key? key,
+    super.key,
     required this.objective,
     this.onTap,
     this.showAssignedTo = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

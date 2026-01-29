@@ -86,7 +86,7 @@ class ValidationHelper {
     return emailRegex.hasMatch(email);
   }
 
-  /// Validate password (minimum 6 characters)
+  /// Validate password (minimum 3 characters - accepte mots de passe simples)
   static bool isValidPassword(String password) {
     return password.length >= 3;
   }
@@ -135,5 +135,65 @@ class UiHelper {
   /// Hide loading dialog
   static void hideLoadingDialog(BuildContext context) {
     Navigator.of(context).pop();
+  }
+
+  /// Show error dialog
+  static void showErrorDialog(
+    BuildContext context,
+    String title,
+    String message,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show success dialog
+  static void showSuccessDialog(
+    BuildContext context,
+    String title,
+    String message,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.check_circle, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Text(title),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('OK', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -12,7 +12,7 @@ import '../utils/animations.dart';
 
 /// Écran des objectifs pour les employés
 class ObjectivesScreen extends StatefulWidget {
-  const ObjectivesScreen({Key? key}) : super(key: key);
+  const ObjectivesScreen({super.key});
 
   @override
   State<ObjectivesScreen> createState() => _ObjectivesScreenState();
@@ -55,10 +55,10 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
       body: Consumer<ObjectiveProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.objectives.isEmpty) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+            return const SingleChildScrollView(
+              padding: EdgeInsets.all(16),
               child: Column(
-                children: const [
+                children: [
                   SkeletonStatCard(),
                   SizedBox(height: 16),
                   SkeletonList(itemCount: 6, itemHeight: 100),

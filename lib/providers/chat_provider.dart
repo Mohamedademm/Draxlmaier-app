@@ -3,16 +3,18 @@ import '../models/message_model.dart';
 import '../models/chat_group_model.dart';
 import '../services/chat_service.dart';
 import '../services/socket_service.dart';
+import '../services/cache_service.dart';
 
 /// Chat state management provider
 class ChatProvider with ChangeNotifier {
   final ChatService _chatService = ChatService();
   final SocketService _socketService = SocketService();
+  final CacheService _cacheService = CacheService();
 
   List<Message> _messages = [];
   List<ChatGroup> _groups = [];
   List<Map<String, dynamic>> _conversations = [];
-  Map<String, bool> _typingUsers = {};
+  final Map<String, bool> _typingUsers = {};
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -78,16 +80,52 @@ class ChatProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    final String cacheKey = groupId != null 
+        ? CacheService.chatHistoryKey(groupId) 
+        : CacheService.chatHistoryKey(recipientId ?? 'unknown');
+
+    // 1. Try to load from cache first
     try {
-      _messages = await _chatService.getChatHistory(
+      final cachedData = _cacheService.getData(cacheKey);
+      if (cachedData != null && cachedData is List && cachedData.isNotEmpty) {
+        try {
+          _messages = cachedData
+              .where((item) => item != null)
+              .map((json) => Message.fromJson(json as Map<String, dynamic>))
+              .toList();
+          notifyListeners(); // Show cached messages immediately
+        } catch (parseError) {
+          debugPrint('Error parsing cached messages: $parseError');
+          _messages = []; // Reset to empty if parsing fails
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading from cache: $e');
+    }
+
+    // 2. Fetch from API
+    try {
+      final messages = await _chatService.getChatHistory(
         recipientId: recipientId,
         groupId: groupId,
       );
+      
+      _messages = messages;
+      
+      // 3. Update cache
+      try {
+        final messagesJson = messages.map((m) => m.toJson()).toList();
+        await _cacheService.saveData(cacheKey, messagesJson);
+      } catch (e) {
+        debugPrint('Error saving to cache: $e');
+      }
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
+      // Keep showing cached messages if API fails
       notifyListeners();
     }
   }

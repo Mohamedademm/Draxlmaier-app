@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 import '../providers/user_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/auth_provider.dart';
@@ -433,179 +432,395 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   }
 
   void _showSendNotificationDialog() {
-    final titleController = TextEditingController();
-    final messageController = TextEditingController();
-    String targetType = 'all'; 
-    String? selectedDepartment;
-    List<User> selectedUsers = [];
-    List<User> allUsers = [];
-    bool isFetchingUsers = false;
-
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          if (allUsers.isEmpty && !isFetchingUsers && (targetType == 'user' || targetType == 'department')) {
-            isFetchingUsers = true;
-            final userProvider = context.read<UserProvider>();
-            
-            void updateUsers() {
-              setDialogState(() {
-                allUsers = userProvider.users;
-                isFetchingUsers = false;
-              });
-            }
-
-            if (userProvider.users.isEmpty) {
-              userProvider.loadUsers().then((_) => updateUsers());
-            } else {
-              Future.microtask(() => updateUsers());
-            }
-          }
-
-          final departments = ['Qualité', 'Logistique', 'MM shift A', 'MM shift B', 'SZB shift A', 'SZB shift B', 'Direction', 'IT', 'RH'];
-
-          return AlertDialog(
-            title: const Text('Nouvelle Notification'),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Cible de diffusion', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: ModernTheme.textSecondary)),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildTargetChip('Tous', 'all', targetType, (val) => setDialogState(() => targetType = val)),
-                          const SizedBox(width: 8),
-                          _buildTargetChip('Département', 'department', targetType, (val) => setDialogState(() => targetType = val)),
-                          const SizedBox(width: 8),
-                          _buildTargetChip('Utilisateurs', 'user', targetType, (val) => setDialogState(() => targetType = val)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    if (targetType == 'department')
-                      DropdownButtonFormField<String>(
-                        value: selectedDepartment,
-                        decoration: InputDecoration(
-                          labelText: 'Département cible',
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                        ),
-                        items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                        onChanged: (val) => setDialogState(() => selectedDepartment = val),
-                      ),
-                    if (targetType == 'user')
-                      isFetchingUsers 
-                        ? const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DropdownButtonFormField<User>(
-                                decoration: InputDecoration(
-                                  labelText: 'Chercher un utilisateur',
-                                  filled: true,
-                                  fillColor: Colors.grey.shade50,
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                                ),
-                                items: allUsers.map((u) => DropdownMenuItem(value: u, child: Text(u.fullName))).toList(),
-                                onChanged: (u) {
-                                  if (u != null && !selectedUsers.any((user) => user.id == u.id)) {
-                                    setDialogState(() => selectedUsers.add(u));
-                                  }
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 8,
-                                children: selectedUsers.map((u) => Chip(
-                                  label: Text(u.fullName, style: const TextStyle(fontSize: 12)),
-                                  backgroundColor: ModernTheme.primaryBlue.withOpacity(0.1),
-                                  side: BorderSide.none,
-                                  onDeleted: () => setDialogState(() => selectedUsers.removeWhere((user) => user.id == u.id)),
-                                )).toList(),
-                              ),
-                            ],
-                          ),
-                    const Divider(height: 40),
-                    ModernTextField(
-                      controller: titleController,
-                      label: 'Titre du message',
-                      hint: 'Ex: Maintenance système prévue',
-                    ),
-                    const SizedBox(height: 16),
-                    ModernTextField(
-                      controller: messageController,
-                      label: 'Contenu du message',
-                      hint: 'Détails de l\'annonce...',
-                      maxLines: 4,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Annuler'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ModernTheme.primaryBlue,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-                onPressed: () async {
-                  if (titleController.text.isEmpty || messageController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs')));
-                    return;
-                  }
-                  
-                  final success = await context.read<NotificationProvider>().sendNotification(
-                    title: titleController.text,
-                    message: messageController.text,
-                    targetUserIds: targetType == 'user' ? selectedUsers.map((u) => u.id).toList() : null,
-                    targetDepartment: targetType == 'department' ? selectedDepartment : null,
-                    sendToAll: targetType == 'all',
-                  );
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(success ? 'Notification envoyée' : 'Échec de l\'envoi'),
-                        backgroundColor: success ? ModernTheme.success : ModernTheme.error,
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Diffuser'),
-              ),
-            ],
-          );
-        },
-      ),
+      barrierDismissible: true,
+      barrierLabel: 'Notification',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) => _NotificationDialog(),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1,
+          child: child, // The Scaling is handled inside the dialog for more control
+        );
+      },
     );
   }
 
   Widget _buildTargetChip(String label, String value, String current, Function(String) onSelected) {
-    final isSelected = current == value;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) => onSelected(value),
-      selectedColor: ModernTheme.primaryBlue.withOpacity(0.2),
-      labelStyle: TextStyle(
-        color: isSelected ? ModernTheme.primaryBlue : ModernTheme.textSecondary,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    // This is now handled inside _NotificationDialog, but keeping it if needed elsewhere or removing it if unused.
+    // Since it was only used in the dialog, we can remove it or update it.
+    // For now, let's remove it as the new dialog has its own implementation.
+    return const SizedBox.shrink(); 
+  }
+}
+
+class _NotificationDialog extends StatefulWidget {
+  @override
+  State<_NotificationDialog> createState() => _NotificationDialogState();
+}
+
+class _NotificationDialogState extends State<_NotificationDialog> with SingleTickerProviderStateMixin {
+  final _titleController = TextEditingController();
+  final _messageController = TextEditingController();
+  String _targetType = 'all'; // all, department, user
+  String? _selectedDepartment;
+  List<User> _selectedUsers = [];
+  bool _isFetchingUsers = false;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  final List<String> _departments = ['Qualité', 'Logistique', 'MM shift A', 'MM shift B', 'SZB shift A', 'SZB shift B', 'Direction', 'IT', 'RH'];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _scaleAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _titleController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _checkLoadUsers() {
+    if ((_targetType == 'user' || _targetType == 'department') && 
+        context.read<UserProvider>().users.isEmpty && !_isFetchingUsers) {
+      setState(() => _isFetchingUsers = true);
+      context.read<UserProvider>().loadUsers().then((_) {
+        if (mounted) setState(() => _isFetchingUsers = false);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 800),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [ModernTheme.primaryBlue, ModernTheme.primaryBlue.withBlue(180)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.notifications_active_outlined, color: Colors.white),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Nouvelle Notification',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Diffuser un message aux équipes',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Body
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle('Cible de diffusion'),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildTargetOption('Tous', 'all'),
+                            _buildTargetOption('Département', 'department'),
+                            _buildTargetOption('Utilisateurs', 'user'),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        child: Column(
+                          children: [
+                            if (_targetType == 'department')
+                              DropdownButtonFormField<String>(
+                                value: _selectedDepartment,
+                                decoration: _buildInputDecoration('Département cible'),
+                                items: _departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                onChanged: (val) => setState(() => _selectedDepartment = val),
+                              ),
+                            
+                            if (_targetType == 'user')
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Consumer<UserProvider>(
+                                    builder: (context, provider, _) {
+                                      if (provider.users.isEmpty && _isFetchingUsers) {
+                                        return const Center(child: LinearProgressIndicator());
+                                      }
+                                      return DropdownButtonFormField<User>(
+                                        decoration: _buildInputDecoration('Ajouter un utilisateur'),
+                                        items: provider.users.map((u) => DropdownMenuItem(value: u, child: Text(u.fullName))).toList(),
+                                        onChanged: (u) {
+                                          if (u != null && !_selectedUsers.any((user) => user.id == u.id)) {
+                                            setState(() => _selectedUsers.add(u));
+                                          }
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: _selectedUsers.map((u) => Chip(
+                                      avatar: CircleAvatar(
+                                        backgroundColor: ModernTheme.primaryBlue,
+                                        child: Text(u.firstname[0].toUpperCase(), style: const TextStyle(fontSize: 10, color: Colors.white)),
+                                      ),
+                                      label: Text(u.fullName, style: const TextStyle(fontSize: 12)),
+                                      backgroundColor: ModernTheme.primaryBlue.withOpacity(0.05),
+                                      deleteIcon: const Icon(Icons.close, size: 16, color: ModernTheme.primaryBlue),
+                                      onDeleted: () => setState(() => _selectedUsers.removeWhere((user) => user.id == u.id)),
+                                      side: BorderSide(color: ModernTheme.primaryBlue.withOpacity(0.2)),
+                                    )).toList(),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+                      _buildSectionTitle('Message'),
+                      const SizedBox(height: 12),
+                      ModernTextField(
+                        controller: _titleController,
+                        label: 'Titre', 
+                        hint: 'Ex: Maintenance système',
+                        prefixIcon: Icons.title,
+                      ),
+                      const SizedBox(height: 16),
+                      ModernTextField(
+                        controller: _messageController,
+                        label: 'Contenu',
+                        hint: 'Tapez votre message ici...',
+                        maxLines: 4,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Footer
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        child: Text('Annuler', style: TextStyle(color: Colors.grey.shade700)),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _sendMessage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [ModernTheme.primaryBlue, Color(0xFF2563EB)]),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: ModernTheme.primaryBlue.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.send_rounded, color: Colors.white, size: 18),
+                                SizedBox(width: 8),
+                                Text('Diffuser', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title.toUpperCase(),
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.bold,
+        color: Colors.grey[600],
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _buildTargetOption(String label, String value) {
+    final isSelected = _targetType == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() => _targetType = value);
+          _checkLoadUsers();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected ? [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              )
+            ] : null,
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? ModernTheme.primaryBlue : Colors.grey[600],
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.grey[50],
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: ModernTheme.primaryBlue)),
+    );
+  }
+
+  Future<void> _sendMessage() async {
+    if (_titleController.text.isEmpty || _messageController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Veuillez remplir tous les champs')));
+      return;
+    }
+    
+    final success = await context.read<NotificationProvider>().sendNotification(
+      title: _titleController.text,
+      message: _messageController.text,
+      targetUserIds: _targetType == 'user' ? _selectedUsers.map((u) => u.id).toList() : null,
+      targetDepartment: _targetType == 'department' ? _selectedDepartment : null,
+      sendToAll: _targetType == 'all',
+    );
+
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success ? 'Notification envoyée' : 'Échec de l\'envoi'),
+          backgroundColor: success ? ModernTheme.success : ModernTheme.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 }

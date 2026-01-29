@@ -199,4 +199,22 @@ class ChatService {
       throw Exception('Failed to create department group: $e');
     }
   }
+
+  /// Delete a group
+  Future<void> deleteGroup(String groupId) async {
+    try {
+      await _apiService.delete('/groups/$groupId');
+    } catch (e) {
+      throw Exception('Failed to delete group: $e');
+    }
+  }
+
+  /// Clear all messages in a group
+  Future<void> clearGroupMessages(String groupId) async {
+    try {
+      await _apiService.delete('/groups/$groupId/messages');
+    } catch (e) {
+      throw Exception('Failed to clear group messages: $e');
+    }
+  }
 }

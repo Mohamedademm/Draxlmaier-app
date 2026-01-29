@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart';
+import '../services/cache_service.dart';
 
 /// User management state management provider
 class UserProvider with ChangeNotifier {
   final UserService _userService = UserService();
+  final CacheService _cacheService = CacheService();
 
   List<User> _users = [];
   bool _isLoading = false;
@@ -25,13 +27,45 @@ class UserProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    final String cacheKey = CacheService.allUsersKey;
+
+    // 1. Try to load from cache first
+    try {
+      final cachedData = _cacheService.getData(cacheKey);
+      if (cachedData != null && cachedData is List && cachedData.isNotEmpty) {
+        try {
+          _users = cachedData
+              .where((item) => item != null)
+              .map((json) => User.fromJson(json as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        } catch (parseError) {
+          debugPrint('Error parsing cached users: $parseError');
+          _users = []; // Reset to empty if parsing fails
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading users from cache: $e');
+    }
+
+    // 2. Fetch from API
     try {
       _users = await _userService.getAllUsers();
+      
+      // 3. Update cache
+      try {
+        final usersJson = _users.map((u) => u.toJson()).toList();
+        await _cacheService.saveData(cacheKey, usersJson);
+      } catch (e) {
+        debugPrint('Error saving users to cache: $e');
+      }
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
+      // Keep showing cached data if available
       notifyListeners();
     }
   }
@@ -92,6 +126,12 @@ class UserProvider with ChangeNotifier {
     String? email,
     UserRole? role,
     bool? active,
+    String? phone,
+    String? department,
+    String? position,
+    String? address,
+    String? city,
+    String? postalCode,
   }) async {
     try {
       final updatedUser = await _userService.updateUser(
@@ -101,6 +141,12 @@ class UserProvider with ChangeNotifier {
         email: email,
         role: role,
         active: active,
+        phone: phone,
+        department: department,
+        position: position,
+        address: address,
+        city: city,
+        postalCode: postalCode,
       );
       
       final index = _users.indexWhere((u) => u.id == userId);

@@ -238,14 +238,14 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(
                           Icons.info_outline,
                           size: 20,
                           color: ModernTheme.primary,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           'Vos identifiants:',
                           style: TextStyle(

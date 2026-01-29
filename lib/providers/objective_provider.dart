@@ -1,4 +1,5 @@
-import 'dart:io';
+// import 'dart:io'; // Removed for Web compatibility
+
 import 'package:flutter/foundation.dart';
 import '../models/objective_model.dart';
 import '../services/objective_service.dart';
@@ -249,38 +250,17 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
+  /*
   /// Ajouter une pièce jointe
+  // DISABLED FOR WEB COMPATIBILITY
   Future<bool> uploadAttachment({
     required String id,
-    required File file,
+    required dynamic file, // dynamic to avoid File type
   }) async {
-    try {
-      _error = null;
-      notifyListeners(); // Optional: show loading state if needed
-
-      final updatedObjective = await _objectiveService.uploadAttachment(
-        id: id,
-        file: file,
-      );
-
-      // Mettre à jour dans la liste
-      final index = _objectives.indexWhere((o) => o.id == id);
-      if (index != -1) {
-        _objectives[index] = updatedObjective;
-      }
-
-      if (_selectedObjective?.id == id) {
-        _selectedObjective = updatedObjective;
-      }
-
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-      return false;
-    }
+    // ... implementation disabled
+    return false;
   }
+  */
 
   /// Ajouter une sous-tâche
   Future<bool> addSubTask({

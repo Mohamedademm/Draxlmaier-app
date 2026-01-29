@@ -35,7 +35,7 @@ class _AdminDepartmentsScreenState extends State<AdminDepartmentsScreen> {
       final departments = await _departmentService.getDepartments(
         isActive: _showInactiveOnly ? false : null,
       );
-      final users = await _userService.getUsers();
+      final users = await _userService.getAllUsers();
       
       setState(() {
         _departments = departments;

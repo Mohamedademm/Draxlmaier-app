@@ -9,6 +9,7 @@ class ModernMainLayout extends StatelessWidget {
   final Function(int) onNavigationChanged;
   final List<NavigationItem> items;
   final Widget? floatingActionButton;
+  final PreferredSizeWidget? appBar;
 
   const ModernMainLayout({
     super.key,
@@ -17,15 +18,20 @@ class ModernMainLayout extends StatelessWidget {
     required this.onNavigationChanged,
     required this.items,
     this.floatingActionButton,
+    this.appBar,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Get theme brightness for dark mode support
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         // Desktop / Tablet Layout (> 800px)
         if (constraints.maxWidth > 800) {
           return Scaffold(
+            appBar: appBar,
             body: Row(
               children: [
                 _ModernSidebar(
@@ -40,7 +46,7 @@ class ModernMainLayout extends StatelessWidget {
                       bottomLeft: Radius.circular(ModernTheme.radiusL),
                     ),
                     child: Container(
-                      color: ModernTheme.background,
+                      color: isDark ? ModernTheme.darkBackground : ModernTheme.background,
                       child: body,
                     ),
                   ),
@@ -53,6 +59,7 @@ class ModernMainLayout extends StatelessWidget {
         
         // Mobile Layout
         return Scaffold(
+          appBar: appBar,
           body: body,
           bottomNavigationBar: _ModernBottomNavBar(
             currentIndex: currentIndex,
@@ -91,9 +98,11 @@ class _ModernSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: 250,
-      color: ModernTheme.surface,
+      color: isDark ? ModernTheme.darkSurface : ModernTheme.surface,
       child: Column(
         children: [
           const SizedBox(height: 32),
@@ -111,12 +120,12 @@ class _ModernSidebar extends StatelessWidget {
                   child: const Icon(Icons.hub, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Draxlmaier',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: ModernTheme.primaryBlue,
+                    color: isDark ? Colors.white : ModernTheme.primaryBlue,
                   ),
                 ),
               ],
@@ -149,14 +158,18 @@ class _ModernSidebar extends StatelessWidget {
                         children: [
                           Icon(
                             item.icon,
-                            color: isSelected ? ModernTheme.primaryBlue : ModernTheme.textSecondary,
+                            color: isSelected 
+                                ? ModernTheme.primaryBlue 
+                                : (isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary),
                             size: 24,
                           ),
                           const SizedBox(width: 16),
                           Text(
                             item.label,
                             style: TextStyle(
-                              color: isSelected ? ModernTheme.primaryBlue : ModernTheme.textSecondary,
+                              color: isSelected 
+                                  ? ModernTheme.primaryBlue 
+                                  : (isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary),
                               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                               fontSize: 14,
                             ),
@@ -211,9 +224,11 @@ class _ModernBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: ModernTheme.surface,
+        color: isDark ? ModernTheme.darkSurface : ModernTheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -236,7 +251,7 @@ class _ModernBottomNavBar extends StatelessWidget {
                 onTap: () => onTap(index),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected ? ModernTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
@@ -249,8 +264,10 @@ class _ModernBottomNavBar extends StatelessWidget {
                         children: [
                           Icon(
                             item.icon,
-                            color: isSelected ? ModernTheme.primaryBlue : ModernTheme.textTertiary,
-                            size: 24,
+                            color: isSelected 
+                                ? ModernTheme.primaryBlue 
+                                : (isDark ? ModernTheme.darkTextTertiary : ModernTheme.textTertiary),
+                            size: 22,
                           ),
                           if (item.badgeCount != null && item.badgeCount! > 0)
                             Positioned(
@@ -261,7 +278,10 @@ class _ModernBottomNavBar extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: ModernTheme.error,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: ModernTheme.surface, width: 1.5),
+                                  border: Border.all(
+                                      color: isDark ? ModernTheme.darkSurface : ModernTheme.surface,
+                                      width: 1.5
+                                  ),
                                 ),
                                 constraints: const BoxConstraints(
                                   minWidth: 16,
@@ -280,12 +300,14 @@ class _ModernBottomNavBar extends StatelessWidget {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         item.label,
                         style: TextStyle(
-                          color: isSelected ? ModernTheme.primaryBlue : ModernTheme.textTertiary,
-                          fontSize: 12,
+                          color: isSelected 
+                              ? ModernTheme.primaryBlue 
+                              : (isDark ? ModernTheme.darkTextTertiary : ModernTheme.textTertiary),
+                          fontSize: 10,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                         ),
                       ),

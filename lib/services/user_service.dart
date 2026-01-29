@@ -61,6 +61,12 @@ class UserService {
     String? email,
     UserRole? role,
     bool? active,
+    String? phone,
+    String? department,
+    String? position,
+    String? address,
+    String? city,
+    String? postalCode,
   }) async {
     try {
       final body = <String, dynamic>{};
@@ -69,6 +75,12 @@ class UserService {
       if (email != null) body['email'] = email;
       if (role != null) body['role'] = role.name;
       if (active != null) body['active'] = active;
+      if (phone != null) body['phone'] = phone;
+      if (department != null) body['department'] = department;
+      if (position != null) body['position'] = position;
+      if (address != null) body['address'] = address;
+      if (city != null) body['city'] = city;
+      if (postalCode != null) body['postalCode'] = postalCode;
 
       final response = await _apiService.put('/users/$userId', body);
       final data = _apiService.handleResponse(response);

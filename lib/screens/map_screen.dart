@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../providers/location_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/location_log_model.dart';
 
-/// Map screen showing employee locations
+/// Map screen showing employee locations using OpenStreetMap
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -15,14 +16,18 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  GoogleMapController? _mapController;
-  Set<Marker> _markers = {};
+  final MapController _mapController = MapController();
+  List<Marker> _markers = [];
+  bool _hasMovedOnce = false;
 
   @override
   void initState() {
     super.initState();
+    // No kIsWeb check needed strictly for functionality, but keeping logic consistent
     if (!kIsWeb) {
-      _loadLocations();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadLocations();
+      });
     }
   }
 
@@ -53,25 +58,47 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _updateMarkers(List<LocationLog> locations) {
+    if (!mounted) return;
+
     setState(() {
       _markers = locations.map((location) {
         return Marker(
-          markerId: MarkerId(location.userId),
-          position: LatLng(location.latitude, location.longitude),
-          infoWindow: InfoWindow(
-            title: location.userName ?? 'Unknown',
-            snippet: 'Last updated: ${location.timestamp.toString()}',
+          width: 80.0,
+          height: 80.0,
+          point: LatLng(location.latitude, location.longitude),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                  ],
+                ),
+                child: Text(
+                  location.userName ?? 'Utilisateur',
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Icon(
+                Icons.location_on,
+                color: Colors.redAccent,
+                size: 40.0,
+              ),
+            ],
           ),
         );
-      }).toSet();
+      }).toList();
     });
 
-    // Move camera to first location
-    if (locations.isNotEmpty && _mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(locations.first.latitude, locations.first.longitude),
-        ),
+    if (locations.isNotEmpty && !_hasMovedOnce) {
+      _hasMovedOnce = true;
+      _mapController.move(
+        LatLng(locations.first.latitude, locations.first.longitude),
+        14.0,
       );
     }
   }
@@ -80,12 +107,15 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final locationProvider = context.watch<LocationProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          authProvider.canManageUsers ? 'Team Locations' : 'My Location',
+          authProvider.canManageUsers ? 'Carte des Équipes' : 'Ma Position',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -95,37 +125,63 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: kIsWeb
           ? _buildWebLocationList(locationProvider)
-          : locationProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                  initialCameraPosition: const CameraPosition(
-                    target: LatLng(0, 0),
-                    zoom: 12,
+          : Stack(
+              children: [
+                FlutterMap(
+                  mapController: _mapController,
+                  options: const MapOptions(
+                    initialCenter: LatLng(36.8065, 10.1815), // Default to Tunis
+                    initialZoom: 12,
+                    interactionOptions: InteractionOptions(
+                      flags: InteractiveFlag.all,
+                    ),
                   ),
-                  markers: _markers,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  onMapCreated: (controller) {
-                    _mapController = controller;
-                  },
+                  children: [
+                    TileLayer(
+                      urlTemplate: isDark 
+                          ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                          : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: isDark ? const ['a', 'b', 'c'] : const ['a', 'b', 'c'], 
+                      // OSM handles empty list usually, but let's be safe or just use a b c if OSM supports it (it does a.tile, b.tile). 
+                      // Actually standard OSM is just tile.openstreetmap.org. 
+                      // Let's stick to safe subdomains.
+                      userAgentPackageName: 'com.example.employee_communication_app',
+                    ),
+                    MarkerLayer(markers: _markers),
+                    RichAttributionWidget(
+                      attributions: [
+                        TextSourceAttribution(
+                          'OpenStreetMap contributors',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+                if (locationProvider.isLoading)
+                  Container(
+                    color: Colors.black.withOpacity(0.3),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+              ],
+            ),
       floatingActionButton: kIsWeb
           ? null
           : FloatingActionButton(
+              backgroundColor: Theme.of(context).primaryColor,
+              child: const Icon(Icons.my_location, color: Colors.white),
               onPressed: () async {
                 await locationProvider.getCurrentLocation();
                 if (locationProvider.currentPosition != null) {
-                  _mapController?.animateCamera(
-                    CameraUpdate.newLatLng(
-                      LatLng(
-                        locationProvider.currentPosition!.latitude,
-                        locationProvider.currentPosition!.longitude,
-                      ),
+                  _mapController.move(
+                    LatLng(
+                      locationProvider.currentPosition!.latitude,
+                      locationProvider.currentPosition!.longitude,
                     ),
+                    15.0,
                   );
                 }
               },
-              child: const Icon(Icons.my_location),
             ),
     );
   }
@@ -139,26 +195,35 @@ class _MapScreenState extends State<MapScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.info_outline, size: 64, color: Colors.blue),
+              const Icon(Icons.map, size: 64, color: Colors.blue),
               const SizedBox(height: 16),
               const Text(
-                'Google Maps Not Available on Web',
+                'Version Web',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
-                'Location tracking is only available on mobile devices.',
+                'La carte interactive est optimisée pour mobile.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               if (locationProvider.teamLocations.isNotEmpty) ...[
-                const Text('Team Locations:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Dernières positions connues :', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                ...locationProvider.teamLocations.map((loc) => ListTile(
-                      leading: const Icon(Icons.location_on),
-                      title: Text(loc.userName ?? 'Unknown'),
-                      subtitle: Text('Lat: ${loc.latitude.toStringAsFixed(4)}, Lng: ${loc.longitude.toStringAsFixed(4)}'),
-                    )),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: locationProvider.teamLocations.length,
+                    itemBuilder: (context, index) {
+                      final loc = locationProvider.teamLocations[index];
+                      return ListTile(
+                        leading: const Icon(Icons.person_pin_circle, color: Colors.blue),
+                        title: Text(loc.userName ?? 'Inconnu'),
+                        subtitle: Text('${loc.latitude.toStringAsFixed(4)}, ${loc.longitude.toStringAsFixed(4)}'),
+                      );
+                    },
+                  ),
+                ),
               ],
             ],
           ),

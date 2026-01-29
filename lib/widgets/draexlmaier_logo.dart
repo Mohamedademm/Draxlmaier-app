@@ -11,28 +11,30 @@ class DraexlmaierLogo extends StatelessWidget {
   final bool animate;
 
   const DraexlmaierLogo({
-    Key? key,
+    super.key,
     this.height,
     this.width,
     this.isWhite = false,
     this.fit = BoxFit.contain,
     this.showShadow = false,
     this.animate = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       height: height,
       width: width,
       padding: showShadow ? const EdgeInsets.all(16) : EdgeInsets.zero,
       decoration: showShadow
           ? BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 5),
                 ),

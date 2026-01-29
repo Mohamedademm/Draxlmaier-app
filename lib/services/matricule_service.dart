@@ -125,7 +125,7 @@ class MatriculeService {
       print('📦 Matricules data type: ${matriculesData.runtimeType}');
       print('📦 Matricules count: ${(matriculesData as List).length}');
       
-      final matricules = (matriculesData as List)
+      final matricules = (matriculesData)
           .map((m) {
             try {
               print('🔍 Parsing matricule: ${m['matricule']}');

@@ -104,6 +104,18 @@ class AuthService {
     }
   }
 
+  /// Forgot Password - Request reset token
+  Future<void> forgotPassword(String email) async {
+    try {
+      final response = await _apiService.post('/auth/forgotpassword', {
+        'email': email,
+      });
+      _apiService.handleResponse(response);
+    } catch (e) {
+      throw Exception('Failed to send reset email: $e');
+    }
+  }
+
   /// Register with matricule
   Future<Map<String, dynamic>> registerWithMatricule({
     required String matricule,

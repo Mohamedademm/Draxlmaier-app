@@ -45,5 +45,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+    
+    <!-- Permissions pour l'application -->
+    <key>NSCameraUsageDescription</key>
+    <string>Cette application a besoin d'accéder à la caméra pour prendre des photos de profil ou partager des images.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Cette application a besoin d'accéder au microphone pour les messages vocaux.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Cette application a besoin d'accéder à la galerie pour sélectionner des images.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Cette application a besoin d'accéder à votre localisation pour les fonctionnalités de géolocalisation.</string>
+    
+    <!-- Configuration Background Modes pour Notifications -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
 </dict>
 </plist>

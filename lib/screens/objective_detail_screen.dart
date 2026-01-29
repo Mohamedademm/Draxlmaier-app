@@ -1,5 +1,5 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+// import 'dart:io'; // Removed for Web compatibility
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -636,6 +636,11 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
   }
 
   Future<void> _pickAndUploadFile() async {
+    // Disabled for Web compatibility
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('L\'upload de fichiers est temporairement désactivé sur le Web.')),
+    );
+    /*
     final result = await FilePicker.platform.pickFiles();
     if (result != null && result.files.single.path != null) {
       final file = File(result.files.single.path!);
@@ -669,6 +674,7 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
         );
       }
     }
+    */
   }
 
   Widget _buildCommentsSection(Objective objective) {

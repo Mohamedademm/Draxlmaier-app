@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
@@ -39,8 +40,45 @@ import 'utils/constants.dart';
 import 'utils/app_localizations.dart';
 import 'utils/animations.dart';
 
+import 'package:hive_flutter/hive_flutter.dart';
+import 'services/notification_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase ONLY on mobile (Android/iOS), not on web
+  if (!kIsWeb) {
+    try {
+      await Firebase.initializeApp();
+      
+      // Set up background message handler
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      
+      // Initialize notification service
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      
+      // Request notification permission
+      await notificationService.requestPermission();
+      
+      // Get and send FCM token to backend
+      final token = await notificationService.getFcmToken();
+      if (token != null) {
+        // Token will be sent to backend after login
+        debugPrint('FCM Token obtained');
+      }
+    } catch (e) {
+      debugPrint('Firebase initialization error: $e');
+    }
+  }
+  
+  // Initialize Hive
+  await Hive.initFlutter();
+  
+  // Open boxes (we will register adapters later)
+  await Hive.openBox('settings');
+  await Hive.openBox('cache');
+  
   runApp(const MyApp());
 }
 

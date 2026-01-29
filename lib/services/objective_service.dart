@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
+// import 'dart:io'; // Removed for Web compatibility
+
 import 'package:http/http.dart' as http;
 import '../models/objective_model.dart';
 import '../utils/constants.dart';
@@ -328,7 +329,9 @@ class ObjectiveService {
       throw Exception('Erreur: $e');
     }
   }
+  /* 
   /// Ajouter une pièce jointe
+  // DISABLED FOR WEB COMPATIBILITY (dart:io dependency)
   Future<Objective> uploadAttachment({
     required String id,
     required File file,
@@ -366,6 +369,7 @@ class ObjectiveService {
       throw Exception('Erreur: $e');
     }
   }
+  */
 
   /// Ajouter une sous-tâche
   Future<Objective> addSubTask({

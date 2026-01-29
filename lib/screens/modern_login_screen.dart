@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/modern_theme.dart';
-import '../widgets/modern_widgets.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../services/google_auth_service.dart';
@@ -146,12 +145,20 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: ModernTheme.primaryGradient,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0EA5E9),
+              Color(0xFF06B6D4),
+              Color(0xFF0891B2),
+            ],
+          ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(ModernTheme.spacingL),
+              padding: const EdgeInsets.all(24),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
@@ -159,273 +166,430 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo & Welcome
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
+                      // Logo with enhanced animation
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 1200),
+                        curve: Curves.elasticOut,
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Transform.rotate(
+                              angle: (1 - value) * 0.5,
+                              child: Opacity(
+                                opacity: value,
+                                child: child,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 30,
+                                spreadRadius: 5,
+                                offset: const Offset(0, 10),
+                              ),
+                              BoxShadow(
+                                color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                blurRadius: 40,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 15),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.business_rounded,
+                            size: 60,
+                            color: Color(0xFF0EA5E9),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      
+                      // Welcome text with shadow
+                      Text(
+                        'Bienvenue',
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.business,
-                          size: 50,
-                          color: ModernTheme.primary,
-                        ),
                       ),
-                      const SizedBox(height: ModernTheme.spacingL),
-                      const Text(
-                        'Bienvenue',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: ModernTheme.spacingS),
+                      const SizedBox(height: 8),
                       Text(
                         'Connectez-vous pour continuer',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withOpacity(0.95),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: ModernTheme.spacingXL),
+                      const SizedBox(height: 48),
 
-                      // Login Card
+                      // Login Card with enhanced design
                       Container(
-                        constraints: const BoxConstraints(maxWidth: 400),
+                        constraints: const BoxConstraints(maxWidth: 420),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.1),
                               blurRadius: 30,
                               offset: const Offset(0, 10),
                             ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 60,
+                              offset: const Offset(0, 20),
+                            ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(ModernTheme.spacingXL),
+                        padding: const EdgeInsets.all(32),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Email Field
-                              TextFormField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  labelText: 'Email',
-                                  hintText: 'votre.email@example.com',
-                                  prefixIcon: const Icon(Icons.email_outlined),
-                                  filled: true,
-                                  fillColor: ModernTheme.surfaceVariant,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                              // Email Field - Modern Design
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      const Color(0xFF0EA5E9).withOpacity(0.1),
+                                      const Color(0xFF06B6D4).withOpacity(0.05),
+                                    ],
                                   ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                    width: 2,
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: ModernTheme.primary,
-                                      width: 2,
+                                ),
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email',
+                                    labelStyle: const TextStyle(
+                                      color: Color(0xFF0EA5E9),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    hintText: 'votre.email@example.com',
+                                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.email_rounded, color: Colors.white, size: 20),
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Email requis';
+                                    }
+                                    if (!value.contains('@')) {
+                                      return 'Email invalide';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+
+                              // Password Field - Modern Design
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      const Color(0xFF0EA5E9).withOpacity(0.1),
+                                      const Color(0xFF06B6D4).withOpacity(0.05),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  decoration: InputDecoration(
+                                    labelText: 'Mot de passe',
+                                    labelStyle: const TextStyle(
+                                      color: Color(0xFF0EA5E9),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    hintText: '••••••••',
+                                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                                    prefixIcon: Container(
+                                      margin: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(Icons.lock_rounded, color: Colors.white, size: 20),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                                        color: const Color(0xFF0EA5E9),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Mot de passe requis';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+
+                              // Login Button - Gradient Design
+                              Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                                child: InkWell(
+                                  onTap: authProvider.isLoading ? null : _handleLogin,
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Ink(
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFF0EA5E9), Color(0xFF0891B2)],
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF0EA5E9).withOpacity(0.4),
+                                          blurRadius: 15,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Container(
+                                      height: 56,
+                                      alignment: Alignment.center,
+                                      child: authProvider.isLoading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2.5,
+                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                              ),
+                                            )
+                                          : const Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.login_rounded, color: Colors.white, size: 22),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  'Se connecter',
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                     ),
                                   ),
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Email requis';
-                                  }
-                                  if (!value.contains('@')) {
-                                    return 'Email invalide';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: ModernTheme.spacingM),
-
-                              // Password Field
-                              TextFormField(
-                                controller: _passwordController,
-                                obscureText: _obscurePassword,
-                                decoration: InputDecoration(
-                                  labelText: 'Mot de passe',
-                                  hintText: '••••••••',
-                                  prefixIcon: const Icon(Icons.lock_outlined),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_outlined
-                                          : Icons.visibility_off_outlined,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _obscurePassword = !_obscurePassword;
-                                      });
-                                    },
-                                  ),
-                                  filled: true,
-                                  fillColor: ModernTheme.surfaceVariant,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: ModernTheme.primary,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Mot de passe requis';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: ModernTheme.spacingL),
-
-                              // Login Button
-                              GradientButton(
-                                text: 'Se connecter',
-                                onPressed: _handleLogin,
-                                isLoading: authProvider.isLoading,
-                                icon: Icons.login,
                               ),
                               
-                              const SizedBox(height: ModernTheme.spacingM),
+                              const SizedBox(height: 20),
 
-                              // Divider
+                              // Divider - Modern Design
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Divider(
-                                      color: Colors.grey.shade300,
-                                      thickness: 1,
+                                    child: Container(
+                                      height: 2,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.transparent,
+                                            const Color(0xFF0EA5E9).withOpacity(0.3),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text(
-                                      'OU',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Text(
+                                        'OU',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
                                   Expanded(
-                                    child: Divider(
-                                      color: Colors.grey.shade300,
-                                      thickness: 1,
+                                    child: Container(
+                                      height: 2,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            const Color(0xFF0EA5E9).withOpacity(0.3),
+                                            Colors.transparent,
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
 
-                              const SizedBox(height: ModernTheme.spacingM),
+                              const SizedBox(height: 20),
 
-                              // Google Sign In Button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: OutlinedButton.icon(
-                                  onPressed: authProvider.isLoading
-                                      ? null
-                                      : () => _handleGoogleSignIn(authProvider),
-                                  icon: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: const Icon(
-                                      Icons.g_mobiledata,
-                                      size: 28,
-                                      color: Color(0xFF4285F4),
-                                    ),
+                              // Google Sign In Button - Modern Design
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                    width: 2,
                                   ),
-                                  label: const Text(
-                                    'Continuer avec Google',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade200,
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    side: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 1.5,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 2,
-                                  ),
+                                  ],
                                 ),
-                              ),
-
-                              const SizedBox(height: ModernTheme.spacingM),
-                              
-                              // Register Link - More Visible
-                              Center(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: ModernTheme.primary.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: ModernTheme.primary.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, Routes.matriculeRegistration);
-                                    },
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size.zero,
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    icon: Icon(
-                                      Icons.person_add_outlined,
-                                      color: ModernTheme.primary,
-                                      size: 20,
-                                    ),
-                                    label: Text(
-                                      'Pas encore de compte ? S\'inscrire',
-                                      style: TextStyle(
-                                        color: ModernTheme.primary,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
+                                child: Material(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: InkWell(
+                                    onTap: authProvider.isLoading ? null : () => _handleGoogleSignIn(authProvider),
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Container(
+                                      height: 56,
+                                      alignment: Alignment.center,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                              ),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: const Icon(Icons.g_mobiledata, color: Colors.white, size: 24),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          
+                                        ],
                                       ),
                                     ),
                                   ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Register Link - Modern Design
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      const Color(0xFF0EA5E9).withOpacity(0.05),
+                                      const Color(0xFF06B6D4).withOpacity(0.05),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: const Color(0xFF0EA5E9).withOpacity(0.2),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.person_add_rounded,
+                                      color: Color(0xFF0EA5E9),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pushNamed(context, Routes.matriculeRegistration);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Text(
+                                          'S\'inscrire',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -433,39 +597,92 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                         ),
                       ),
 
-                      const SizedBox(height: ModernTheme.spacingXL),
+                      const SizedBox(height: 28),
 
-                      // Quick Login Hint
-                      Container(
-                        padding: const EdgeInsets.all(ModernTheme.spacingM),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '💡 Comptes de test',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withOpacity(0.9),
+                      // Test Accounts Card - Modern Design
+                      TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 800),
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        curve: Curves.easeOut,
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: 0.85 + (value * 0.15),
+                            child: Opacity(
+                              opacity: value,
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white.withOpacity(0.15),
+                                      Colors.white.withOpacity(0.08),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.25),
+                                    width: 1.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: const Icon(
+                                            Icons.info_rounded,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Comptes de test',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildTestAccount(
+                                      icon: Icons.admin_panel_settings_rounded,
+                                      role: 'Admin',
+                                      email: 'admin@gmail.com',
+                                      password: 'admin',
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildTestAccount(
+                                      icon: Icons.manage_accounts_rounded,
+                                      role: 'Manager',
+                                      email: 'ademmanager@gmail.com',
+                                      password: '123456',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Admin: admin@gmail.com / admin\nManager: ademmanager@gmail.com / 123456',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.white.withOpacity(0.8),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -474,6 +691,69 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper method to build test account rows
+  Widget _buildTestAccount({
+    required IconData icon,
+    required String role,
+    required String email,
+    required String password,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.15),
+            Colors.white.withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  role,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$email / $password',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

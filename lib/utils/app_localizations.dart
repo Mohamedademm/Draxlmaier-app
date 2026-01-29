@@ -48,7 +48,6 @@ class AppLocalizations {
       'settings': 'Settings',
       
       // Dashboard
-      'admin_dashboard': 'Admin Dashboard',
       'total_users': 'Total Users',
       'active_users': 'Active Users',
       'unread': 'Unread',
@@ -133,7 +132,6 @@ class AppLocalizations {
       'settings': 'Paramètres',
       
       // Tableau de bord
-      'admin_dashboard': 'Tableau de bord Admin',
       'total_users': 'Utilisateurs totaux',
       'active_users': 'Utilisateurs actifs',
       'unread': 'Non lus',
@@ -199,7 +197,6 @@ class AppLocalizations {
   String get home => translate('home');
   String get chats => translate('chats');
   String get notifications => translate('notifications');
-  String get adminDashboard => translate('admin_dashboard');
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

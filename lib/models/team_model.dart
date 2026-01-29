@@ -47,8 +47,8 @@ class Team {
     if (json == null) return [];
     if (json is! List) return [];
     return json
-        .where((item) => item is Map<String, dynamic>)
-        .map((item) => User.fromJson(item as Map<String, dynamic>))
+        .whereType<Map<String, dynamic>>()
+        .map((item) => User.fromJson(item))
         .toList();
   }
   

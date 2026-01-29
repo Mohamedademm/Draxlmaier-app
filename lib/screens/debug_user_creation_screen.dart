@@ -4,7 +4,7 @@ import '../services/user_service.dart';
 import '../models/user_model.dart';
 
 class DebugUserCreationScreen extends StatefulWidget {
-  const DebugUserCreationScreen({Key? key}) : super(key: key);
+  const DebugUserCreationScreen({super.key});
 
   @override
   State<DebugUserCreationScreen> createState() => _DebugUserCreationScreenState();

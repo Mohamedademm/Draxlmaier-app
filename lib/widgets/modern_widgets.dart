@@ -45,7 +45,7 @@ class _ModernCardState extends State<ModernCard> {
               vertical: ModernTheme.spacingS,
             ),
             decoration: BoxDecoration(
-              color: widget.color ?? ModernTheme.surface,
+              color: widget.color ?? Theme.of(context).cardTheme.color ?? ModernTheme.surface,
               borderRadius: ModernTheme.cardRadius,
               boxShadow: _isHovered ? ModernTheme.cardShadowHover : ModernTheme.cardShadow,
             ),
@@ -256,7 +256,7 @@ class ModernStatCard extends StatelessWidget {
                           value,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 32,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                             height: 1,
@@ -318,9 +318,19 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       child: AppBar(
-        title: Text(title),
+        title: Text(
+          title, 
+          style: const TextStyle(
+            color: Colors.white, 
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          )
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme: const IconThemeData(color: Colors.white),
         actions: actions,
         bottom: bottom,
         leading: showBackButton
@@ -364,16 +374,18 @@ class ModernTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label.isNotEmpty) ...[
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: ModernTheme.textPrimary,
+              color: isDark ? Colors.white70 : ModernTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -385,9 +397,31 @@ class ModernTextField extends StatelessWidget {
           validator: validator,
           maxLines: obscureText ? 1 : maxLines,
           onChanged: onChanged,
+          style: TextStyle(fontSize: 15, color: isDark ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
+            hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
+            alignLabelWithHint: maxLines != null && maxLines! > 1,
+            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20, color: isDark ? Colors.white70 : ModernTheme.textSecondary) : null,
+            filled: true,
+            fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.grey.shade200),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? Colors.white10 : Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: ModernTheme.primaryBlue, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: ModernTheme.error, width: 1),
+            ),
           ),
         ),
       ],
@@ -412,6 +446,8 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(ModernTheme.spacingXL),
@@ -422,31 +458,31 @@ class EmptyState extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: ModernTheme.surfaceVariant,
+                color: isDark ? ModernTheme.darkSurfaceVariant.withOpacity(0.5) : ModernTheme.surfaceVariant,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 60,
-                color: ModernTheme.textSecondary,
+                color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
               ),
             ),
             const SizedBox(height: ModernTheme.spacingL),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: ModernTheme.textPrimary,
+                color: isDark ? ModernTheme.darkTextPrimary : ModernTheme.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: ModernTheme.spacingS),
             Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: ModernTheme.textSecondary,
+                color: isDark ? ModernTheme.darkTextSecondary : ModernTheme.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
