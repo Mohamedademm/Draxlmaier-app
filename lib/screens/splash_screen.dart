@@ -6,7 +6,6 @@ import '../widgets/draexlmaier_logo.dart';
 import '../theme/draexlmaier_theme.dart';
 import '../constants/app_constants.dart';
 
-/// Splash screen - Initial screen that checks authentication
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -21,19 +20,15 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkAuthentication();
   }
 
-  /// Check if user is authenticated and navigate accordingly
   Future<void> _checkAuthentication() async {
     final authProvider = context.read<AuthProvider>();
     
-    // Wait for 2 seconds (splash screen display time)
     await Future.delayed(const Duration(seconds: 2));
     
-    // Check authentication
     final isAuthenticated = await authProvider.checkAuthentication();
     
     if (!mounted) return;
     
-    // Navigate to appropriate screen
     if (isAuthenticated) {
       if (authProvider.isPending) {
         Navigator.pushReplacementNamed(context, routes_constants.Routes.pendingApproval);
@@ -64,7 +59,6 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo Draexlmaier avec animation
               const DraexlmaierLogo(
                 height: AppConstants.logoSizeLarge,
                 isWhite: true,

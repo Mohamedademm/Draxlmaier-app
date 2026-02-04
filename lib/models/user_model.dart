@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';
 
-/// Enum representing user roles in the system
 enum UserRole {
   @JsonValue('admin')
   admin,
@@ -12,7 +11,6 @@ enum UserRole {
   employee,
 }
 
-/// User model representing an employee in the system
 @JsonSerializable()
 class User {
   @JsonKey(name: '_id')
@@ -63,22 +61,16 @@ class User {
     this.updatedAt,
   });
 
-  /// Full name getter
   String get fullName => '$firstname $lastname';
 
-  /// Check if user is admin
   bool get isAdmin => role == UserRole.admin;
 
-  /// Check if user is manager
   bool get isManager => role == UserRole.manager;
 
-  /// Check if user is employee
   bool get isEmployee => role == UserRole.employee;
 
-  /// Check if user has admin or manager privileges
   bool get canManageUsers => isAdmin || isManager;
 
-  /// Factory method to create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     UserRole parseRole(dynamic roleData) {
       if (roleData == null) return UserRole.employee;
@@ -129,7 +121,6 @@ class User {
     );
   }
 
-  /// Method to convert User to JSON
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -153,7 +144,6 @@ class User {
     };
   }
 
-  /// Copy method for immutable updates
   User copyWith({
     String? id,
     String? firstname,

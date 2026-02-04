@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../models/notification_model.dart';
 import '../services/notification_service.dart';
 
-/// Notification state management provider
 class NotificationProvider with ChangeNotifier {
   final NotificationService _notificationService = NotificationService();
 
@@ -16,15 +15,12 @@ class NotificationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Get unread notifications
   List<NotificationModel> get unreadNotifications =>
       _notifications.where((n) => n.readBy.isEmpty).toList();
 
-  /// Get read notifications
   List<NotificationModel> get readNotifications =>
       _notifications.where((n) => n.readBy.isNotEmpty).toList();
 
-  /// Initialize notification service
   Future<void> initialize() async {
     try {
       await _notificationService.initialize();
@@ -34,7 +30,6 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Load notifications from server
   Future<void> loadNotifications() async {
     _isLoading = true;
     notifyListeners();
@@ -51,12 +46,10 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Mark notification as read
   Future<void> markAsRead(String notificationId, String userId) async {
     try {
       await _notificationService.markAsRead(notificationId);
       
-      // Update local state
       final index = _notifications.indexWhere((n) => n.id == notificationId);
       if (index != -1) {
         final updatedReadBy = [..._notifications[index].readBy, userId];
@@ -72,12 +65,10 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Mark all notifications as read
   Future<void> markAllAsRead(String userId) async {
     try {
       await _notificationService.markAllAsRead(userId);
       
-      // Update local state
       for (var i = 0; i < _notifications.length; i++) {
         if (!_notifications[i].readBy.contains(userId)) {
           final updatedReadBy = [..._notifications[i].readBy, userId];
@@ -93,7 +84,6 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Send notification (Admin/Manager only)
   Future<bool> sendNotification({
     required String title,
     required String message,
@@ -117,7 +107,6 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Update unread count
   Future<void> _updateUnreadCount() async {
     try {
       _unreadCount = await _notificationService.getUnreadCount();
@@ -126,13 +115,11 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Refresh unread count
   Future<void> refreshUnreadCount() async {
     await _updateUnreadCount();
     notifyListeners();
   }
 
-  /// Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

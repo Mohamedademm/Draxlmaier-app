@@ -18,14 +18,11 @@ import '../utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:open_filex/open_filex.dart';
 
 
-/// Group Chat Screen
-/// Displays messages for a custom group and allows sending messages
 class GroupChatScreen extends StatefulWidget {
   final ChatGroup group;
 
@@ -49,20 +46,16 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   bool _isSending = false;
   Timer? _connectionStatusTimer;
   
-  // File attachment
-  List<int>? _selectedFileBytes; // For web compatibility
+  List<int>? _selectedFileBytes;
   String? _selectedFileName;
   String? _selectedFileType;
 
-  // Audio Recording
   late final AudioRecorder _audioRecorder;
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isRecording = false;
-  String? _recordingPath;
   Duration _recordingDuration = Duration.zero;
   Timer? _recordingTimer;
   
-  // Audio Playback
   String? _playingUrl;
   bool _isPlaying = false;
   Duration _currentPosition = Duration.zero;
@@ -76,14 +69,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     _audioRecorder = AudioRecorder();
     _initializeChat();
     
-    // Check connection status every 3 seconds
     _connectionStatusTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (mounted) {
         setState(() {});
       }
     });
 
-    // Audio Player Listeners
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
         setState(() {
@@ -115,7 +106,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     _recordingTimer?.cancel();
     _audioRecorder.dispose();
     _audioPlayer.dispose();
-    // Leave the room when disposing
     _socketService.leaveRoom(widget.group.id);
     _socketService.off('receiveMessage');
     _messageController.dispose();
@@ -124,28 +114,23 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   }
 
   Future<void> _initializeChat() async {
-    // Load initial messages
     await _loadMessages();
     
-    // Connect to Socket.IO and join room
     await _connectSocket();
   }
 
   Future<void> _connectSocket() async {
     try {
-      // Ensure socket is connected
       if (!_socketService.isConnected) {
         debugPrint('🔌 Connecting to Socket.IO...');
         await _socketService.connect();
         debugPrint('✅ Socket.IO connected');
       }
 
-      // Join the group room
       debugPrint('🚪 Joining room: ${widget.group.id}');
       _socketService.joinRoom(widget.group.id);
       debugPrint('✅ Joined room: ${widget.group.id}');
 
-      // Listen for new messages in real-time
       _socketService.on('receiveMessage', (data) {
         debugPrint('📩 Received message data: $data');
         
@@ -155,21 +140,17 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           final message = Message.fromJson(data);
           debugPrint('📧 Parsed message: id=${message.id}, content="${message.content}", groupId=${message.groupId}');
           
-          // Check if message belongs to this group
           if (message.groupId == widget.group.id) {
             final authProvider = context.read<AuthProvider>();
             final currentUserId = authProvider.currentUser?.id;
             
-            // Set isMe property
             message.isMe = message.senderId == currentUserId;
             debugPrint('👤 Message isMe: ${message.isMe}, currentUserId: $currentUserId');
             
-            // Remove temporary message if exists (replace with real one)
             setState(() {
               _messages.removeWhere((m) => m.id.startsWith('temp_') && m.content == message.content);
             });
             
-            // Check if message already exists (avoid duplicates)
             final exists = _messages.any((m) => m.id == message.id);
             
             if (!exists) {
@@ -178,7 +159,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 _messages.add(message);
               });
               
-              // Scroll to bottom to show new message
               _scrollToBottom();
             } else {
               debugPrint('⚠️ Message already exists, skipping');
@@ -211,7 +191,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         limit: 50,
       );
 
-      // Set isMe property for each message
       for (var message in messages) {
         message.isMe = message.senderId == currentUserId;
       }
@@ -255,7 +234,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // Pick image from gallery or camera
   Future<void> _pickImage(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -267,7 +245,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       );
 
       if (image != null) {
-        // Read bytes for web compatibility
         final bytes = await image.readAsBytes();
         
         setState(() {
@@ -276,7 +253,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           _selectedFileType = 'image';
         });
         
-        // Send message with image immediately
         await _sendMessageWithFile();
       }
     } catch (e) {
@@ -291,7 +267,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // Pick PDF or other documents
   Future<void> _pickFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -304,14 +279,19 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         final file = result.files.single;
         String? ext = file.extension?.toLowerCase();
         
-        // Fallback for Web if extension is null
         if (ext == null) {
            final name = file.name.toLowerCase();
-           if (name.endsWith('.jpg') || name.endsWith('.jpeg')) ext = 'jpg';
-           else if (name.endsWith('.png')) ext = 'png';
-           else if (name.endsWith('.gif')) ext = 'gif';
-           else if (name.endsWith('.webp')) ext = 'webp';
-           else if (name.endsWith('.pdf')) ext = 'pdf';
+           if (name.endsWith('.jpg') || name.endsWith('.jpeg')) {
+             ext = 'jpg';
+           } else if (name.endsWith('.png')) {
+             ext = 'png';
+           } else if (name.endsWith('.gif')) {
+             ext = 'gif';
+           } else if (name.endsWith('.webp')) {
+             ext = 'webp';
+           } else if (name.endsWith('.pdf')) {
+             ext = 'pdf';
+           }
         }
 
         String type;
@@ -323,55 +303,28 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           type = 'document';
         }
 
-        // On Web, use bytes. On Mobile, read bytes from path.
         List<int> bytes;
         if (file.bytes != null) {
           bytes = file.bytes!;
         } else if (file.path != null) {
-          // Verify we aren't on web first (kIsWeb check or just relying on platform)
-          // Since we can't easily import dart:io safely for web without conditionals,
-          // and FilePicker usually returns bytes for web if withData is true.
-          // For mobile, we might need to read the file.
-          // BUT withData: true ensures bytes are loaded on Web.
-          // On mobile, withData might load bytes too if file is small, but safer to read if missing?
-          // Actually, let's just assume bytes are there if withData: true is used (it handles small files).
-          // If not, we'd need 'dart:io'. Let's import 'dart:io' conditionally or use a cross-platform way.
-          // Using just bytes for now since we set withData: true. 
-          // Wait, FilePicker documentation says: "On Web, you must set withData: true...".
-          // On Mobile, if we want bytes, we should use it too OR read text.
           
-          // Let's assume bytes are present or try to read them.
-          // However, importing dart:io will break web build if not careful.
-          // Best strategy: rely on `result.files.single.bytes` mostly.
-          // If null on mobile, we can't do much without dart:io.
-          // Let's stick to withData: true which we set.
           
-          // Actually, `withData: true` might crash on large files on Mobile (OOM). 
-          // But for this fix, let's keep it simple.
           
           if (file.path != null && file.bytes == null) {
-            // We are likely on mobile and bytes weren't loaded
-             // To fix "The library 'dart:io' is not available on this platform." we can't enable this block for web.
-             // We will rely on withData: true which is enabled.
              return; 
           }
-          bytes = file.bytes!; // This might throw if null
+          bytes = file.bytes!;
         } else {
            return;
         }
         
-        // RE-CHECK: FilePicker withData:true loads bytes into memory.
         if (file.bytes == null && file.path != null && !kIsWeb) {
-           // We really should read the file on Mobile if bytes are null.
-           // Since I cannot easily add 'dart:io' imports without breaking web right now (conditional imports are tedious),
-           // I will trust 'withData: true' works or the user picks small files.
-           // However, let's add a safe check.
            try {
-             // If on mobile and bytes are missing, we can try to use XFile from cross_file or image_picker? 
-             // No, let's just assume bytes are there.
              bytes = file.bytes!;
            } catch (e) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Impossible de lire le fichier")));
+             if (mounted) {
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Impossible de lire le fichier")));
+             }
              return;
            }
         } else {
@@ -385,7 +338,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
         });
         
-        // Send message with file immediately
         await _sendMessageWithFile();
       }
     } catch (e) {
@@ -400,7 +352,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // Show options to pick image (camera or gallery) or PDF
   void _showAttachmentOptions() {
     showModalBottomSheet(
       context: context,
@@ -481,7 +432,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     );
   }
 
-  // Send message with file attachment
   Future<void> _sendMessageWithFile() async {
     if (_selectedFileBytes == null) return;
 
@@ -495,11 +445,9 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           ? '${currentUser.firstname} ${currentUser.lastname}'
           : 'Unknown';
 
-      // Upload file to server
       String? fileUrl = await _uploadFile(_selectedFileBytes!, _selectedFileName!, _selectedFileType!);
 
       if (fileUrl != null) {
-        // Create message with file
         final content = _selectedFileType == 'image' 
             ? '📷 Image' 
             : '📄 ${_selectedFileName ?? 'Document'}';
@@ -517,7 +465,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           isMe: true,
         );
 
-        // Add message immediately to the list
         setState(() {
           _messages.add(tempMessage);
           _selectedFileBytes = null;
@@ -525,10 +472,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           _selectedFileType = null;
         });
 
-        // Scroll to bottom
         _scrollToBottom();
 
-        // Send message via Socket.IO
         _socketService.sendMessage({
           'content': content,
           'groupId': widget.group.id,
@@ -556,7 +501,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // Upload file to server
   Future<String?> _uploadFile(List<int> fileBytes, String fileName, String fileType) async {
     try {
       final apiService = ApiService();
@@ -572,7 +516,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       );
 
       request.headers['Authorization'] = 'Bearer $token';
-      // Use fromBytes instead of fromPath for web compatibility
       request.files.add(http.MultipartFile.fromBytes(
         'file',
         fileBytes,
@@ -584,7 +527,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       debugPrint('📤 Uploading file to: ${ApiConstants.baseUrl}/upload');
       debugPrint('📄 File: $fileName, Type: $fileType, Size: ${fileBytes.length} bytes');
 
-      // Add timeout to prevent infinite loading
       var response = await request.send().timeout(
         const Duration(seconds: 45),
         onTimeout: () {
@@ -597,7 +539,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       debugPrint('📥 Upload response: $responseBody (status: ${response.statusCode})');
       
       if (response.statusCode == 200) {
-        // Parse response to get file URL
         final jsonResponse = jsonDecode(responseBody);
         final fileUrl = jsonResponse['fileUrl'];
         
@@ -625,7 +566,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // Helper to get MediaType from filename
   MediaType _getMediaType(String fileName) {
     final ext = fileName.split('.').last.toLowerCase();
     switch (ext) {
@@ -667,7 +607,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  // --- Voice Message Functions ---
 
   Future<void> _startRecording() async {
     try {
@@ -680,13 +619,9 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
              path = '${dir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
            } catch (e) {
              debugPrint('Error getting temp dir: $e');
-             // Fallback or rethrow? If we can't get temp dir, we can't record on mobile typically.
-             // But to prevent crash, let's keep path empty and let start fail gracefully if it must.
            }
         }
 
-        // On web, path can be empty string.
-        // On mobile, we provide the file path.
         await _audioRecorder.start(const RecordConfig(), path: path);
         
         setState(() {
@@ -739,10 +674,9 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       String fileName;
       
       if (kIsWeb) {
-        // On Web, path is a Blob URL (e.g., blob:http://localhost:...)
         final response = await http.get(Uri.parse(path));
         bytes = response.bodyBytes;
-        fileName = 'Voice_${DateTime.now().millisecondsSinceEpoch}.webm'; // Web usually records in webm/wav
+        fileName = 'Voice_${DateTime.now().millisecondsSinceEpoch}.webm';
       } else {
         final file = XFile(path);
         bytes = await file.readAsBytes();
@@ -753,7 +687,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
       final fileUrl = await _uploadFile(bytes, fileName, 'audio');
       
-      if (fileUrl != null) {
+      if (fileUrl != null && mounted) {
         final authProvider = context.read<AuthProvider>();
         final currentUserId = authProvider.currentUser?.id;
         final currentUserName = authProvider.currentUser != null 
@@ -773,7 +707,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           'timestamp': DateTime.now().toIso8601String(),
         });
         
-        // Optimistic UI update
          final tempMessage = Message(
           id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
           content: content,
@@ -823,30 +756,24 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   Future<void> _launchURL(String url) async {
     final sanitizedUrl = _sanitizeUrl(url);
     
-    // Check if this is a file that needs to be downloaded first (PDF, doc, etc.)
     final fileName = sanitizedUrl.split('/').last.split('?').first;
     final extension = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
     
-    // For PDFs and documents, download and open with native viewer
     if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].contains(extension)) {
       await _downloadAndOpenFile(sanitizedUrl, fileName);
       return;
     }
     
-    // For images and other files, try external browser
     final Uri uri = Uri.parse(sanitizedUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      // Fallback: try to download and open
       await _downloadAndOpenFile(sanitizedUrl, fileName.isNotEmpty ? fileName : 'file');
     }
   }
   
-  /// Download file and open with system viewer
   Future<void> _downloadAndOpenFile(String url, String fileName) async {
     try {
-      // Show loading indicator
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -864,24 +791,19 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         ),
       );
       
-      // Download the file
       final response = await http.get(Uri.parse(url));
       
       if (response.statusCode == 200) {
-        // Get temp directory
         final dir = await getTemporaryDirectory();
         final filePath = '${dir.path}/$fileName';
         final file = File(filePath);
         
-        // Write file to disk
         await file.writeAsBytes(response.bodyBytes);
         
-        // Hide the loading snackbar
         if (mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         }
         
-        // Open file with system viewer using open_filex
         try {
           final result = await OpenFilex.open(filePath);
           debugPrint('Open result: ${result.message}');
@@ -894,7 +816,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             }
           }
         } catch (e) {
-          // Fallback: show file path
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Fichier téléchargé: $filePath')),
@@ -936,7 +857,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           ? '${currentUser.firstname} ${currentUser.lastname}'
           : 'Unknown';
 
-      // Create temporary message for immediate display
       final tempMessage = Message(
         id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
         content: content,
@@ -947,15 +867,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         isMe: true,
       );
 
-      // Add message immediately to the list (optimistic update)
       setState(() {
         _messages.add(tempMessage);
       });
 
-      // Scroll to bottom to show new message
       _scrollToBottom();
 
-      // Send message via Socket.IO for real-time delivery to other users
       _socketService.sendMessage({
         'content': content,
         'groupId': widget.group.id,
@@ -979,7 +896,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     }
   }
 
-  Widget _buildMessageBubble(Message message, bool isMe) {
+  Widget _buildModernMessageBubble(Message message, bool isMe) {
     final time = DateFormat('HH:mm').format(message.timestamp);
 
     return Padding(
@@ -1081,7 +998,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Display file attachment if exists
                       if (message.fileUrl != null) ...[
                         if (message.fileType == 'image')
                           ClipRRect(
@@ -1284,7 +1200,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                           ),
                         const SizedBox(height: 8),
                       ],
-                      // Message text content
                       Text(
                         message.content,
                         style: TextStyle(
@@ -1298,7 +1213,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Show sending indicator for temporary messages
                           if (isMe && message.id.startsWith('temp_')) ...[
                             SizedBox(
                               width: 10,
@@ -1416,7 +1330,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           ],
         ),
         actions: [
-          // Socket connection status indicator
           Container(
             margin: const EdgeInsets.only(right: 8),
             child: Center(
@@ -1638,7 +1551,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   ),
                   child: Row(
                     children: [
-                      // Attachment button
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100,
@@ -1771,7 +1683,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         ),
         child: Column(
           children: [
-            // Handle bar
             Center(
               child: Container(
                 width: 40,
@@ -1788,7 +1699,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  // Group Avatar & Name
                   Center(
                     child: Column(
                       children: [
@@ -1852,7 +1762,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   
                   const SizedBox(height: 32),
                   
-                  // Info Cards
                   if (widget.group.description != null && widget.group.description!.isNotEmpty) ...[
                     const Text(
                       'DESCRIPTION',
@@ -1924,7 +1833,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
                   const SizedBox(height: 24),
                   
-                  // Actions
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -1951,30 +1859,21 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     );
   }
 
-  // Helper to fix localhost URLs and handle relative paths
   String _sanitizeUrl(String url) {
-    // 1. Handle relative paths (from backend)
-    // Use socketUrl (domain only) because static files are at root /uploads, not /api/uploads
     if (url.startsWith('/')) {
        return '${ApiConstants.socketUrl}$url';
     }
 
-    // 2. Fallback for legacy absolute URLs
     if (url.contains('localhost:10000')) {
-       return url.replaceFirst('http://localhost:10000', 'https://backend-draxlmaier-app.onrender.com');
+       return url.replaceFirst('http://localhost:10000', ApiConstants.socketUrl);
     }
-    if (url.contains('http://localhost') && !kIsWeb) {
-        return url.replaceFirst('http://localhost', 'https://backend-draxlmaier-app.onrender.com').replaceFirst(':10000', '').replaceFirst(':3000', '');
+    if (url.contains('http://')) {
+        return url.replaceFirst('http://', 'https://');
     }
     return url;
   }
 
   Widget _buildModernMessageBubble(Message message, bool isMe) {
-    // Professional & Modern UI:
-    // - Cleaner bubbles with subtle shadows
-    // - Better separation of content
-    // - Images shown directly
-    // - Voice messages with clear controls
 
     final time = DateFormat('HH:mm').format(message.timestamp);
 
@@ -1982,16 +1881,16 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end, // Align to bottom for avatar
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
              CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFFE0F2FE), // Light sky blue
+                backgroundColor: const Color(0xFFE0F2FE),
                 child: Text(
                   message.senderName?.substring(0, 1).toUpperCase() ?? '?',
                   style: const TextStyle(
-                    color: Color(0xFF0284C7), // Darker blue
+                    color: Color(0xFF0284C7),
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -2037,7 +1936,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- Content Switching ---
                       if (message.fileUrl != null) ...[
                         if (message.fileType == 'image')
                           Column(
@@ -2083,7 +1981,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                       );
                                     },
                                     errorBuilder: (context, error, stackTrace) {
-                                      // print("Image error: $error");
                                       return const SizedBox(
                                           height: 100, 
                                           child: Center(child: Icon(Icons.broken_image, color: Colors.grey)),
@@ -2131,7 +2028,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // Waveform visualization (simulated with Container for now)
                                        Container(
                                         height: 4,
                                         decoration: BoxDecoration(
@@ -2173,7 +2069,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                               ],
                             )
                         else
-                          // Generic Document / PDF
                           InkWell(
                             onTap: () => _launchURL(_sanitizeUrl(message.fileUrl!)),
                             borderRadius: BorderRadius.circular(12),
@@ -2217,7 +2112,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         Text(
-                                          'Cliquez pour ouvir',
+                                          'Cliquez pour ouvrir',
                                           style: TextStyle(
                                             color: isMe ? Colors.white.withOpacity(0.7) : Colors.grey[500],
                                             fontSize: 11,
@@ -2234,7 +2129,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         Text(
                           message.content,
                           style: TextStyle(
-                            color: isMe ? Colors.white : const Color(0xFF1E293B), // Slate 800
+                            color: isMe ? Colors.white : const Color(0xFF1E293B),
                             fontSize: 15,
                             height: 1.4,
                           ),
@@ -2254,7 +2149,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                           ),
                           if (isMe && message.id.startsWith('temp_')) ...[
                               const SizedBox(width: 4),
-                              SizedBox(
+                              const SizedBox(
                                 width: 8, 
                                 height: 8, 
                                 child: CircularProgressIndicator(strokeWidth: 1, color: Colors.white)

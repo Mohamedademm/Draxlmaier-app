@@ -5,8 +5,6 @@ import '../services/chat_service.dart';
 import '../providers/auth_provider.dart';
 import 'group_chat_screen.dart';
 
-/// Department Chat Screen Wrapper
-/// Loads the department group and then delegates to GroupChatScreen
 class DepartmentChatScreen extends StatefulWidget {
   const DepartmentChatScreen({super.key});
 
@@ -33,14 +31,10 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
     });
 
     try {
-      // 1. Get the department group
       final group = await _chatService.getDepartmentGroup();
       
-      // 2. Ensure current user is in the group (optional, but good for safety)
       final currentUser = context.read<AuthProvider>().currentUser;
       if (currentUser != null && !group.members.contains(currentUser.id)) {
-        // Just in case backend didn't add them, we could optionally add them here or just proceed.
-        // Usually getDepartmentGroup returns the group the user belongs to.
       }
 
       setState(() {
@@ -92,7 +86,6 @@ class _DepartmentChatScreenState extends State<DepartmentChatScreen> {
       );
     }
 
-    // Delegate to the full-featured GroupChatScreen
     return GroupChatScreen(group: _departmentGroup!);
   }
 }

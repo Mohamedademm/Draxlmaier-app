@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 
-/// Widget pour afficher une carte de statistique
 class StatCard extends StatelessWidget {
   final String title;
   final String value;

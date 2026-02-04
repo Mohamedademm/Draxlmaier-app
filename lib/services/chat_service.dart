@@ -2,11 +2,9 @@ import '../models/message_model.dart';
 import '../models/chat_group_model.dart';
 import 'api_service.dart';
 
-/// Chat service handling chat-related API calls
 class ChatService {
   final ApiService _apiService = ApiService();
 
-  /// Get chat history for a specific chat
   Future<List<Message>> getChatHistory({
     String? recipientId,
     String? groupId,
@@ -29,7 +27,6 @@ class ChatService {
       
       final List<dynamic> messagesJson = data['messages'];
       return messagesJson.map((json) {
-        // Handle senderId as object or string
         if (json['senderId'] is Map) {
           final sender = json['senderId'];
           json['senderName'] = '${sender['firstname']} ${sender['lastname']}';
@@ -42,7 +39,6 @@ class ChatService {
     }
   }
 
-  /// Get all chat conversations
   Future<List<Map<String, dynamic>>> getConversations() async {
     try {
       final response = await _apiService.get('/messages/conversations');
@@ -53,7 +49,6 @@ class ChatService {
     }
   }
 
-  /// Mark messages as read
   Future<void> markAsRead(String chatId, {bool isGroup = false}) async {
     try {
       await _apiService.post('/messages/mark-read', {
@@ -65,7 +60,6 @@ class ChatService {
     }
   }
 
-  /// Get all chat groups
   Future<List<ChatGroup>> getChatGroups() async {
     try {
       final response = await _apiService.get('/groups');
@@ -78,7 +72,6 @@ class ChatService {
     }
   }
 
-  /// Create chat group
   Future<ChatGroup> createChatGroup({
     required String name,
     required List<String> memberIds,
@@ -96,7 +89,6 @@ class ChatService {
     }
   }
 
-  /// Add members to chat group
   Future<ChatGroup> addGroupMembers({
     required String groupId,
     required List<String> memberIds,
@@ -113,7 +105,6 @@ class ChatService {
     }
   }
 
-  /// Remove member from chat group
   Future<ChatGroup> removeGroupMember({
     required String groupId,
     required String memberId,
@@ -127,7 +118,6 @@ class ChatService {
     }
   }
 
-  /// Get or create department group for current user
   Future<ChatGroup> getDepartmentGroup() async {
     try {
       final response = await _apiService.get('/groups/department/my-group');
@@ -138,7 +128,6 @@ class ChatService {
     }
   }
 
-  /// Send message to group
   Future<Message> sendGroupMessage({
     required String groupId,
     required String content,
@@ -153,7 +142,6 @@ class ChatService {
       final data = _apiService.handleResponse(response);
       final messageJson = data['message'];
       
-      // Handle senderId as object
       if (messageJson['senderId'] is Map) {
         final sender = messageJson['senderId'];
         messageJson['senderName'] = '${sender['firstname']} ${sender['lastname']}';
@@ -166,8 +154,6 @@ class ChatService {
     }
   }
 
-  /// Get all department groups
-  /// Returns all department groups for admin, or user's department group for employees
   Future<List<ChatGroup>> getDepartmentGroups() async {
     try {
       final response = await _apiService.get('/groups/department/all');
@@ -180,7 +166,6 @@ class ChatService {
     }
   }
 
-  /// Create a department group
   Future<ChatGroup> createDepartmentGroup({
     required String name,
     required String department,
@@ -200,7 +185,6 @@ class ChatService {
     }
   }
 
-  /// Delete a group
   Future<void> deleteGroup(String groupId) async {
     try {
       await _apiService.delete('/groups/$groupId');
@@ -209,7 +193,6 @@ class ChatService {
     }
   }
 
-  /// Clear all messages in a group
   Future<void> clearGroupMessages(String groupId) async {
     try {
       await _apiService.delete('/groups/$groupId/messages');

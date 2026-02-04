@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/draexlmaier_theme.dart';
 import '../widgets/draexlmaier_logo.dart';
 
-/// AppBar personnalisée avec le logo Draexlmaier
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final List<Widget>? actions;

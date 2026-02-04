@@ -3,7 +3,6 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/notification_service.dart';
 
-/// Authentication state management provider
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   final NotificationService _notificationService = NotificationService();
@@ -17,19 +16,14 @@ class AuthProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
 
-  /// Check if current user is admin
   bool get isAdmin => _currentUser?.isAdmin ?? false;
 
-  /// Check if current user is manager
   bool get isManager => _currentUser?.isManager ?? false;
 
-  /// Check if current user is employee
   bool get isEmployee => _currentUser?.isEmployee ?? false;
 
-  /// Check if current user can manage other users
   bool get canManageUsers => _currentUser?.canManageUsers ?? false;
 
-  /// Login with email and password
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
@@ -39,7 +33,6 @@ class AuthProvider with ChangeNotifier {
       final data = await _authService.login(email, password);
       _currentUser = User.fromJson(data['user']);
 
-      // Update FCM token after login
       final fcmToken = await _notificationService.getFcmToken();
       if (fcmToken != null) {
         await _authService.updateFcmToken(fcmToken);
@@ -56,7 +49,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Logout
   Future<void> logout() async {
     await _authService.logout();
     _currentUser = null;
@@ -64,7 +56,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load current user profile
   Future<void> loadCurrentUser() async {
     _isLoading = true;
     notifyListeners();
@@ -80,10 +71,8 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Check if user status is pending
   bool get isPending => _currentUser?.status == 'pending' || (_currentUser?.active == false);
 
-  /// Check if user is authenticated on app start
   Future<bool> checkAuthentication() async {
     try {
       final isAuth = await _authService.isAuthenticated();
@@ -97,13 +86,11 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Clear error message
   void clearError() {
     _errorMessage = null;
     notifyListeners();
   }
 
-  /// Refresh current user data (used after profile updates)
   Future<void> refreshUser() async {
     if (_currentUser != null) {
       try {
@@ -115,7 +102,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Register with matricule
   Future<bool> registerWithMatricule({
     required String matricule,
     required String email,
@@ -143,7 +129,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Forgot Password - Request reset token
   Future<bool> forgotPassword(String email) async {
     _isLoading = true;
     _errorMessage = null;
@@ -162,10 +147,8 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Save Google token and user data
   Future<void> saveGoogleToken(String token, dynamic user) async {
     try {
-      // Store token in local storage
       await _authService.login(user['email'] ?? '', '');
       if (user != null && user is Map) {
         _currentUser = User.fromJson(Map<String, dynamic>.from(user));

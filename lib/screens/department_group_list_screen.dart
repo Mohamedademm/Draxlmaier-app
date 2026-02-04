@@ -10,9 +10,6 @@ import '../utils/constants.dart';
 import '../widgets/modern_widgets.dart';
 import 'group_chat_screen.dart';
 
-/// Screen showing department group chats with full department management
-/// Employees see only their department group
-/// Admins see all department groups and can add/delete departments
 class DepartmentGroupListScreen extends StatefulWidget {
   const DepartmentGroupListScreen({super.key});
 
@@ -61,38 +58,28 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
         throw Exception('Utilisateur non connecté');
       }
 
-      // Get all department groups
       final allGroups = await _chatService.getDepartmentGroups();
 
-      // Filter based on user role
       List<ChatGroup> filteredGroups;
       if (authProvider.isAdmin) {
-        // Admin sees all department groups
         filteredGroups = allGroups;
       } else {
-        // Employee sees only their department group
         final userDepartment = currentUser.department?.trim();
         
-        // Check if user has a department assigned
         if (userDepartment == null || userDepartment.isEmpty) {
           throw Exception('Aucun département assigné. Veuillez contacter l\'administrateur.');
         }
         
-        // Validate department format
         if (!DepartmentConstants.isValidDepartment(userDepartment)) {
           throw Exception('Département non valide. Veuillez contacter l\'administrateur.');
         }
         
-        // Filter groups by user's department
         filteredGroups = allGroups.where((group) {
           return group.department == userDepartment;
         }).toList();
         
-        // If no group found for this department, show helpful message
         if (filteredGroups.isEmpty) {
           print('⚠️ No group found for department: $userDepartment');
-          // Don't throw error - just show empty list
-          // Admin might not have created the group yet
         }
       }
 
@@ -158,11 +145,10 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
   }
 
   Future<void> _deleteDepartmentGroup(ChatGroup group) async {
-    // Show confirmation dialog with options
     int? selectedOption = await showDialog<int>(
       context: context,
       builder: (context) {
-        int option = 0; // 0: Cancel, 1: Delete all messages, 2: Delete entire group
+        int option = 0;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -196,7 +182,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   ),
                   const SizedBox(height: 20),
                   
-                  // Option 1: Clean history
                   InkWell(
                     onTap: () => setState(() => option = 1),
                     borderRadius: BorderRadius.circular(12),
@@ -241,7 +226,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   
                   const SizedBox(height: 12),
                   
-                  // Option 2: Delete completely
                   InkWell(
                     onTap: () => setState(() => option = 2),
                     borderRadius: BorderRadius.circular(12),
@@ -308,7 +292,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
 
     if (selectedOption == null || selectedOption == 0) return;
 
-    // Show loading
     if (mounted) {
       showDialog(
         context: context,
@@ -341,7 +324,7 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       }
 
       if (mounted) {
-        Navigator.pop(context); // Close loading dialog
+        Navigator.pop(context);
         
         final String message = selectedOption == 1 
             ? 'Messages du groupe ${group.name} effacés' 
@@ -365,7 +348,7 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close loading dialog
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -384,7 +367,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
     }
   }
 
-  // Old implementation commented out to be replaced
   /*
     final confirmed = await showDialog<bool>(
       context: context,
@@ -498,16 +480,16 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
     final TextEditingController nameController = TextEditingController();
     final List<String> availableIcons = ['🏢', '🏭', '⚙️', '📦', '🚚', '💼', '🔧', '📊', '🎯', '👥', '📱', '💻', '🛠️', '📈', '🏗️', '🎨'];
     final List<Color> availableColors = [
-      const Color(0xFF3B82F6), // Blue
-      const Color(0xFF10B981), // Green
-      const Color(0xFFF59E0B), // Amber
-      const Color(0xFFEF4444), // Red
-      const Color(0xFF8B5CF6), // Purple
-      const Color(0xFFEC4899), // Pink
-      const Color(0xFF14B8A6), // Teal
-      const Color(0xFF6366F1), // Indigo
-      const Color(0xFFF97316), // Orange
-      const Color(0xFF06B6D4), // Cyan
+      const Color(0xFF3B82F6),
+      const Color(0xFF10B981),
+      const Color(0xFFF59E0B),
+      const Color(0xFFEF4444),
+      const Color(0xFF8B5CF6),
+      const Color(0xFFEC4899),
+      const Color(0xFF14B8A6),
+      const Color(0xFF6366F1),
+      const Color(0xFFF97316),
+      const Color(0xFF06B6D4),
     ];
     
     String selectedIcon = availableIcons[0];
@@ -553,7 +535,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   ),
                   const SizedBox(height: 20),
                   
-                  // Nom du département
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
@@ -570,7 +551,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   ),
                   const SizedBox(height: 20),
                   
-                  // Sélection de l'icône
                   Text(
                     'Choisir une icône',
                     style: TextStyle(
@@ -624,7 +604,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   ),
                   const SizedBox(height: 20),
                   
-                  // Sélection de la couleur
                   Text(
                     'Choisir une couleur',
                     style: TextStyle(
@@ -672,7 +651,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   ),
                   const SizedBox(height: 20),
                   
-                  // Aperçu
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -778,7 +756,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
   }
 
   Future<void> _createCustomDepartmentGroup(String name, String icon, Color color) async {
-    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -804,12 +781,12 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
     try {
       await _chatService.createDepartmentGroup(
         name: name,
-        department: name, // Use the name as department for custom departments
+        department: name,
         description: 'Groupe personnalisé créé par l\'administrateur',
       );
 
       if (mounted) {
-        Navigator.pop(context); // Close loading dialog
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -829,7 +806,7 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close loading dialog
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -889,7 +866,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Bouton pour créer un département personnalisé
                     Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
@@ -972,7 +948,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                       ),
                     ),
                     
-                    // Divider
                     Row(
                       children: [
                         Expanded(child: Divider(color: Colors.grey[300])),
@@ -992,7 +967,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                     ),
                     const SizedBox(height: 12),
                     
-                    // Liste des départements existants
                     Flexible(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -1377,7 +1351,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      // Department Icon with gradient
                       Hero(
                         tag: 'group_icon_${group.id}',
                         child: Container(
@@ -1414,7 +1387,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                         ),
                       ),
                       const SizedBox(width: 20),
-                      // Group Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1510,7 +1482,6 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                           ],
                         ),
                       ),
-                      // Action Icons
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1526,14 +1497,12 @@ class _DepartmentGroupListScreenState extends State<DepartmentGroupListScreen> w
                               color: color,
                             ),
                           ),
-                          // Admin can delete groups
                           if (authProvider.isAdmin) ...[
                             const SizedBox(width: 8),
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () {
-                                  // Prevent navigation to chat when deleting
                                   _deleteDepartmentGroup(group);
                                 },
                                 borderRadius: BorderRadius.circular(20),

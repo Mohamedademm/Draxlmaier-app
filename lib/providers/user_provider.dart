@@ -3,7 +3,6 @@ import '../models/user_model.dart';
 import '../services/user_service.dart';
 import '../services/cache_service.dart';
 
-/// User management state management provider
 class UserProvider with ChangeNotifier {
   final UserService _userService = UserService();
   final CacheService _cacheService = CacheService();
@@ -16,20 +15,16 @@ class UserProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Get active users only
   List<User> get activeUsers => _users.where((u) => u.active).toList();
 
-  /// Get inactive users only
   List<User> get inactiveUsers => _users.where((u) => !u.active).toList();
 
-  /// Load all users
   Future<void> loadUsers() async {
     _isLoading = true;
     notifyListeners();
 
     final String cacheKey = CacheService.allUsersKey;
 
-    // 1. Try to load from cache first
     try {
       final cachedData = _cacheService.getData(cacheKey);
       if (cachedData != null && cachedData is List && cachedData.isNotEmpty) {
@@ -41,18 +36,16 @@ class UserProvider with ChangeNotifier {
           notifyListeners();
         } catch (parseError) {
           debugPrint('Error parsing cached users: $parseError');
-          _users = []; // Reset to empty if parsing fails
+          _users = [];
         }
       }
     } catch (e) {
       debugPrint('Error loading users from cache: $e');
     }
 
-    // 2. Fetch from API
     try {
       _users = await _userService.getAllUsers();
       
-      // 3. Update cache
       try {
         final usersJson = _users.map((u) => u.toJson()).toList();
         await _cacheService.saveData(cacheKey, usersJson);
@@ -65,22 +58,18 @@ class UserProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
-      // Keep showing cached data if available
       notifyListeners();
     }
   }
 
-  /// Get user by ID
   Future<User?> getUserById(String userId) async {
     try {
-      // Check if user is in cache
       final cachedUser = _users.firstWhere(
         (u) => u.id == userId,
         orElse: () => throw Exception('User not found'),
       );
       return cachedUser;
     } catch (e) {
-      // Fetch from server if not in cache
       try {
         return await _userService.getUserById(userId);
       } catch (e) {
@@ -91,7 +80,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Create new user
   Future<bool> createUser({
     required String firstname,
     required String lastname,
@@ -118,7 +106,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Update user
   Future<bool> updateUser({
     required String userId,
     String? firstname,
@@ -163,7 +150,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Delete user
   Future<bool> deleteUser(String userId) async {
     try {
       await _userService.deleteUser(userId);
@@ -177,7 +163,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Activate user
   Future<bool> activateUser(String userId) async {
     try {
       final updatedUser = await _userService.activateUser(userId);
@@ -196,7 +181,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Deactivate user
   Future<bool> deactivateUser(String userId) async {
     try {
       final updatedUser = await _userService.deactivateUser(userId);
@@ -215,7 +199,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Search users
   Future<List<User>> searchUsers(String query) async {
     try {
       return await _userService.searchUsers(query);
@@ -226,7 +209,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

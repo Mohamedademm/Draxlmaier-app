@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'location_log_model.g.dart';
 
-/// LocationLog model representing a user's location at a specific time
 @JsonSerializable()
 class LocationLog {
   @JsonKey(name: '_id')
@@ -25,14 +24,11 @@ class LocationLog {
     this.userName,
   });
 
-  /// Factory method to create LocationLog from JSON
   factory LocationLog.fromJson(Map<String, dynamic> json) => 
       _$LocationLogFromJson(json);
 
-  /// Method to convert LocationLog to JSON
   Map<String, dynamic> toJson() => _$LocationLogToJson(this);
 
-  /// Copy method for immutable updates
   LocationLog copyWith({
     String? id,
     String? userId,

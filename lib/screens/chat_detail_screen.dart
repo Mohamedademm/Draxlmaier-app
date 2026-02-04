@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/modern_widgets.dart';
 
-/// Chat Detail Screen - Conversation individuelle
 class ChatDetailScreen extends StatelessWidget {
   final String chatId;
   final String? recipientId;

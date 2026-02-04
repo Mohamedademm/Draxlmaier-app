@@ -2,12 +2,9 @@ import '../models/team_model.dart';
 import '../models/user_model.dart';
 import 'api_service.dart';
 
-/// Service for managing teams via API
 class TeamService {
   final ApiService _apiService = ApiService();
 
-  /// Get all teams
-  /// Optional filters: isActive, department
   Future<List<Team>> getTeams({bool? isActive, String? departmentId}) async {
     try {
       final queryParams = <String, String>{};
@@ -41,7 +38,6 @@ class TeamService {
     }
   }
 
-  /// Get a single team by ID
   Future<Team> getTeam(String teamId) async {
     try {
       final response = await _apiService.get('/teams/$teamId');
@@ -58,7 +54,6 @@ class TeamService {
     }
   }
 
-  /// Create a new team
   Future<Team> createTeam({
     required String name,
     String? description,
@@ -91,7 +86,6 @@ class TeamService {
     }
   }
 
-  /// Update an existing team
   Future<Team> updateTeam({
     required String teamId,
     String? name,
@@ -126,7 +120,6 @@ class TeamService {
     }
   }
 
-  /// Delete a team (soft delete)
   Future<void> deleteTeam(String teamId) async {
     try {
       final response = await _apiService.delete('/teams/$teamId');
@@ -141,7 +134,6 @@ class TeamService {
     }
   }
 
-  /// Get all members of a team
   Future<List<User>> getTeamMembers(String teamId) async {
     try {
       final response = await _apiService.get('/teams/$teamId/members');
@@ -159,7 +151,6 @@ class TeamService {
     }
   }
 
-  /// Add a member to a team
   Future<Team> addMemberToTeam(String teamId, String userId) async {
     try {
       final response = await _apiService.post(
@@ -179,7 +170,6 @@ class TeamService {
     }
   }
 
-  /// Remove a member from a team
   Future<Team> removeMemberFromTeam(String teamId, String userId) async {
     try {
       final response = await _apiService.delete('/teams/$teamId/members/$userId');

@@ -5,7 +5,6 @@ import '../services/chat_service.dart';
 import '../services/socket_service.dart';
 import '../services/cache_service.dart';
 
-/// Chat state management provider
 class ChatProvider with ChangeNotifier {
   final ChatService _chatService = ChatService();
   final SocketService _socketService = SocketService();
@@ -25,19 +24,16 @@ class ChatProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Initialize socket connection and listeners
   Future<void> initializeSocket() async {
     try {
       await _socketService.connect();
       
-      // Listen for incoming messages
       _socketService.onMessage((data) {
         final message = Message.fromJson(data);
         _messages.add(message);
         notifyListeners();
       });
 
-      // Listen for typing indicators
       _socketService.onTyping((data) {
         final userId = data['userId'];
         final isTyping = data['isTyping'];
@@ -45,7 +41,6 @@ class ChatProvider with ChangeNotifier {
         notifyListeners();
       });
 
-      // Listen for message status updates
       _socketService.onMessageStatus((data) {
         final messageId = data['messageId'];
         final status = data['status'];
@@ -67,12 +62,10 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Disconnect socket
   void disconnectSocket() {
     _socketService.disconnect();
   }
 
-  /// Load chat history
   Future<void> loadChatHistory({
     String? recipientId,
     String? groupId,
@@ -84,7 +77,6 @@ class ChatProvider with ChangeNotifier {
         ? CacheService.chatHistoryKey(groupId) 
         : CacheService.chatHistoryKey(recipientId ?? 'unknown');
 
-    // 1. Try to load from cache first
     try {
       final cachedData = _cacheService.getData(cacheKey);
       if (cachedData != null && cachedData is List && cachedData.isNotEmpty) {
@@ -93,17 +85,16 @@ class ChatProvider with ChangeNotifier {
               .where((item) => item != null)
               .map((json) => Message.fromJson(json as Map<String, dynamic>))
               .toList();
-          notifyListeners(); // Show cached messages immediately
+          notifyListeners();
         } catch (parseError) {
           debugPrint('Error parsing cached messages: $parseError');
-          _messages = []; // Reset to empty if parsing fails
+          _messages = [];
         }
       }
     } catch (e) {
       debugPrint('Error loading from cache: $e');
     }
 
-    // 2. Fetch from API
     try {
       final messages = await _chatService.getChatHistory(
         recipientId: recipientId,
@@ -112,7 +103,6 @@ class ChatProvider with ChangeNotifier {
       
       _messages = messages;
       
-      // 3. Update cache
       try {
         final messagesJson = messages.map((m) => m.toJson()).toList();
         await _cacheService.saveData(cacheKey, messagesJson);
@@ -125,12 +115,10 @@ class ChatProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
-      // Keep showing cached messages if API fails
       notifyListeners();
     }
   }
 
-  /// Load conversations
   Future<void> loadConversations() async {
     _isLoading = true;
     notifyListeners();
@@ -146,7 +134,6 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Send message
   void sendMessage({
     required String content,
     String? recipientId,
@@ -165,22 +152,18 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Join chat room
   void joinRoom(String roomId) {
     _socketService.joinRoom(roomId);
   }
 
-  /// Leave chat room
   void leaveRoom(String roomId) {
     _socketService.leaveRoom(roomId);
   }
 
-  /// Send typing indicator
   void sendTyping(String roomId, bool isTyping) {
     _socketService.sendTyping(roomId, isTyping);
   }
 
-  /// Mark messages as read
   Future<void> markAsRead(String chatId, {bool isGroup = false}) async {
     try {
       await _chatService.markAsRead(chatId, isGroup: isGroup);
@@ -190,7 +173,6 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Load chat groups
   Future<void> loadGroups() async {
     _isLoading = true;
     notifyListeners();
@@ -206,7 +188,6 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Create chat group
   Future<ChatGroup?> createGroup({
     required String name,
     required List<String> memberIds,
@@ -226,13 +207,11 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Clear messages
   void clearMessages() {
     _messages = [];
     notifyListeners();
   }
 
-  /// Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

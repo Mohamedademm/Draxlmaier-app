@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/modern_theme.dart';
 
-/// Responsive Layout Shell
-/// Automatically switches between Sidebar (Desktop) and BottomNav (Mobile)
 class ModernMainLayout extends StatelessWidget {
   final Widget body;
   final int currentIndex;
@@ -23,12 +21,10 @@ class ModernMainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get theme brightness for dark mode support
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Desktop / Tablet Layout (> 800px)
         if (constraints.maxWidth > 800) {
           return Scaffold(
             appBar: appBar,
@@ -57,7 +53,6 @@ class ModernMainLayout extends StatelessWidget {
           );
         }
         
-        // Mobile Layout
         return Scaffold(
           appBar: appBar,
           body: body,
@@ -106,7 +101,6 @@ class _ModernSidebar extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 32),
-          // Logo Area
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -133,7 +127,6 @@ class _ModernSidebar extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           
-          // Navigation Items
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -201,10 +194,8 @@ class _ModernSidebar extends StatelessWidget {
             ),
           ),
           
-          // User Profile Snippet (Bottom)
           const Divider(),
           const SizedBox(height: 16),
-          // Add logout or profile quick access here if needed
         ],
       ),
     );

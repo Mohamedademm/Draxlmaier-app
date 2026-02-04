@@ -71,7 +71,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
           Navigator.pushReplacementNamed(context, Routes.home);
         }
       } else {
-        // Check for pending approval error
         if (authProvider.errorMessage != null && 
             (authProvider.errorMessage!.toLowerCase().contains('pending approval') || 
              authProvider.errorMessage!.toLowerCase().contains('attente'))) {
@@ -166,7 +165,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo with enhanced animation
                       TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
                         duration: const Duration(milliseconds: 1200),
@@ -213,7 +211,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                       ),
                       const SizedBox(height: 32),
                       
-                      // Welcome text with shadow
                       Text(
                         'Bienvenue',
                         style: TextStyle(
@@ -240,7 +237,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                       ),
                       const SizedBox(height: 48),
 
-                      // Login Card with enhanced design
                       Container(
                         constraints: const BoxConstraints(maxWidth: 420),
                         decoration: BoxDecoration(
@@ -265,7 +261,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Email Field - Modern Design
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -317,7 +312,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                               ),
                               const SizedBox(height: 20),
 
-                              // Password Field - Modern Design
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -377,7 +371,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                               ),
                               const SizedBox(height: 28),
 
-                              // Login Button - Gradient Design
                               Material(
                                 color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
@@ -432,7 +425,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                               
                               const SizedBox(height: 20),
 
-                              // Divider - Modern Design
                               Row(
                                 children: [
                                   Expanded(
@@ -486,7 +478,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
                               const SizedBox(height: 20),
 
-                              // Google Sign In Button - Modern Design
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
@@ -534,7 +525,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
                               ),
                               const SizedBox(height: 20),
                               
-                              // Register Link - Modern Design
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
@@ -599,7 +589,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
 
                       const SizedBox(height: 28),
 
-                      // Test Accounts Card - Modern Design
                       TweenAnimationBuilder<double>(
                         duration: const Duration(milliseconds: 800),
                         tween: Tween(begin: 0.0, end: 1.0),
@@ -695,7 +684,6 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
     );
   }
 
-  // Helper method to build test account rows
   Widget _buildTestAccount({
     required IconData icon,
     required String role,

@@ -4,16 +4,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/constants.dart';
 import '../models/matricule_model.dart';
 
-/// Service pour gérer les matricules
 class MatriculeService {
   final _storage = const FlutterSecureStorage();
 
-  /// Obtenir le token d'authentification
   Future<String?> _getToken() async {
     return await _storage.read(key: StorageKeys.authToken);
   }
 
-  /// Headers avec authentification
   Future<Map<String, String>> _getHeaders() async {
     final token = await _getToken();
     return {
@@ -22,7 +19,6 @@ class MatriculeService {
     };
   }
 
-  /// Créer un nouveau matricule
   Future<Matricule> createMatricule({
     required String matricule,
     required String nom,
@@ -53,7 +49,6 @@ class MatriculeService {
     }
   }
 
-  /// Créer plusieurs matricules en masse
   Future<Map<String, int>> bulkCreateMatricules(List<Map<String, String>> matricules) async {
     final headers = await _getHeaders();
     
@@ -75,7 +70,6 @@ class MatriculeService {
     }
   }
 
-  /// Importer des matricules depuis Excel
   Future<Map<String, int>> importExcel(List<Map<String, String>> matricules) async {
     final headers = await _getHeaders();
     
@@ -98,9 +92,8 @@ class MatriculeService {
     }
   }
 
-  /// Obtenir tous les matricules avec filtres
   Future<List<Matricule>> getAllMatricules({
-    String? status, // 'available' ou 'used'
+    String? status,
     String? department,
     String? search,
   }) async {
@@ -148,7 +141,6 @@ class MatriculeService {
     }
   }
 
-  /// Obtenir les matricules disponibles uniquement
   Future<List<Matricule>> getAvailableMatricules({String? department}) async {
     final headers = await _getHeaders();
     
@@ -171,7 +163,6 @@ class MatriculeService {
     }
   }
 
-  /// Vérifier un matricule et récupérer les infos
   Future<MatriculeCheckResult> checkMatricule(String matricule) async {
     final headers = await _getHeaders();
     
@@ -199,7 +190,6 @@ class MatriculeService {
     }
   }
 
-  /// Mettre à jour un matricule
   Future<Matricule> updateMatricule({
     required String id,
     String? nom,
@@ -230,7 +220,6 @@ class MatriculeService {
     }
   }
 
-  /// Supprimer un matricule
   Future<void> deleteMatricule(String id) async {
     final headers = await _getHeaders();
     
@@ -245,7 +234,6 @@ class MatriculeService {
     }
   }
 
-  /// Obtenir les statistiques
   Future<MatriculeStats> getStats() async {
     final headers = await _getHeaders();
     

@@ -1,17 +1,14 @@
 import 'dart:convert';
-// import 'dart:io'; // Removed for Web compatibility
 
 import 'package:http/http.dart' as http;
 import '../models/objective_model.dart';
 import '../utils/constants.dart';
 import 'api_service.dart';
 
-/// Service pour gérer les objectifs
 class ObjectiveService {
   final String baseUrl = '${ApiConstants.baseUrl}/objectives';
   final ApiService _apiService = ApiService();
 
-  /// Récupérer les en-têtes avec le token d'authentification
   Future<Map<String, String>> _getHeaders() async {
     final token = await _apiService.getToken();
     return {
@@ -20,7 +17,6 @@ class ObjectiveService {
     };
   }
 
-  /// Récupérer mes objectifs (employé)
   Future<List<Objective>> getMyObjectives({
     String? status,
     String? priority,
@@ -29,7 +25,6 @@ class ObjectiveService {
       final headers = await _getHeaders();
       var url = '$baseUrl/my-objectives';
       
-      // Ajouter les paramètres de requête
       final queryParams = <String, String>{};
       if (status != null) queryParams['status'] = status;
       if (priority != null) queryParams['priority'] = priority;
@@ -57,7 +52,6 @@ class ObjectiveService {
     }
   }
 
-  /// Récupérer les objectifs de l'équipe (manager)
   Future<List<Objective>> getTeamObjectives({
     String? teamId,
     String? status,
@@ -93,7 +87,6 @@ class ObjectiveService {
     }
   }
 
-  /// Récupérer un objectif par son ID
   Future<Objective> getObjectiveById(String id) async {
     try {
       final headers = await _getHeaders();
@@ -113,7 +106,6 @@ class ObjectiveService {
     }
   }
 
-  /// Créer un nouvel objectif (manager)
   Future<Objective> createObjective({
     required String title,
     required String description,
@@ -159,7 +151,6 @@ class ObjectiveService {
     }
   }
 
-  /// Mettre à jour le statut d'un objectif
   Future<Objective> updateObjectiveStatus({
     required String id,
     required String status,
@@ -190,7 +181,6 @@ class ObjectiveService {
     }
   }
 
-  /// Mettre à jour la progression d'un objectif
   Future<Objective> updateObjectiveProgress({
     required String id,
     required int progress,
@@ -219,7 +209,6 @@ class ObjectiveService {
     }
   }
 
-  /// Ajouter un commentaire à un objectif
   Future<Objective> addComment({
     required String id,
     required String text,
@@ -248,7 +237,6 @@ class ObjectiveService {
     }
   }
 
-  /// Mettre à jour un objectif (manager)
   Future<Objective> updateObjective({
     required String id,
     String? title,
@@ -289,7 +277,6 @@ class ObjectiveService {
     }
   }
 
-  /// Supprimer un objectif (manager)
   Future<void> deleteObjective(String id) async {
     try {
       final headers = await _getHeaders();
@@ -307,7 +294,6 @@ class ObjectiveService {
     }
   }
 
-  /// Obtenir les statistiques des objectifs
   Future<Map<String, dynamic>> getObjectiveStats() async {
     try {
       final objectives = await getMyObjectives();
@@ -329,49 +315,7 @@ class ObjectiveService {
       throw Exception('Erreur: $e');
     }
   }
-  /* 
-  /// Ajouter une pièce jointe
-  // DISABLED FOR WEB COMPATIBILITY (dart:io dependency)
-  Future<Objective> uploadAttachment({
-    required String id,
-    required File file,
-  }) async {
-    try {
-      final headers = await _getHeaders();
-      // Remove Content-Type from headers as MultipartRequest sets it automatically
-      headers.remove('Content-Type');
 
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/$id/attachments'),
-      );
-
-      request.headers.addAll(headers);
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          file.path,
-        ),
-      );
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return Objective.fromJson(data['objective']);
-      } else {
-        final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Erreur lors de l\'upload du fichier');
-      }
-    } catch (e) {
-      throw Exception('Erreur: $e');
-    }
-  }
-  */
-
-  /// Ajouter une sous-tâche
   Future<Objective> addSubTask({
     required String id,
     required String title,
@@ -400,7 +344,6 @@ class ObjectiveService {
     }
   }
 
-  /// Basculer l'état d'une sous-tâche
   Future<Objective> toggleSubTask({
     required String objectiveId,
     required String subTaskId,
@@ -424,7 +367,6 @@ class ObjectiveService {
     }
   }
 
-  /// Supprimer une sous-tâche
   Future<Objective> deleteSubTask({
     required String objectiveId,
     required String subTaskId,

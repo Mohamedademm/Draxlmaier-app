@@ -63,7 +63,7 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
   Future<void> _markAsRead(String notificationId) async {
     try {
       await _notificationService.markAsRead(notificationId);
-      await _loadNotifications(); // Refresh list
+      await _loadNotifications();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,14 +92,12 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
       ),
       body: Column(
         children: [
-          // Filtres
           Container(
             color: Colors.grey[100],
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Type filter
                 const Text(
                   'Filtrer par type:',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -153,7 +151,6 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 8),
-                // Unread only toggle
                 Row(
                   children: [
                     Checkbox(
@@ -170,7 +167,6 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
             ),
           ),
           
-          // Liste des notifications
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -227,7 +223,6 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
             children: [
               Row(
                 children: [
-                  // Icon based on type
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -286,7 +281,6 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
                 style: const TextStyle(fontSize: 14),
               ),
               
-              // Afficher les détails pour les changements d'adresse
               if (isAddressChange && notification.metadata != null) ...[
                 const SizedBox(height: 12),
                 Container(

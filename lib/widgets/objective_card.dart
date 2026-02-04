@@ -4,7 +4,6 @@ import '../theme/draexlmaier_theme.dart';
 import '../constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
-/// Widget pour afficher une carte d'objectif
 class ObjectiveCard extends StatelessWidget {
   final Objective objective;
   final VoidCallback? onTap;
@@ -33,7 +32,6 @@ class ObjectiveCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // En-tête avec titre et priorité
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,7 +52,6 @@ class ObjectiveCard extends StatelessWidget {
               
               const SizedBox(height: AppConstants.paddingSmall),
               
-              // Description
               if (objective.description.isNotEmpty)
                 Text(
                   objective.description,
@@ -65,7 +62,6 @@ class ObjectiveCard extends StatelessWidget {
               
               const SizedBox(height: AppConstants.paddingMedium),
               
-              // Barre de progression
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -101,7 +97,6 @@ class ObjectiveCard extends StatelessWidget {
               
               const SizedBox(height: AppConstants.paddingMedium),
               
-              // Pied avec statut, date et assigné
               Row(
                 children: [
                   _buildStatusChip(objective.status),

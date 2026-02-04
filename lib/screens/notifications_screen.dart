@@ -8,7 +8,6 @@ import '../models/notification_model.dart';
 import '../models/user_model.dart';
 import '../widgets/modern_widgets.dart';
 
-/// Modern Notifications Screen
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -226,7 +225,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
       );
     }
 
-    // Group notifications by date
     final grouped = _groupNotificationsByDate(notifications);
 
     return RefreshIndicator(
@@ -577,7 +575,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   void _showSendNotificationDialog() {
     final titleController = TextEditingController();
     final messageController = TextEditingController();
-    String targetType = 'all'; // 'all', 'department', 'user'
+    String targetType = 'all';
     String? selectedDepartment;
     List<User> selectedUsers = [];
     List<User> allUsers = [];
@@ -591,7 +589,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             isFetchingUsers = true;
             final userProvider = context.read<UserProvider>();
             
-            // Function to update state with users
             void updateUsers() {
               setDialogState(() {
                 allUsers = userProvider.users;
@@ -602,7 +599,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             if (userProvider.users.isEmpty) {
               userProvider.loadUsers().then((_) => updateUsers());
             } else {
-              // Use Future.microtask to avoid calling setState during build
               Future.microtask(() => updateUsers());
             }
           }

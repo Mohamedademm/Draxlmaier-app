@@ -1,27 +1,21 @@
 class ApiConstants {
-  // Backend base URL
   static String get baseUrl {
-    // Always use Render backend as requested
-    return 'https://backend-draxlmaier-app.onrender.com/api';
+    return 'https://pfe-backend-latest.onrender.com';
   }
 
   static String get socketUrl {
-    // Always use Render backend as requested
-    return 'https://backend-draxlmaier-app.onrender.com';
+    return 'https://pfe-backend-latest.onrender.com';
   }
   
-  // Request timeout
   static const Duration timeout = Duration(seconds: 30);
 }
 
-/// Storage keys for local storage
 class StorageKeys {
   static const String authToken = 'auth_token';
   static const String userId = 'user_id';
   static const String fcmToken = 'fcm_token';
 }
 
-/// Route names
 class Routes {
   static const String splash = '/';
   static const String login = '/login';
@@ -45,23 +39,18 @@ class Routes {
   static const String pendingApproval = '/pending-approval';
 }
 
-/// App constants
 class AppConstants {
   static const String appName = 'Employee Communication';
   static const String companyName = 'Your Company';
   
-  // Pagination
   static const int pageSize = 20;
-  static const int maxFileSize = 10 * 1024 * 1024; // 10MB
+  static const int maxFileSize = 10 * 1024 * 1024;
   
-  // Location update interval
   static const Duration locationUpdateInterval = Duration(minutes: 5);
   
-  // Chat refresh interval
   static const Duration chatRefreshInterval = Duration(seconds: 30);
 }
 
-/// Error messages
 class ErrorMessages {
   static const String networkError = 'Network error. Please check your connection.';
   static const String serverError = 'Server error. Please try again later.';
@@ -72,7 +61,6 @@ class ErrorMessages {
   static const String unknownError = 'An unknown error occurred.';
 }
 
-/// Success messages
 class SuccessMessages {
   static const String loginSuccess = 'Login successful!';
   static const String logoutSuccess = 'Logout successful!';

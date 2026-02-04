@@ -46,25 +46,19 @@ import 'services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase ONLY on mobile (Android/iOS), not on web
   if (!kIsWeb) {
     try {
       await Firebase.initializeApp();
       
-      // Set up background message handler
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
       
-      // Initialize notification service
       final notificationService = NotificationService();
       await notificationService.initialize();
       
-      // Request notification permission
       await notificationService.requestPermission();
       
-      // Get and send FCM token to backend
       final token = await notificationService.getFcmToken();
       if (token != null) {
-        // Token will be sent to backend after login
         debugPrint('FCM Token obtained');
       }
     } catch (e) {
@@ -72,10 +66,8 @@ void main() async {
     }
   }
   
-  // Initialize Hive
   await Hive.initFlutter();
   
-  // Open boxes (we will register adapters later)
   await Hive.openBox('settings');
   await Hive.openBox('cache');
   
@@ -119,8 +111,8 @@ class MyApp extends StatelessWidget {
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             locale: localeProvider.locale,
             supportedLocales: const [
-              Locale('fr', ''), // Français (par défaut)
-              Locale('en', ''), // English
+              Locale('fr', ''),
+              Locale('en', ''),
             ],
             localizationsDelegates: const [
               AppLocalizations.delegate,

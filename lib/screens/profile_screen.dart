@@ -23,7 +23,6 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // Modern AppBar with gradient
           SliverAppBar(
             expandedHeight: 200.0,
             floating: false,
@@ -85,13 +84,11 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           
-          // Profile Content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Profile Card with Animation
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0.0, end: 1.0),
                     duration: const Duration(milliseconds: 600),
@@ -125,7 +122,6 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(32.0),
                         child: Column(
                           children: [
-                            // Avatar with gradient border
                             TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
                               duration: const Duration(milliseconds: 800),
@@ -279,7 +275,6 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   
-                  // Action Buttons
                   _buildModernButton(
                     context: context,
                     icon: Icons.edit_rounded,

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/constants.dart';
 
-/// Base API service handling HTTP requests to the backend
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -12,25 +11,21 @@ class ApiService {
   final _storage = const FlutterSecureStorage();
   String? _token;
 
-  /// Get the current authentication token
   Future<String?> getToken() async {
     _token ??= await _storage.read(key: StorageKeys.authToken);
     return _token;
   }
 
-  /// Set the authentication token
   Future<void> setToken(String token) async {
     _token = token;
     await _storage.write(key: StorageKeys.authToken, value: token);
   }
 
-  /// Clear the authentication token
   Future<void> clearToken() async {
     _token = null;
     await _storage.delete(key: StorageKeys.authToken);
   }
 
-  /// Get default headers including authentication
   Future<Map<String, String>> _getHeaders() async {
     final token = await getToken();
     return {
@@ -39,7 +34,6 @@ class ApiService {
     };
   }
 
-  /// GET request
   Future<http.Response> get(String endpoint, {Map<String, String>? queryParams}) async {
     try {
       final headers = await _getHeaders();
@@ -53,7 +47,6 @@ class ApiService {
     }
   }
 
-  /// POST request
   Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
     try {
       final headers = await _getHeaders();
@@ -68,7 +61,6 @@ class ApiService {
     }
   }
 
-  /// PUT request
   Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
     try {
       final headers = await _getHeaders();
@@ -83,7 +75,6 @@ class ApiService {
     }
   }
 
-  /// DELETE request
   Future<http.Response> delete(String endpoint) async {
     try {
       final headers = await _getHeaders();
@@ -94,23 +85,19 @@ class ApiService {
     }
   }
 
-  /// Handle API response
   Map<String, dynamic> handleResponse(http.Response response) {
     try {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return json.decode(response.body);
       }
       
-      // Try to parse error message from response body
       String errorMessage = 'Request failed';
       try {
         final body = json.decode(response.body);
         errorMessage = body['message'] ?? body['error'] ?? errorMessage;
       } catch (e) {
-        // If body parsing fails, use default messages
       }
       
-      // Handle specific status codes
       if (response.statusCode == 401) {
         throw Exception('Session expirée - Veuillez vous reconnecter');
       } else if (response.statusCode == 403) {

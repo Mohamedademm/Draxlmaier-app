@@ -442,16 +442,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       transitionBuilder: (context, anim1, anim2, child) {
         return FadeTransition(
           opacity: anim1,
-          child: child, // The Scaling is handled inside the dialog for more control
+          child: child,
         );
       },
     );
   }
 
   Widget _buildTargetChip(String label, String value, String current, Function(String) onSelected) {
-    // This is now handled inside _NotificationDialog, but keeping it if needed elsewhere or removing it if unused.
-    // Since it was only used in the dialog, we can remove it or update it.
-    // For now, let's remove it as the new dialog has its own implementation.
     return const SizedBox.shrink(); 
   }
 }
@@ -464,7 +461,7 @@ class _NotificationDialog extends StatefulWidget {
 class _NotificationDialogState extends State<_NotificationDialog> with SingleTickerProviderStateMixin {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  String _targetType = 'all'; // all, department, user
+  String _targetType = 'all';
   String? _selectedDepartment;
   List<User> _selectedUsers = [];
   bool _isFetchingUsers = false;
@@ -522,7 +519,6 @@ class _NotificationDialogState extends State<_NotificationDialog> with SingleTic
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -574,7 +570,6 @@ class _NotificationDialogState extends State<_NotificationDialog> with SingleTic
                 ),
               ),
 
-              // Body
               Flexible(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
@@ -675,7 +670,6 @@ class _NotificationDialogState extends State<_NotificationDialog> with SingleTic
                 ),
               ),
 
-              // Footer
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(

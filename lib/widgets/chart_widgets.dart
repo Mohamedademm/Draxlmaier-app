@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../theme/modern_theme.dart';
 
-/// Pie Chart showing Objective Status Distribution
 class ObjectiveStatusPieChart extends StatefulWidget {
   final int todo;
   final int inProgress;
@@ -186,7 +185,6 @@ class _Indicator extends StatelessWidget {
   }
 }
 
-/// Bar Chart showing Weekly Progress (Mock data for now, can be real later)
 class WeeklyProgressBarChart extends StatelessWidget {
   const WeeklyProgressBarChart({super.key});
 
@@ -224,7 +222,7 @@ class WeeklyProgressBarChart extends StatelessWidget {
                     TextSpan(
                       text: (rod.toY - 1).toString(),
                       style: const TextStyle(
-                        color: Colors.white, //widget.touchedBarColor,
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -262,8 +260,8 @@ class WeeklyProgressBarChart extends StatelessWidget {
           }),
           gridData: const FlGridData(show: false),
         ),
-        swapAnimationDuration: const Duration(milliseconds: 150), // Optional
-        swapAnimationCurve: Curves.linear, // Optional
+        swapAnimationDuration: const Duration(milliseconds: 150),
+        swapAnimationCurve: Curves.linear,
       ),
     );
   }
@@ -294,10 +292,6 @@ class WeeklyProgressBarChart extends StatelessWidget {
   }
 
   Widget getTitles(double value, TitleMeta meta) {
-    // This needs context to work with Theme, but getTitles is a callback.
-    // We can rely on a Builder or just standard styles if we want, 
-    // but the issue is acquiring context inside this callback cleanly without wrapping.
-    // However, since it is a widget, we can use a statless widget with context builder inside.
     
     return Builder(
       builder: (context) {

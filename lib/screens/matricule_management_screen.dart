@@ -8,7 +8,6 @@ import '../services/department_service.dart';
 import '../theme/modern_theme.dart';
 import '../widgets/modern_widgets.dart';
 
-/// Écran de gestion des matricules (Admin/Manager uniquement)
 class MatriculeManagementScreen extends StatefulWidget {
   const MatriculeManagementScreen({super.key});
 
@@ -50,7 +49,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
   Future<void> _loadData() async {
     final provider = context.read<MatriculeProvider>();
     
-    // Load departments first
     try {
       final departments = await _departmentService.getDepartments();
       if (mounted) {
@@ -443,10 +441,8 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
   }
 
   Widget _buildFilters(MatriculeProvider provider) {
-    // Use dynamic departments list
     final departments = _departments.map((d) => d.name).toList();
     if (departments.isEmpty) {
-        // Fallback if loading fails or empty
         departments.addAll(['Qualité', 'Logistique', 'MM Shift A', 'MM Shift B', 'SZB Shift A', 'SZB Shift B']);
     }
     
@@ -888,7 +884,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Header with gradient
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
@@ -933,13 +928,11 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                     ),
                   ),
                   
-                  // Form Content
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Matricule Field
                         _buildModernTextField(
                           controller: matriculeCtrl,
                           label: 'Matricule',
@@ -950,7 +943,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                         
                         const SizedBox(height: 20),
                         
-                        // Nom Field
                         _buildModernTextField(
                           controller: nomCtrl,
                           label: 'Nom',
@@ -961,7 +953,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                         
                         const SizedBox(height: 20),
                         
-                        // Prénom Field
                         _buildModernTextField(
                           controller: prenomCtrl,
                           label: 'Prénom',
@@ -972,7 +963,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                         
                         const SizedBox(height: 20),
                         
-                        // Poste Field
                         _buildModernTextField(
                           controller: posteCtrl,
                           label: 'Poste',
@@ -983,7 +973,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                         
                         const SizedBox(height: 20),
                         
-                        // Département Dropdown
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1061,7 +1050,6 @@ class _MatriculeManagementScreenState extends State<MatriculeManagementScreen> w
                         
                         const SizedBox(height: 32),
                         
-                        // Action Buttons
                         Row(
                           children: [
                             Expanded(

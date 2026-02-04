@@ -7,7 +7,6 @@ import '../providers/location_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/location_log_model.dart';
 
-/// Map screen showing employee locations using OpenStreetMap
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -23,7 +22,6 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    // No kIsWeb check needed strictly for functionality, but keeping logic consistent
     if (!kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadLocations();
@@ -36,11 +34,9 @@ class _MapScreenState extends State<MapScreen> {
     final authProvider = context.read<AuthProvider>();
 
     if (authProvider.canManageUsers) {
-      // Load team locations for admin/manager
       await locationProvider.loadTeamLocations();
       _updateMarkers(locationProvider.teamLocations);
     } else {
-      // Load only current user location for employees
       await locationProvider.getCurrentLocation();
       if (locationProvider.currentPosition != null) {
         _updateMarkers([
@@ -130,7 +126,7 @@ class _MapScreenState extends State<MapScreen> {
                 FlutterMap(
                   mapController: _mapController,
                   options: const MapOptions(
-                    initialCenter: LatLng(36.8065, 10.1815), // Default to Tunis
+                    initialCenter: LatLng(36.8065, 10.1815),
                     initialZoom: 12,
                     interactionOptions: InteractionOptions(
                       flags: InteractiveFlag.all,
@@ -139,12 +135,9 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     TileLayer(
                       urlTemplate: isDark 
-                          ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                          : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          ? 'https:
+                          : 'https:
                       subdomains: isDark ? const ['a', 'b', 'c'] : const ['a', 'b', 'c'], 
-                      // OSM handles empty list usually, but let's be safe or just use a b c if OSM supports it (it does a.tile, b.tile). 
-                      // Actually standard OSM is just tile.openstreetmap.org. 
-                      // Let's stick to safe subdomains.
                       userAgentPackageName: 'com.example.employee_communication_app',
                     ),
                     MarkerLayer(markers: _markers),

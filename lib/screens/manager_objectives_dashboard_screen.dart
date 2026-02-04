@@ -8,8 +8,6 @@ import '../widgets/modern_widgets.dart';
 import '../widgets/dashboard_widgets.dart';
 import 'manager_objectives_screen.dart';
 
-/// Professional Manager Objectives Dashboard
-/// Complete objectives management with statistics, filters, and bulk operations
 class ManagerObjectivesDashboardScreen extends StatefulWidget {
   const ManagerObjectivesDashboardScreen({super.key});
 
@@ -83,7 +81,6 @@ class _ManagerObjectivesDashboardScreenState
         _stats = stats;
       });
     } catch (e) {
-      // Stats failure shouldn't block the UI, just log it
       debugPrint('Error loading stats: $e');
       setState(() {
         _stats = null;
@@ -94,15 +91,12 @@ class _ManagerObjectivesDashboardScreenState
     _applyFilters();
   }
 
-  /// Smart deduplication of department objectives
-  /// Groups by department and keeps only one entry per unique department objective
   List<Objective> _deduplicateDepartmentObjectives(List<Objective> objectives) {
     final List<Objective> result = [];
     final Set<String> seenDepartmentObjectives = {};
     
     for (var objective in objectives) {
       if (objective.departmentId != null && objective.departmentId!.isNotEmpty) {
-        // Create unique signature for department objectives
         final signature = '${objective.title}_${objective.departmentId}_'
             '${objective.description}_${objective.priority.value}_'
             '${objective.dueDate.millisecondsSinceEpoch}';
@@ -112,7 +106,6 @@ class _ManagerObjectivesDashboardScreenState
           result.add(objective);
         }
       } else {
-        // Individual objectives always pass through
         result.add(objective);
       }
     }
@@ -120,7 +113,6 @@ class _ManagerObjectivesDashboardScreenState
     return result;
   }
 
-  /// Get statistics breakdown
   Map<String, dynamic> _getObjectiveStats(List<Objective> objectives) {
     final departmentCount = objectives.where((o) => 
         o.departmentId != null && o.departmentId!.isNotEmpty).length;
@@ -138,10 +130,8 @@ class _ManagerObjectivesDashboardScreenState
 
   void _applyFilters() {
     setState(() {
-      // FIRST: Deduplicate department objectives
       var dedupedObjectives = _deduplicateDepartmentObjectives(_objectives);
       
-      // SECOND: Apply search and filters
       _filteredObjectives = dedupedObjectives.where((obj) {
         bool matchesSearch = _searchQuery.isEmpty ||
             obj.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -157,16 +147,13 @@ class _ManagerObjectivesDashboardScreenState
         return matchesSearch && matchesStatus && matchesPriority;
       }).toList();
       
-      // THIRD: Smart sorting - department objectives first, then by priority and date
       _filteredObjectives.sort((a, b) {
         final aDept = a.departmentId != null && a.departmentId!.isNotEmpty;
         final bDept = b.departmentId != null && b.departmentId!.isNotEmpty;
         
-        // Department objectives always come first
         if (aDept && !bDept) return -1;
         if (!aDept && bDept) return 1;
         
-        // Within same type, sort by priority (high > medium > low)
         final priorityOrder = {'high': 0, 'medium': 1, 'low': 2};
         final aPriority = priorityOrder[a.priority.value] ?? 3;
         final bPriority = priorityOrder[b.priority.value] ?? 3;
@@ -175,7 +162,6 @@ class _ManagerObjectivesDashboardScreenState
           return aPriority.compareTo(bPriority);
         }
         
-        // Finally sort by due date (soonest first)
         return a.dueDate.compareTo(b.dueDate);
       });
     });
@@ -246,7 +232,6 @@ class _ManagerObjectivesDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Safely extract stats
     final total = int.tryParse(_stats?['total']?.toString() ?? '0') ?? 0;
     final todo = (_stats?['byStatus']?['todo'] ?? 0) as int;
     final inProgress = (_stats?['byStatus']?['in_progress'] ?? 0) as int;
@@ -362,7 +347,6 @@ class _ManagerObjectivesDashboardScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. STATS CHARTS SECTION
                     if (_stats != null) ...[
                       TweenAnimationBuilder<double>(
                         duration: const Duration(milliseconds: 600),
@@ -401,7 +385,6 @@ class _ManagerObjectivesDashboardScreenState
                                   ),
                                   const SizedBox(height: 20),
                             
-                            // Modern Summary Cards with statistics
                             Row(
                               children: [
                                 Expanded(
@@ -479,7 +462,6 @@ class _ManagerObjectivesDashboardScreenState
                             ),
                             const SizedBox(height: 24),
                       
-                      // Status Distribution Chart
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(24),
@@ -545,7 +527,6 @@ class _ManagerObjectivesDashboardScreenState
                       const SizedBox(height: 24),
                     ],
 
-                    // 2. FILTERS
                     DashboardFiltersSection(
                       searchController: _searchController,
                       filterStatus: _filterStatus,
@@ -570,7 +551,6 @@ class _ManagerObjectivesDashboardScreenState
                     ),
                     const SizedBox(height: 16),
 
-                    // 3. FILTERS SECTION WITH VISUAL CHIPS
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(20),
@@ -712,7 +692,6 @@ class _ManagerObjectivesDashboardScreenState
                       ),
                     ),
 
-                    // 4. BULK ACTIONS
                     if (_selectedObjectiveIds.isNotEmpty)
                       Container(
                         margin: const EdgeInsets.only(bottom: 16),
@@ -742,7 +721,6 @@ class _ManagerObjectivesDashboardScreenState
                         ),
                       ),
 
-                    // 5. LIST
                     _buildObjectivesList(isSliver: false),
                   ],
                 ),
@@ -907,7 +885,6 @@ class _ManagerObjectivesDashboardScreenState
       ],
     );
   }
-  /// Modern summary card with gradient styling
   Widget _buildModernSummaryCard(
     String title,
     String value,
@@ -971,7 +948,6 @@ class _ManagerObjectivesDashboardScreenState
     );
   }
 
-  /// Build a modern filter chip
   Widget _buildFilterChip(
     String label,
     String value,
@@ -983,10 +959,8 @@ class _ManagerObjectivesDashboardScreenState
       onTap: () {
         setState(() {
           if (value.contains('-')) {
-            // Status filter
             _filterStatus = isSelected ? null : value;
           } else {
-            // Priority filter
             _filterPriority = isSelected ? null : value;
           }
         });
@@ -1076,4 +1050,3 @@ class _ManagerObjectivesDashboardScreenState
     );
   }
 }
-/* Original Layout commented out for safe revert */

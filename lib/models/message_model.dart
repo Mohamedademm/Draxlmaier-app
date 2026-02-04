@@ -1,11 +1,9 @@
-/// Enum representing message status
 enum MessageStatus {
   sent,
   delivered,
   read,
 }
 
-/// Message model representing a chat message
 class Message {
   final String id;
   final String senderId;
@@ -15,10 +13,9 @@ class Message {
   final MessageStatus status;
   final DateTime timestamp;
   
-  // File attachments
   final String? fileUrl;
   final String? fileName;
-  final String? fileType; // 'image', 'pdf', 'document'
+  final String? fileType;
   
   String? senderName;
   bool isMe;
@@ -38,13 +35,10 @@ class Message {
     this.isMe = false,
   });
 
-  /// Check if this is a group message
   bool get isGroupMessage => groupId != null;
 
-  /// Check if this is a direct message
   bool get isDirectMessage => receiverId != null;
 
-  /// Factory method to create Message from JSON
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       id: json['_id'] ?? json['id'] ?? '',
@@ -66,7 +60,6 @@ class Message {
     );
   }
 
-  /// Parse status from string
   static MessageStatus _parseStatus(dynamic status) {
     if (status == null) return MessageStatus.sent;
     final statusStr = status.toString().toLowerCase();
@@ -80,7 +73,6 @@ class Message {
     }
   }
 
-  /// Method to convert Message to JSON
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -98,7 +90,6 @@ class Message {
     };
   }
 
-  /// Copy method for immutable updates
   Message copyWith({
     String? id,
     String? senderId,

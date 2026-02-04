@@ -16,14 +16,14 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
   bool isDarkMode = false;
 
   final List<Color> presetColors = [
-    const Color(0xFF003DA5), // Draxlmaier Blue
-    const Color(0xFF1E88E5), // Blue
-    const Color(0xFF2E7D32), // Green
-    const Color(0xFFD32F2F), // Red
-    const Color(0xFF7B1FA2), // Purple
-    const Color(0xFFE65100), // Orange
-    const Color(0xFF263238), // Dark Grey
-    const Color(0xFF006064), // Teal
+    const Color(0xFF003DA5),
+    const Color(0xFF1E88E5),
+    const Color(0xFF2E7D32),
+    const Color(0xFFD32F2F),
+    const Color(0xFF7B1FA2),
+    const Color(0xFFE65100),
+    const Color(0xFF263238),
+    const Color(0xFF006064),
   ];
 
   @override

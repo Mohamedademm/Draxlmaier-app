@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Skeleton loading widgets for better UX
 class SkeletonLoader extends StatefulWidget {
   final double? width;
   final double height;
@@ -82,7 +81,6 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
   }
 }
 
-/// Skeleton for circular avatar
 class SkeletonAvatar extends StatelessWidget {
   final double size;
 
@@ -101,7 +99,6 @@ class SkeletonAvatar extends StatelessWidget {
   }
 }
 
-/// Skeleton for a card
 class SkeletonCard extends StatelessWidget {
   final double? height;
   final EdgeInsets? padding;
@@ -179,7 +176,6 @@ class SkeletonCard extends StatelessWidget {
   }
 }
 
-/// Skeleton for a list
 class SkeletonList extends StatelessWidget {
   final int itemCount;
   final double itemHeight;
@@ -205,7 +201,6 @@ class SkeletonList extends StatelessWidget {
   }
 }
 
-/// Skeleton for objective card
 class SkeletonObjectiveCard extends StatelessWidget {
   const SkeletonObjectiveCard({super.key});
 
@@ -256,7 +251,6 @@ class SkeletonObjectiveCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           const SizedBox(height: 16),
-          // Progress bar skeleton
           SkeletonLoader(
             width: double.infinity,
             height: 8,
@@ -284,7 +278,6 @@ class SkeletonObjectiveCard extends StatelessWidget {
   }
 }
 
-/// Skeleton for stat card
 class SkeletonStatCard extends StatelessWidget {
   const SkeletonStatCard({super.key});
 
@@ -335,7 +328,6 @@ class SkeletonStatCard extends StatelessWidget {
   }
 }
 
-/// Skeleton for profile screen
 class SkeletonProfile extends StatelessWidget {
   const SkeletonProfile({super.key});
 
@@ -345,7 +337,6 @@ class SkeletonProfile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Avatar and name
           const SkeletonAvatar(size: 100),
           const SizedBox(height: 16),
           SkeletonLoader(
@@ -360,7 +351,6 @@ class SkeletonProfile extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           const SizedBox(height: 32),
-          // Buttons
           SkeletonLoader(
             width: double.infinity,
             height: 50,
@@ -384,7 +374,6 @@ class SkeletonProfile extends StatelessWidget {
   }
 }
 
-/// Skeleton for dashboard stats grid
 class DashboardSkeleton extends StatelessWidget {
   const DashboardSkeleton({super.key});
 

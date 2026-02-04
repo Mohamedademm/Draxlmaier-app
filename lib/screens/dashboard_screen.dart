@@ -48,7 +48,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.refresh, color: ModernTheme.textPrimary),
             onPressed: _loadData,
           ),
-          // Admin-specific notifications icon
           if (authProvider.isAdmin)
             Consumer<NotificationProvider>(
               builder: (context, provider, child) {
@@ -220,7 +219,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: ModernTheme.spacingXL),
 
-          // Statistics Grid
           if (objectiveProvider.isLoading)
             const DashboardSkeleton()
           else
@@ -273,7 +271,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           const SizedBox(height: ModernTheme.spacingXL),
 
-          // Recent Objectives Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -296,7 +293,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final index = entry.key;
               final obj = entry.value;
               return AppAnimations.staggeredList(
-                index: index + 4, // Offset by 4 because of the 4 stat cards above
+                index: index + 4,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: ModernCard(
@@ -334,7 +331,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           const SizedBox(height: ModernTheme.spacingXL),
 
-          // Quick Actions
           const Text(
             'Actions Rapides',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ModernTheme.textPrimary),
@@ -384,7 +380,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: ModernTheme.spacingXL),
 
-          // Admin Panel Call to Action
           TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeOutBack,
@@ -493,7 +488,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           const SizedBox(height: ModernTheme.spacingXL),
 
-          // Management Grid (Modern & Clean)
           const Text(
             'Gestion Opérationnelle',
             style: TextStyle(
@@ -511,7 +505,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            // Adjusted aspect ratio to prevent usage of 'BOTTOM OVERFLOWED'
             childAspectRatio: 1.1, 
             children: [
               _buildModernManagerCard(
@@ -519,7 +512,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icons.person_add_outlined,
                 title: 'Inscriptions',
                 subtitle: 'Valider les comptes',
-                color: const Color(0xFF4F46E5), // Indigo
+                color: const Color(0xFF4F46E5),
                 onTap: () => Navigator.pushNamed(context, Routes.pendingUsers),
               ),
               _buildModernManagerCard(
@@ -527,7 +520,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icons.add_task_outlined,
                 title: 'Objectifs',
                 subtitle: 'Assigner & Suivre',
-                color: const Color(0xFFEF4444), // Red
+                color: const Color(0xFFEF4444),
                 onTap: () => Navigator.pushNamed(context, Routes.managerObjectives),
               ),
               _buildModernManagerCard(
@@ -535,7 +528,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icons.badge_outlined,
                 title: 'Matricules',
                 subtitle: 'Base de données',
-                color: const Color(0xFF10B981), // Emerald
+                color: const Color(0xFF10B981),
                 onTap: () => Navigator.pushNamed(context, Routes.matriculeManagement),
               ),
               if (authProvider.isAdmin)
@@ -544,7 +537,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   icon: Icons.business_outlined,
                   title: 'Admin Départements',
                   subtitle: 'Créer & Gérer',
-                  color: const Color(0xFFF59E0B), // Amber
+                  color: const Color(0xFFF59E0B),
                   onTap: () => Navigator.pushNamed(context, Routes.adminDepartments),
                 ),
               _buildModernManagerCard(
@@ -552,7 +545,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icons.hub_outlined,
                 title: 'Départements',
                 subtitle: 'Groupes de chat',
-                color: const Color(0xFF8B5CF6), // Violet
+                color: const Color(0xFF8B5CF6),
                 onTap: () => Navigator.pushNamed(context, Routes.departmentGroups),
               ),
             ],
@@ -675,7 +668,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // Deprecated: kept for backward compatibility if needed by other widgets, but not used in manager dashboard anymore
   Widget _buildManagerCard(
     BuildContext context, {
     required IconData icon,

@@ -32,7 +32,6 @@ class DashboardStatisticsSection extends StatelessWidget {
         ),
         const SizedBox(height: ModernTheme.spacingM),
         
-        // Charts Row (Responsive)
         LayoutBuilder(
           builder: (context, constraints) {
             if (constraints.maxWidth > 800) {
@@ -136,8 +135,6 @@ class DashboardStatisticsSection extends StatelessWidget {
 
         const SizedBox(height: ModernTheme.spacingM),
         
-        // Key Metrics Row
-        // Using Row + Expanded instead of GridView to avoid overflow and manage height flexibility
         Row(
           children: [
             Expanded(
@@ -288,7 +285,6 @@ class DashboardObjectiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if context is dark for correct color choice
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ModernCard(
@@ -322,7 +318,6 @@ class DashboardObjectiveCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        // Show department icon and name if it's a department objective
                         if (objective.departmentId != null && objective.departmentId!.isNotEmpty) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -349,7 +344,6 @@ class DashboardObjectiveCard extends StatelessWidget {
                             ),
                           ),
                         ] else ...[
-                          // Show assigned user for individual objectives
                           Icon(
                             Icons.person_rounded,
                             size: 16,

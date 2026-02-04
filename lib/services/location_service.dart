@@ -3,36 +3,29 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/location_log_model.dart';
 import 'api_service.dart';
 
-/// Location service handling GPS tracking and location updates
 class LocationService {
   final ApiService _apiService = ApiService();
 
-  /// Check if location permission is granted
   Future<bool> hasPermission() async {
     final status = await Permission.location.status;
     return status.isGranted;
   }
 
-  /// Request location permission
   Future<bool> requestPermission() async {
     final status = await Permission.location.request();
     return status.isGranted;
   }
 
-  /// Check if location services are enabled
   Future<bool> isLocationServiceEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
 
-  /// Get current position
   Future<Position> getCurrentPosition() async {
-    // Check if location services are enabled
     bool serviceEnabled = await isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw Exception('Location services are disabled');
     }
 
-    // Check permission
     bool hasPermission = await this.hasPermission();
     if (!hasPermission) {
       bool granted = await requestPermission();
@@ -41,23 +34,20 @@ class LocationService {
       }
     }
 
-    // Get current position
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
   }
 
-  /// Start tracking location in background
   Stream<Position> trackLocation() {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 50, // Update every 50 meters
+        distanceFilter: 50,
       ),
     );
   }
 
-  /// Update user location on server
   Future<void> updateLocation(double latitude, double longitude) async {
     try {
       await _apiService.post('/location/update', {
@@ -69,7 +59,6 @@ class LocationService {
     }
   }
 
-  /// Get team member locations (Admin/Manager only)
   Future<List<LocationLog>> getTeamLocations() async {
     try {
       final response = await _apiService.get('/location/team');
@@ -82,7 +71,6 @@ class LocationService {
     }
   }
 
-  /// Get user's own location history
   Future<List<LocationLog>> getMyLocationHistory() async {
     try {
       final response = await _apiService.get('/location/my-history');
@@ -95,7 +83,6 @@ class LocationService {
     }
   }
 
-  /// Calculate distance between two coordinates in kilometers
   double calculateDistance(
     double lat1,
     double lon1,

@@ -3,7 +3,6 @@ import 'user_model.dart';
 
 part 'department_model.g.dart';
 
-/// Department model representing a department in the organization
 @JsonSerializable(explicitToJson: true)
 class Department {
   @JsonKey(name: '_id')
@@ -15,10 +14,9 @@ class Department {
   @JsonKey(name: 'manager', fromJson: _userFromJson)
   final User? manager;
   
-  // Helper method to handle user field that can be String or Object
   static User? _userFromJson(dynamic json) {
     if (json == null) return null;
-    if (json is String) return null; // Just an ID, can't create full object
+    if (json is String) return null;
     if (json is Map<String, dynamic>) return User.fromJson(json);
     return null;
   }
@@ -61,18 +59,15 @@ class Department {
     this.updatedAt,
   });
 
-  /// Get formatted budget
   String get formattedBudget {
     if (budget == null) return 'N/A';
     return '€${budget! ~/ 1000}K';
   }
 
-  /// Check if user is the manager
   bool isManager(String userId) {
     return manager?.id == userId;
   }
 
-  /// Get display info
   String get displayInfo {
     final parts = <String>[];
     if (location != null) parts.add(location!);
@@ -81,13 +76,10 @@ class Department {
     return parts.join(' • ');
   }
 
-  /// Factory constructor for creating a new Department instance from JSON
   factory Department.fromJson(Map<String, dynamic> json) => _$DepartmentFromJson(json);
 
-  /// Convert Department instance to JSON
   Map<String, dynamic> toJson() => _$DepartmentToJson(this);
 
-  /// Copy with method for creating modified copies
   Department copyWith({
     String? id,
     String? name,

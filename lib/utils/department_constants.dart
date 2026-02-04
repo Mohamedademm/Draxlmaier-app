@@ -1,7 +1,4 @@
-/// Constants for department names
 class DepartmentConstants {
-  // Predefined departments (kept for backward compatibility and default colors/icons)
-  // Note: Validation now accepts ANY non-empty department to support custom departments
   static const List<String> allowedDepartments = [
     'Qualité',
     'Logistique',
@@ -11,35 +8,30 @@ class DepartmentConstants {
     'SZB shift B',
   ];
 
-  /// Check if a department name is valid
-  /// Now accepts any non-empty department to support custom departments
   static bool isValidDepartment(String? department) {
     if (department == null) return false;
-    // Accept any non-empty department string to support custom departments
     return department.trim().isNotEmpty;
   }
 
-  /// Get department color
   static String getDepartmentColor(String department) {
     switch (department) {
       case 'Qualité':
-        return '#4CAF50'; // Green
+        return '#4CAF50';
       case 'Logistique':
-        return '#2196F3'; // Blue
+        return '#2196F3';
       case 'MM shift A':
-        return '#FF9800'; // Orange
+        return '#FF9800';
       case 'MM shift B':
-        return '#F44336'; // Red
+        return '#F44336';
       case 'SZB shift A':
-        return '#9C27B0'; // Purple
+        return '#9C27B0';
       case 'SZB shift B':
-        return '#00BCD4'; // Cyan
+        return '#00BCD4';
       default:
-        return '#757575'; // Grey
+        return '#757575';
     }
   }
 
-  /// Get department icon
   static String getDepartmentIcon(String department) {
     switch (department) {
       case 'Qualité':

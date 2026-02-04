@@ -61,7 +61,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   ImageProvider? _getProfileImage(User? user) {
-    // Priority 1: Newly selected image
     if (_profileImageBase64 != null && _profileImageBase64!.isNotEmpty) {
       try {
         final base64String = _profileImageBase64!.contains(',')
@@ -73,9 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
     
-    // Priority 2: Existing profile image from user
     if (user?.profileImage != null && user!.profileImage!.isNotEmpty) {
-      // Check if it's a base64 image
       if (user.profileImage!.startsWith('data:image')) {
         try {
           final base64String = user.profileImage!.split(',').last;
@@ -84,7 +81,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           print('Error decoding user base64 image: $e');
         }
       } else if (user.profileImage!.startsWith('http')) {
-        // It's a URL
         return NetworkImage(user.profileImage!);
       }
     }
@@ -101,7 +97,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final bytes = await image.readAsBytes();
         final base64String = base64Encode(bytes);
         
-        // Determine mime type from extension or default to jpeg
         String mimeType = 'image/jpeg';
         if (image.name.toLowerCase().endsWith('.png')) {
           mimeType = 'image/png';
@@ -132,17 +127,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         throw Exception('User not logged in');
       }
 
-      // Prepare update data - only send non-empty fields
       final updateData = <String, dynamic>{};
       
-      // Required fields
       final firstname = _firstnameController.text.trim();
       final lastname = _lastnameController.text.trim();
       
       if (firstname.isNotEmpty) updateData['firstname'] = firstname;
       if (lastname.isNotEmpty) updateData['lastname'] = lastname;
       
-      // Optional fields - only include if not empty
       final phone = _phoneController.text.trim();
       final department = _departmentController.text.trim();
       final position = _positionController.text.trim();
@@ -157,7 +149,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (city.isNotEmpty) updateData['city'] = city;
       if (postalCode.isNotEmpty) updateData['postalCode'] = postalCode;
       
-      // Profile image
       if (_profileImageBase64 != null && _profileImageBase64!.isNotEmpty) {
         updateData['profileImageBase64'] = _profileImageBase64!;
         print('Sending profile image: ${_profileImageBase64!.substring(0, 50)}...');
@@ -168,11 +159,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final result = await _userService.updateUserProfile(userId, updateData);
       final bool addressChanged = result['addressChanged'] ?? false;
 
-      // Refresh user data
       await authProvider.refreshUser();
 
       if (mounted) {
-        // Show different messages based on whether address changed
         final message = addressChanged
             ? 'Profil mis à jour! Les administrateurs ont été notifiés du changement d\'adresse.'
             : 'Profil mis à jour avec succès';
@@ -218,7 +207,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // Modern AppBar with gradient
           SliverAppBar(
             expandedHeight: 160.0,
             floating: false,
@@ -281,7 +269,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           
-          // Content
           SliverToBoxAdapter(
             child: _isLoading
                 ? SizedBox(
@@ -298,7 +285,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Profile Image Section
                           TweenAnimationBuilder<double>(
                             tween: Tween(begin: 0.0, end: 1.0),
                             duration: const Duration(milliseconds: 600),
@@ -439,7 +425,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                           const SizedBox(height: 24),
 
-                          // Personal Information
                           _buildModernSection(
                             title: 'Informations personnelles',
                             icon: Icons.person_rounded,
@@ -485,7 +470,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                           const SizedBox(height: 20),
 
-                          // Professional Information
                           _buildModernSection(
                             title: 'Informations professionnelles',
                             icon: Icons.work_rounded,
@@ -508,7 +492,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                           const SizedBox(height: 20),
 
-                          // Address Information
                           _buildModernSection(
                             title: 'Adresse',
                             icon: Icons.location_on_rounded,
@@ -535,7 +518,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                           const SizedBox(height: 32),
 
-                          // Save Button
                           TweenAnimationBuilder<double>(
                             tween: Tween(begin: 0.0, end: 1.0),
                             duration: const Duration(milliseconds: 1000),

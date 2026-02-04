@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 
-/// Widget pour afficher le logo Draexlmaier avec un design élégant
 class DraexlmaierLogo extends StatelessWidget {
   final double? height;
   final double? width;

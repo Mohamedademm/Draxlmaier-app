@@ -1,6 +1,5 @@
 import 'user_model.dart';
 
-/// Modèle pour un objectif/tâche
 class Objective {
   final String id;
   final String title;
@@ -49,7 +48,6 @@ class Objective {
   });
 
   factory Objective.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse User
     User parseUser(dynamic userJson) {
       if (userJson == null) {
         return User(
@@ -196,7 +194,6 @@ class Objective {
   int get daysUntilDue => dueDate.difference(DateTime.now()).inDays;
 }
 
-/// Statut d'un objectif
 enum ObjectiveStatus {
   todo('todo', 'À faire'),
   inProgress('in_progress', 'En cours'),
@@ -216,7 +213,6 @@ enum ObjectiveStatus {
   }
 }
 
-/// Priorité d'un objectif
 enum ObjectivePriority {
   low('low', 'Basse'),
   medium('medium', 'Moyenne'),
@@ -236,7 +232,6 @@ enum ObjectivePriority {
   }
 }
 
-/// Commentaire sur un objectif
 class ObjectiveComment {
   final String id;
   final User user;
@@ -267,7 +262,6 @@ class ObjectiveComment {
   }
 }
 
-/// Fichier attaché à un objectif
 class FileAttachment {
   final String id;
   final String name;
@@ -313,7 +307,6 @@ class FileAttachment {
   }
 }
 
-/// Sous-tâche d'un objectif
 class SubTask {
   final String id;
   final String title;

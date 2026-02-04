@@ -49,7 +49,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
               final authProvider = context.read<AuthProvider>();
               final users = userProvider.users.where((u) {
-                // If current user is manager, hide admins
                 if (authProvider.isManager) {
                   return !u.isAdmin;
                 }
@@ -581,7 +580,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Header with gradient
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
@@ -626,7 +624,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     ),
                   ),
                   
-                  // Form Content
                   Padding(
                     padding: const EdgeInsets.all(24),
                     child: Column(
@@ -674,7 +671,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         
                         const SizedBox(height: 20),
                         
-                        // Role Dropdown
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -746,7 +742,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         
                         const SizedBox(height: 32),
                         
-                        // Action Buttons
                         Row(
                           children: [
                             Expanded(
@@ -996,7 +991,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Personal Information Section
                   Text(
                     'Informations personnelles',
                     style: TextStyle(
@@ -1015,7 +1009,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ModernTextField(controller: phoneController, label: 'Téléphone', keyboardType: TextInputType.phone, prefixIcon: Icons.phone_outlined),
                   const SizedBox(height: 24),
                   
-                  // Professional Information Section
                   Text(
                     'Informations professionnelles',
                     style: TextStyle(
@@ -1043,7 +1036,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   ModernTextField(controller: positionController, label: 'Poste', prefixIcon: Icons.badge_outlined),
                   const SizedBox(height: 24),
                   
-                  // Address Information Section
                   Text(
                     'Adresse',
                     style: TextStyle(

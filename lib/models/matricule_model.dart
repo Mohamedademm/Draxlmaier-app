@@ -1,4 +1,3 @@
-/// Modèle pour les matricules d'employés
 class Matricule {
   final String id;
   final String matricule;
@@ -26,7 +25,6 @@ class Matricule {
     this.usedAt,
   });
 
-  /// Helper to extract ID from String or Map
   static String _extractId(dynamic value) {
     if (value == null) return '';
     if (value is String) return value;
@@ -36,7 +34,6 @@ class Matricule {
     return value.toString();
   }
 
-  /// Créer depuis JSON
   factory Matricule.fromJson(Map<String, dynamic> json) {
     return Matricule(
       id: _extractId(json['_id'] ?? json['id']),
@@ -57,7 +54,6 @@ class Matricule {
     );
   }
 
-  /// Convertir en JSON
   Map<String, dynamic> toJson() {
     return {
       'matricule': matricule,
@@ -73,7 +69,6 @@ class Matricule {
     };
   }
 
-  /// Copier avec modifications
   Matricule copyWith({
     String? id,
     String? matricule,
@@ -102,17 +97,14 @@ class Matricule {
     );
   }
 
-  /// Nom complet
   String get nomComplet => '$prenom $nom';
 
-  /// Statut en français
   String get statut => isUsed ? 'Utilisé' : 'Disponible';
 
   @override
   String toString() => 'Matricule($matricule - $nomComplet - $department)';
 }
 
-/// Résultat de vérification de matricule
 class MatriculeCheckResult {
   final bool exists;
   final bool available;
@@ -144,7 +136,6 @@ class MatriculeCheckResult {
   bool get isValid => exists && available;
 }
 
-/// Statistiques des matricules
 class MatriculeStats {
   final int total;
   final int used;

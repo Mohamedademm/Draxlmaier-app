@@ -1,50 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Thème Premium & Moderne pour l'application Draxlmaier
 class ModernTheme {
-  // --- Palette de Couleurs Premium ---
-  
-  // Bleu Profond (Primary) - Professionnel, Confiance
   static const Color primaryBlue = Color(0xFF00828C);
   
-  // Bleu Vif (Secondary/Accent) - Action, Dynamisme
   static const Color secondaryBlue = Color(0xFF00A9E0);
   
-  // Gris Neutres (Backgrounds/Surface)
-  static const Color background = Color(0xFFF8F9FC); // Très léger bleu-gris pour la modernité
+  static const Color background = Color(0xFFF8F9FC);
   static const Color surface = Colors.white;
   static const Color surfaceVariant = Color(0xFFF0F2F5);
   
-  // Textes
-  static const Color textPrimary = Color(0xFF1A1C1E); // Presque noir, plus doux
+  static const Color textPrimary = Color(0xFF1A1C1E);
   static const Color textSecondary = Color(0xFF42474E);
   static const Color textTertiary = Color(0xFF72777F);
   
-  // Status (Vibrants mais pas agressifs)
-  static const Color success = Color(0xFF2E7D32); // Vert forêt
-  static const Color warning = Color(0xFFED6C02); // Orange brûlé
-  static const Color error = Color(0xFFBA1A1A); // Rouge profond
-  static const Color info = Color(0xFF0288D1); // Bleu info
+  static const Color success = Color(0xFF2E7D32);
+  static const Color warning = Color(0xFFED6C02);
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color info = Color(0xFF0288D1);
   
-  // Alias for compatibility
   static const Color primary = primaryBlue;
 
-  // --- Nouveau Palette Dark Mode (Modern Midnight) ---
-  static const Color darkBackground = Color(0xFF0F172A); // Slate 900 (Fond Profond)
-  static const Color darkSurface = Color(0xFF1E293B); // Slate 800 (Cartes)
-  static const Color darkSurfaceVariant = Color(0xFF334155); // Slate 700 (Inputs/Elements)
-  static const Color darkTextPrimary = Color(0xFFF1F5F9); // Slate 100 (Texte Principal)
-  static const Color darkTextSecondary = Color(0xFFCBD5E1); // Slate 300 (Texte Secondaire)
-  static const Color darkTextTertiary = Color(0xFF94A3B8); // Slate 400 (Texte Tertiaire)
+  static const Color darkBackground = Color(0xFF0F172A);
+  static const Color darkSurface = Color(0xFF1E293B);
+  static const Color darkSurfaceVariant = Color(0xFF334155);
+  static const Color darkTextPrimary = Color(0xFFF1F5F9);
+  static const Color darkTextSecondary = Color(0xFFCBD5E1);
+  static const Color darkTextTertiary = Color(0xFF94A3B8);
 
-  /// Thème Sombre Dynamique
   static ThemeData darkTheme(BuildContext context, {Color primary = primaryBlue, Color secondary = secondaryBlue}) {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       
-      // Colors
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         brightness: Brightness.dark,
@@ -63,7 +51,6 @@ class ModernTheme {
       
       scaffoldBackgroundColor: darkBackground,
       
-      // Typography
       textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme).apply(
         bodyColor: darkTextPrimary,
         displayColor: darkTextPrimary,
@@ -78,7 +65,6 @@ class ModernTheme {
         bodyMedium: const TextStyle(color: darkTextSecondary, fontSize: 14),
       ),
       
-      // AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: darkSurface,
         foregroundColor: darkTextPrimary,
@@ -95,7 +81,6 @@ class ModernTheme {
         actionsIconTheme: IconThemeData(color: darkTextPrimary),
       ),
       
-      // Cards - Amélioration du contraste et des bordures
       cardTheme: CardTheme(
         color: darkSurface,
         elevation: 4,
@@ -107,7 +92,6 @@ class ModernTheme {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
       
-      // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
@@ -129,7 +113,6 @@ class ModernTheme {
         ),
       ),
       
-      // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: darkSurfaceVariant.withOpacity(0.5),
@@ -155,7 +138,6 @@ class ModernTheme {
         hintStyle: const TextStyle(color: darkTextTertiary),
       ),
       
-      // FAB
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: secondary,
         foregroundColor: Colors.white,
@@ -163,7 +145,6 @@ class ModernTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusL)),
       ),
       
-      // Bottom Nav
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: darkSurface,
         selectedItemColor: primary,
@@ -174,7 +155,6 @@ class ModernTheme {
         showUnselectedLabels: true,
       ),
       
-      // Chips
       chipTheme: ChipThemeData(
         backgroundColor: darkSurfaceVariant,
         labelStyle: const TextStyle(color: darkTextSecondary, fontWeight: FontWeight.w500),
@@ -183,7 +163,6 @@ class ModernTheme {
         side: BorderSide.none,
       ),
       
-      // Dialogs
       dialogTheme: const DialogTheme(
         backgroundColor: darkSurface,
         surfaceTintColor: Colors.transparent,
@@ -191,7 +170,6 @@ class ModernTheme {
     );
   }
 
-  // --- Dimensions & Formes ---
   static const double radiusS = 8.0;
   static const double radiusM = 12.0;
   static const double radiusL = 16.0;
@@ -205,7 +183,6 @@ class ModernTheme {
   static final BorderRadius cardRadius = BorderRadius.circular(radiusM);
   static final BorderRadius buttonRadius = BorderRadius.circular(radiusM);
   
-  // --- Gradients & Shadows ---
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primaryBlue, secondaryBlue],
     begin: Alignment.topLeft,
@@ -228,13 +205,11 @@ class ModernTheme {
     ),
   ];
 
-  /// Thème Clair Dynamique
   static ThemeData lightTheme(BuildContext context, {Color primary = primaryBlue, Color secondary = secondaryBlue}) {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       
-      // Couleurs
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         primary: primary,
@@ -252,7 +227,6 @@ class ModernTheme {
       
       scaffoldBackgroundColor: background,
       
-      // Typographie (Google Fonts - Inter)
       textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme).copyWith(
         displayLarge: const TextStyle(color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: -1.0),
         displayMedium: const TextStyle(color: textPrimary, fontWeight: FontWeight.w700, letterSpacing: -0.5),
@@ -264,7 +238,6 @@ class ModernTheme {
         bodyMedium: const TextStyle(color: textSecondary, fontSize: 14),
       ),
       
-      // AppBar Moderne - Updated to White Text on Primary Background
       appBarTheme: const AppBarTheme(
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
@@ -281,7 +254,6 @@ class ModernTheme {
         actionsIconTheme: IconThemeData(color: Colors.white),
       ),
       
-      // Cards
       cardTheme: CardTheme(
         color: surface,
         elevation: 0,
@@ -292,7 +264,6 @@ class ModernTheme {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
       
-      // Boutons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
@@ -314,7 +285,6 @@ class ModernTheme {
         ),
       ),
       
-      // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
@@ -339,7 +309,6 @@ class ModernTheme {
         floatingLabelStyle: TextStyle(color: primary, fontWeight: FontWeight.w600),
       ),
       
-      // Floating Action Button
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: secondary,
         foregroundColor: Colors.white,
@@ -347,7 +316,6 @@ class ModernTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusL)),
       ),
       
-      // Bottom Navigation Bar
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: surface,
         selectedItemColor: primary,
@@ -358,7 +326,6 @@ class ModernTheme {
         showUnselectedLabels: true,
       ),
       
-      // Chips
       chipTheme: ChipThemeData(
         backgroundColor: surfaceVariant,
         labelStyle: const TextStyle(color: textSecondary, fontWeight: FontWeight.w500),

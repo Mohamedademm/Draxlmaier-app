@@ -7,7 +7,6 @@ import '../utils/constants.dart';
 import '../widgets/draexlmaier_logo.dart';
 import '../services/google_auth_service.dart';
 
-/// Modern Login screen with animations and turquoise theme
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -50,16 +49,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  /// Handle login button press
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
     
-    // Show loading dialog
     UiHelper.showLoadingDialog(context);
     
-    // Attempt login
     final success = await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
@@ -67,14 +63,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     
     if (!mounted) return;
     
-    // Hide loading dialog
     UiHelper.hideLoadingDialog(context);
     
     if (success) {
-      // Navigate to main screen
       Navigator.of(context).pushReplacementNamed(Routes.home);
     } else {
-      // Show error
       UiHelper.showErrorDialog(
         context,
         'Erreur de connexion',
@@ -83,11 +76,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     }
   }
 
-  /// Handle Forgot Password
   Future<void> _handleForgotPassword() async {
     final emailController = TextEditingController();
     
-    // Show dialog to collect email
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -156,7 +147,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     if (result != true || emailController.text.trim().isEmpty) return;
 
-    // Call API
     try {
       UiHelper.showLoadingDialog(context);
       
@@ -186,7 +176,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     }
   }
 
-  /// Handle Google Sign In
   Future<void> _handleGoogleSignIn() async {
     try {
       UiHelper.showLoadingDialog(context);
@@ -197,7 +186,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       UiHelper.hideLoadingDialog(context);
       
       if (result != null && result['token'] != null) {
-        // Save token and navigate
         final authProvider = context.read<AuthProvider>();
         await authProvider.saveGoogleToken(result['token'], result['user']);
         
@@ -264,11 +252,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  // Layout pour grands écrans (desktop/tablet)
   Widget _buildLargeScreenLayout() {
     return Row(
       children: [
-        // Left side - Branding
         Expanded(
           flex: 5,
           child: Container(
@@ -287,7 +273,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Logo avec effet glassmorphism
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 1200),
@@ -326,7 +311,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 const SizedBox(height: 48),
                 
-                // Animated Title
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 1000),
@@ -424,7 +408,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
         ),
         
-        // Right side - Login Form
         Expanded(
           flex: 4,
           child: Container(
@@ -441,7 +424,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  // Layout pour mobile
   Widget _buildMobileLayout() {
     return Center(
       child: SingleChildScrollView(
@@ -453,7 +435,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo avec animation
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 1000),
@@ -489,7 +470,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 const SizedBox(height: 32),
                 
-                // Welcome Text
                 Text(
                   'Bienvenue',
                   style: TextStyle(
@@ -515,7 +495,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 const SizedBox(height: 48),
                 
-                // Login Form
                 _buildLoginForm(),
               ],
             ),
@@ -525,7 +504,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  // Formulaire de connexion réutilisable
   Widget _buildLoginForm() {
     return Container(
       constraints: const BoxConstraints(maxWidth: 450),
@@ -547,7 +525,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Titre du formulaire
             Row(
               children: [
                 Container(
@@ -573,7 +550,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 32),
             
-            // Email Field
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -621,7 +597,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 20),
             
-            // Password Field
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -680,7 +655,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 12),
             
-            // Forgot Password
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -697,7 +671,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 24),
             
-            // Login Button
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.95, end: 1.0),
               duration: const Duration(milliseconds: 600),
@@ -750,7 +723,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 28),
             
-            // Divider
             Row(
               children: [
                 Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1.5)),
@@ -770,7 +742,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 28),
             
-            // Google Sign In
             OutlinedButton(
               onPressed: _handleGoogleSignIn,
               style: OutlinedButton.styleFrom(
@@ -811,7 +782,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 24),
             
-            // Register Button
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

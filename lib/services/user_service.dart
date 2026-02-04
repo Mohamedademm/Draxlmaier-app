@@ -1,11 +1,9 @@
 import '../models/user_model.dart';
 import 'api_service.dart';
 
-/// User service handling user management operations
 class UserService {
   final ApiService _apiService = ApiService();
 
-  /// Get all users (Admin/Manager only)
   Future<List<User>> getAllUsers() async {
     try {
       final response = await _apiService.get('/users');
@@ -18,7 +16,6 @@ class UserService {
     }
   }
 
-  /// Get user by ID
   Future<User> getUserById(String userId) async {
     try {
       final response = await _apiService.get('/users/$userId');
@@ -29,7 +26,6 @@ class UserService {
     }
   }
 
-  /// Create new user (Admin only)
   Future<User> createUser({
     required String firstname,
     required String lastname,
@@ -53,7 +49,6 @@ class UserService {
     }
   }
 
-  /// Update user (Admin only)
   Future<User> updateUser({
     required String userId,
     String? firstname,
@@ -90,7 +85,6 @@ class UserService {
     }
   }
 
-  /// Delete user (Admin only)
   Future<void> deleteUser(String userId) async {
     try {
       await _apiService.delete('/users/$userId');
@@ -99,7 +93,6 @@ class UserService {
     }
   }
 
-  /// Activate user (Admin only)
   Future<User> activateUser(String userId) async {
     try {
       final response = await _apiService.post('/users/$userId/activate', {});
@@ -110,7 +103,6 @@ class UserService {
     }
   }
 
-  /// Deactivate user (Admin only)
   Future<User> deactivateUser(String userId) async {
     try {
       final response = await _apiService.post('/users/$userId/deactivate', {});
@@ -121,7 +113,6 @@ class UserService {
     }
   }
 
-  /// Search users by name or email
   Future<List<User>> searchUsers(String query) async {
     try {
       final response = await _apiService.get('/users/search?q=$query');
@@ -134,7 +125,6 @@ class UserService {
     }
   }
 
-  /// Get pending users (Manager only)
   Future<List<User>> getPendingUsers() async {
     try {
       final response = await _apiService.get('/users/pending');
@@ -147,7 +137,6 @@ class UserService {
     }
   }
 
-  /// Validate user registration (Manager only)
   Future<User> validateUser(String userId, String? matricule, String? team) async {
     try {
       final body = <String, dynamic>{};
@@ -162,7 +151,6 @@ class UserService {
     }
   }
 
-  /// Reject user registration (Manager only)
   Future<void> rejectUser(String userId, String reason) async {
     try {
       await _apiService.post('/users/$userId/reject', {
@@ -173,7 +161,6 @@ class UserService {
     }
   }
 
-  /// Update user profile (own profile)
   Future<Map<String, dynamic>> updateUserProfile(String userId, Map<String, dynamic> updates) async {
     try {
       final response = await _apiService.put('/users/$userId/profile', updates);

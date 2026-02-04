@@ -5,17 +5,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/notification_model.dart';
 import 'api_service.dart';
 
-/// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Only initialize Firebase on mobile platforms
   if (!kIsWeb) {
     await Firebase.initializeApp();
   }
   print('📱 Background message received: ${message.notification?.title}');
 }
 
-/// Professional notification service with FCM support
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -26,7 +23,6 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = 
       FlutterLocalNotificationsPlugin();
 
-  /// Request notification permission (called on first launch)
   Future<bool> requestPermission() async {
     try {
       NotificationSettings settings = await _fcm.requestPermission(
@@ -55,10 +51,8 @@ class NotificationService {
     }
   }
 
-  /// Initialize notification service
   Future<void> initialize() async {
     try {
-      // Configure local notifications for Android
       const AndroidInitializationSettings androidSettings = 
           AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -71,7 +65,6 @@ class NotificationService {
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
 
-      // Create notification channel for Android
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
         'high_importance_channel',
         'Notifications Importantes',
@@ -86,13 +79,10 @@ class NotificationService {
               AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
 
-      // Handle foreground messages
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-      // Handle background message clicks
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
 
-      // Check if app was opened from a notification
       RemoteMessage? initialMessage = await _fcm.getInitialMessage();
       if (initialMessage != null) {
         _handleMessageOpenedApp(initialMessage);
@@ -104,11 +94,9 @@ class NotificationService {
     }
   }
 
-  /// Handle foreground messages
   void _handleForegroundMessage(RemoteMessage message) {
     print('📬 Foreground message: ${message.notification?.title}');
     
-    // Show local notification when app is in foreground
     if (message.notification != null) {
       _showLocalNotification(
         title: message.notification!.title ?? 'Notification',
@@ -118,19 +106,16 @@ class NotificationService {
     }
   }
 
-  /// Handle notification tapped
   void _handleMessageOpenedApp(RemoteMessage message) {
     print('🔔 Notification tapped: ${message.data}');
     // TODO: Navigate to appropriate screen based on message.data
   }
 
-  /// Handle local notification tapped
   void _onNotificationTapped(NotificationResponse response) {
     print('🔔 Local notification tapped: ${response.payload}');
     // TODO: Navigate to appropriate screen
   }
 
-  /// Show local notification
   Future<void> _showLocalNotification({
     required String title,
     required String body,
@@ -160,7 +145,6 @@ class NotificationService {
     );
   }
 
-  /// Get FCM token
   Future<String?> getFcmToken() async {
     try {
       String? token = await _fcm.getToken();
@@ -174,7 +158,6 @@ class NotificationService {
     }
   }
 
-  /// Send FCM token to backend
   Future<void> sendTokenToBackend(String token) async {
     try {
       await _apiService.post('/users/fcm-token', {'fcmToken': token});
@@ -184,7 +167,6 @@ class NotificationService {
     }
   }
 
-  /// Get all notifications from server
   Future<List<NotificationModel>> getNotifications() async {
     try {
       final response = await _apiService.get('/notifications');
@@ -199,7 +181,6 @@ class NotificationService {
     }
   }
 
-  /// Mark notification as read
   Future<void> markAsRead(String notificationId) async {
     try {
       await _apiService.post('/notifications/$notificationId/read', {});
@@ -208,7 +189,6 @@ class NotificationService {
     }
   }
 
-  /// Mark all notifications as read
   Future<void> markAllAsRead(String userId) async {
     try {
       await _apiService.put('/notifications/mark-all-read', {});
@@ -217,7 +197,6 @@ class NotificationService {
     }
   }
 
-  /// Create and send notification (Admin/Manager only)
   Future<void> sendNotification({
     required String title,
     required String message,
@@ -238,7 +217,6 @@ class NotificationService {
     }
   }
 
-  /// Get unread notification count
   Future<int> getUnreadCount() async {
     try {
       final response = await _apiService.get('/notifications/unread-count');
@@ -249,7 +227,6 @@ class NotificationService {
     }
   }
 
-  /// Get admin notifications (filtered by type)
   Future<Map<String, dynamic>> getAdminNotifications({String? type, bool? unreadOnly}) async {
     try {
       final queryParams = <String, String>{};

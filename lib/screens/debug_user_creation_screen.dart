@@ -28,7 +28,6 @@ class _DebugUserCreationScreenState extends State<DebugUserCreationScreen> {
     });
 
     try {
-      // 1. Vérifier le token
       _addLog('🔍 Vérification du token...');
       final token = await _apiService.getToken();
       if (token == null) {
@@ -38,7 +37,6 @@ class _DebugUserCreationScreenState extends State<DebugUserCreationScreen> {
       }
       _addLog('✅ Token trouvé: ${token.substring(0, 30)}...');
 
-      // 2. Tenter de créer l'utilisateur
       _addLog('\n👤 Création d\'un utilisateur test...');
       _addLog('Email: testadmin@gmail.com');
       _addLog('Role: admin');

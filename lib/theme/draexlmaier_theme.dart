@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Thème personnalisé Draexlmaier
-/// Couleurs officielles et styles cohérents
 class DraexlmaierTheme {
-  // Couleurs principales Draexlmaier
   static const Color primaryBlue = Color(0xFF003DA5);
   static const Color secondaryBlue = Color(0xFF00A9E0);
   static const Color accentRed = Color(0xFFE30613);
@@ -12,25 +9,21 @@ class DraexlmaierTheme {
   static const Color lightGrey = Color(0xFF757575);
   static const Color white = Color(0xFFFFFFFF);
   
-  // Couleurs de statut
   static const Color successGreen = Color(0xFF4CAF50);
   static const Color warningOrange = Color(0xFFFF9800);
   static const Color errorRed = Color(0xFFF44336);
   static const Color infoBlue = Color(0xFF2196F3);
   
-  // Couleurs pour objectifs
   static const Color todoColor = Color(0xFF9E9E9E);
   static const Color inProgressColor = Color(0xFF2196F3);
   static const Color completedColor = Color(0xFF4CAF50);
   static const Color blockedColor = Color(0xFFF44336);
   
-  // Couleurs pour priorités
   static const Color lowPriority = Color(0xFF4CAF50);
   static const Color mediumPriority = Color(0xFFFF9800);
   static const Color highPriority = Color(0xFFFF5722);
   static const Color urgentPriority = Color(0xFFE30613);
 
-  /// Thème clair (par défaut)
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
@@ -42,7 +35,6 @@ class DraexlmaierTheme {
     ),
     scaffoldBackgroundColor: backgroundGrey,
     
-    // AppBar
     appBarTheme: const AppBarTheme(
       backgroundColor: primaryBlue,
       foregroundColor: white,
@@ -57,7 +49,6 @@ class DraexlmaierTheme {
       ),
     ),
     
-    // Boutons
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryBlue,
@@ -93,14 +84,12 @@ class DraexlmaierTheme {
       ),
     ),
     
-    // FloatingActionButton
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: secondaryBlue,
       foregroundColor: white,
       elevation: 4,
     ),
     
-    // Cards
     cardTheme: CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -109,7 +98,6 @@ class DraexlmaierTheme {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
     
-    // Input fields
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: white,
@@ -134,7 +122,6 @@ class DraexlmaierTheme {
       hintStyle: TextStyle(color: lightGrey.withOpacity(0.7)),
     ),
     
-    // Bottom Navigation Bar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: white,
       selectedItemColor: primaryBlue,
@@ -145,7 +132,6 @@ class DraexlmaierTheme {
       unselectedLabelStyle: TextStyle(fontSize: 12),
     ),
     
-    // Chip
     chipTheme: ChipThemeData(
       backgroundColor: backgroundGrey,
       labelStyle: const TextStyle(color: darkGrey),
@@ -155,14 +141,12 @@ class DraexlmaierTheme {
       ),
     ),
     
-    // Divider
     dividerTheme: const DividerThemeData(
       color: lightGrey,
       thickness: 1,
       space: 16,
     ),
     
-    // Text Theme
     textTheme: const TextTheme(
       displayLarge: TextStyle(
         fontSize: 32,
@@ -224,7 +208,6 @@ class DraexlmaierTheme {
     ),
   );
 
-  /// Thème sombre (optionnel)
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
@@ -246,7 +229,6 @@ class DraexlmaierTheme {
   );
 }
 
-/// Extensions pour faciliter l'accès aux couleurs
 extension ThemeExtension on BuildContext {
   ThemeData get theme => Theme.of(this);
   TextTheme get textTheme => Theme.of(this).textTheme;

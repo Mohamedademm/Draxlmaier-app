@@ -49,7 +49,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
     }
   }
   
-  // Alias for refresh button
   Future<void> _loadPendingUsers() => _loadData();
 
   Future<void> _showValidationDialog(User user) async {
@@ -379,7 +378,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
         ),
         child: Column(
           children: [
-            // Handle
             Container(
               margin: const EdgeInsets.only(top: 12),
               width: 40,
@@ -396,11 +394,9 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header avec avatar
                     Center(
                       child: Column(
                         children: [
-                          // Avatar with gradient border
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -477,7 +473,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                     
                     const SizedBox(height: 32),
                     
-                    // Contact Information
                     _buildSectionTitle('Informations de contact', Icons.contact_mail_rounded),
                     const SizedBox(height: 12),
                     _buildModernCard([
@@ -488,7 +483,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                     
                     const SizedBox(height: 20),
                     
-                    // Professional Information
                     _buildSectionTitle('Poste et Département', Icons.work_rounded),
                     const SizedBox(height: 12),
                     _buildModernCard([
@@ -499,7 +493,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                     
                     const SizedBox(height: 20),
                     
-                    // Location Information
                     _buildSectionTitle('Localisation', Icons.location_on_rounded),
                     const SizedBox(height: 12),
                     _buildModernCard([
@@ -510,7 +503,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                     
                     const SizedBox(height: 32),
                     
-                    // Action Buttons
                     Row(
                       children: [
                         Expanded(
@@ -732,7 +724,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // Modern AppBar with gradient
           SliverAppBar(
             expandedHeight: 160.0,
             floating: false,
@@ -986,7 +977,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 children: [
-                                  // Avatar with gradient border
                                   Container(
                                     padding: const EdgeInsets.all(3),
                                     decoration: const BoxDecoration(
@@ -1018,7 +1008,6 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
                                   
                                   const SizedBox(width: 16),
                                   
-                                  // User info
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,

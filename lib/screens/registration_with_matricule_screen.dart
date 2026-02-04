@@ -7,7 +7,6 @@ import '../theme/modern_theme.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 
-/// Écran d'inscription avec système de matricule
 class RegistrationWithMatriculeScreen extends StatefulWidget {
   const RegistrationWithMatriculeScreen({super.key});
 
@@ -52,16 +51,15 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
       UiHelper.hideLoadingDialog(context);
 
       if (result != null && result.exists && result.available) {
-        // Créer un objet Matricule à partir du résultat
         _matriculeData = Matricule(
-          id: '', // L'ID sera généré côté serveur
+          id: '',
           matricule: _matriculeController.text.trim(),
           nom: result.nom ?? '',
           prenom: result.prenom ?? '',
           poste: result.poste ?? '',
           department: result.department ?? '',
           isUsed: false,
-          createdBy: 'system', // Créé lors de l'inscription
+          createdBy: 'system',
           createdAt: DateTime.now(),
         );
         
@@ -101,7 +99,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
     UiHelper.showLoadingDialog(context);
 
     try {
-      // Créer le compte avec le matricule
       final success = await authProvider.registerWithMatricule(
         matricule: _matriculeData!.matricule,
         email: _emailController.text.trim(),
@@ -153,7 +150,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -168,7 +164,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
                       ),
                       const SizedBox(height: ModernTheme.spacingM),
 
-                      // Titre
                       Text(
                         'Inscription',
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -187,7 +182,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
                       ),
                       const SizedBox(height: ModernTheme.spacingL),
 
-                      // Stepper indicator
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -202,7 +196,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
                       ),
                       const SizedBox(height: ModernTheme.spacingL),
 
-                      // Form
                       Form(
                         key: _formKey,
                         child: _currentStep == 0
@@ -256,7 +249,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
   Widget _buildMatriculeStep() {
     return Column(
       children: [
-        // Matricule Field
         TextFormField(
           controller: _matriculeController,
           decoration: InputDecoration(
@@ -280,7 +272,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingM),
 
-        // Verify Button
         SizedBox(
           width: double.infinity,
           height: 50,
@@ -299,7 +290,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingM),
 
-        // Login Link
         TextButton(
           onPressed: () => Navigator.pushReplacementNamed(context, Routes.login),
           child: const Text('Déjà un compte ? Se connecter'),
@@ -316,7 +306,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Informations pré-remplies
         Container(
           padding: const EdgeInsets.all(ModernTheme.spacingM),
           decoration: BoxDecoration(
@@ -350,7 +339,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingL),
 
-        // Email
         TextFormField(
           controller: _emailController,
           decoration: InputDecoration(
@@ -377,7 +365,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingM),
 
-        // Password
         TextFormField(
           controller: _passwordController,
           obscureText: _obscurePassword,
@@ -410,7 +397,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingM),
 
-        // Confirm Password
         TextFormField(
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,
@@ -443,7 +429,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingL),
 
-        // Submit Button
         SizedBox(
           width: double.infinity,
           height: 50,
@@ -464,7 +449,6 @@ class _RegistrationWithMatriculeScreenState extends State<RegistrationWithMatric
         ),
         const SizedBox(height: ModernTheme.spacingM),
 
-        // Back Button
         SizedBox(
           width: double.infinity,
           height: 50,

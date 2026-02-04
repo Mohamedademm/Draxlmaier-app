@@ -8,7 +8,6 @@ import '../utils/constants.dart';
 import '../utils/location_data.dart';
 import '../utils/password_generator.dart';
 
-/// Écran d'inscription moderne avec système de matricule professionnel
 class ModernRegistrationScreen extends StatefulWidget {
   const ModernRegistrationScreen({super.key});
 
@@ -32,17 +31,14 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
   bool _isRegistering = false;
   bool _matriculeVerified = false;
   
-  // Données du matricule vérifié
   String? _nom;
   String? _prenom;
   String? _poste;
   String? _department;
   
-  // Localisation
   String? _selectedCity;
   String? _selectedSubLocation;
   
-  // Mot de passe généré
   String? _generatedPassword;
   String? _generatedEmail;
 
@@ -127,7 +123,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
     setState(() => _isRegistering = true);
 
     try {
-      // Générer le mot de passe
       _generatedPassword = PasswordGenerator.generateFromName(_prenom!, _nom!);
       _generatedEmail = _emailController.text.trim();
       
@@ -149,7 +144,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
         if (mounted) {
           setState(() => _isRegistering = false);
           
-          // Check if pending status
           final userStatus = response['user'] != null ? response['user']['status'] : null;
           if (userStatus == 'pending') {
              Navigator.pushNamedAndRemoveUntil(
@@ -185,7 +179,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icône de succès animée
               Container(
                 width: 80,
                 height: 80,
@@ -201,7 +194,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
               ),
               const SizedBox(height: 24),
               
-              // Titre
               const Text(
                 'Inscription réussie!',
                 style: TextStyle(
@@ -224,7 +216,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
               
               const SizedBox(height: 32),
               
-              // Informations de connexion
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -258,7 +249,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                     ),
                     const SizedBox(height: 16),
                     
-                    // Email
                     _buildCredentialRow(
                       icon: Icons.email_outlined,
                       label: 'Email',
@@ -268,7 +258,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                     
                     const SizedBox(height: 12),
                     
-                    // Mot de passe avec copie
                     _buildCredentialRow(
                       icon: Icons.lock_outlined,
                       label: 'Mot de passe',
@@ -278,7 +267,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                     
                     const SizedBox(height: 16),
                     
-                    // Avertissement
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -312,7 +300,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
               
               const SizedBox(height: 24),
               
-              // Info email
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -342,7 +329,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
               
               const SizedBox(height: 24),
               
-              // Bouton de connexion
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -498,7 +484,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Logo DRX
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -518,10 +503,8 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                             ),
                             const SizedBox(height: 24),
                             
-                            // Étape 1: Matricule
                             _buildMatriculeSection(),
                             
-                            // Étape 2: Informations automatiques
                             if (_matriculeVerified) ...[
                               const SizedBox(height: 24),
                               _buildAutoFilledInfo(),
@@ -535,7 +518,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
                             
                             const SizedBox(height: 24),
                             
-                            // Lien connexion
                             _buildLoginLink(),
                           ],
                         ),
@@ -754,7 +736,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
         ),
         const SizedBox(height: 8),
         
-        // Ville
         DropdownButtonFormField<String>(
           value: _selectedCity,
           decoration: InputDecoration(
@@ -790,7 +771,7 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
           onChanged: (value) {
             setState(() {
               _selectedCity = value;
-              _selectedSubLocation = null; // Reset sous-localisation
+              _selectedSubLocation = null;
             });
           },
           validator: (value) {
@@ -815,7 +796,6 @@ class _ModernRegistrationScreenState extends State<ModernRegistrationScreen> wit
           ),
           const SizedBox(height: 8),
           
-          // Sous-localisation
           DropdownButtonFormField<String>(
             value: _selectedSubLocation,
             decoration: InputDecoration(

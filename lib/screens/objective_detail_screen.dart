@@ -1,4 +1,3 @@
-// import 'dart:io'; // Removed for Web compatibility
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +8,6 @@ import '../theme/modern_theme.dart';
 import '../widgets/modern_widgets.dart';
 import '../widgets/skeleton_loader.dart';
 
-/// Modern Objective Detail Screen
 class ObjectiveDetailScreen extends StatefulWidget {
   final String objectiveId;
 
@@ -125,23 +123,18 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Header Card
                                 _buildHeaderCard(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Progress Section
                                 _buildProgressCard(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Info Grid
                                 _buildInfoGrid(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Sub-tasks Section
                                 _buildSubTasksSection(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Description
                                 ModernCard(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,21 +161,17 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
                                 ),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Actions
                                 _buildActionsCard(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Files Section
                                 _buildFilesSection(_objective!),
                                 const SizedBox(height: ModernTheme.spacingM),
 
-                                // Comments Section
                                 _buildCommentsSection(_objective!),
                               ],
                             ),
                           ),
                         ),
-                        // Comment Input Area
                         _buildCommentInputArea(),
                       ],
                     ),
@@ -636,45 +625,9 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
   }
 
   Future<void> _pickAndUploadFile() async {
-    // Disabled for Web compatibility
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('L\'upload de fichiers est temporairement désactivé sur le Web.')),
     );
-    /*
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
-      final provider = context.read<ObjectiveProvider>();
-      
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Envoi du fichier en cours...')),
-      );
-
-      final success = await provider.uploadAttachment(
-        id: widget.objectiveId,
-        file: file,
-      );
-
-      if (!mounted) return;
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fichier ajouté avec succès'),
-            backgroundColor: ModernTheme.success,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: ${provider.error}'),
-            backgroundColor: ModernTheme.error,
-          ),
-        );
-      }
-    }
-    */
   }
 
   Widget _buildCommentsSection(Objective objective) {
@@ -905,7 +858,6 @@ class _ObjectiveDetailScreenState extends State<ObjectiveDetailScreen> {
 
     if (success) {
       _commentController.clear();
-      // Keyboard might stay open, which is good for chat
     }
   }
 

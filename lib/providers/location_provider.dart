@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import '../models/location_log_model.dart';
 import '../services/location_service.dart';
 
-/// Location tracking state management provider
 class LocationProvider with ChangeNotifier {
   final LocationService _locationService = LocationService();
 
@@ -21,7 +20,6 @@ class LocationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Get current location
   Future<void> getCurrentLocation() async {
     _isLoading = true;
     notifyListeners();
@@ -29,7 +27,6 @@ class LocationProvider with ChangeNotifier {
     try {
       _currentPosition = await _locationService.getCurrentPosition();
       
-      // Update location on server
       await _locationService.updateLocation(
         _currentPosition!.latitude,
         _currentPosition!.longitude,
@@ -44,7 +41,6 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  /// Start tracking location
   Future<void> startTracking() async {
     if (_isTracking) return;
 
@@ -56,7 +52,6 @@ class LocationProvider with ChangeNotifier {
         (position) async {
           _currentPosition = position;
           
-          // Update location on server
           try {
             await _locationService.updateLocation(
               position.latitude,
@@ -81,7 +76,6 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  /// Stop tracking location
   void stopTracking() {
     _positionSubscription?.cancel();
     _positionSubscription = null;
@@ -89,7 +83,6 @@ class LocationProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load team member locations (Admin/Manager only)
   Future<void> loadTeamLocations() async {
     _isLoading = true;
     notifyListeners();
@@ -105,7 +98,6 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  /// Request location permission
   Future<bool> requestPermission() async {
     try {
       return await _locationService.requestPermission();
@@ -116,7 +108,6 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  /// Check if location permission is granted
   Future<bool> hasPermission() async {
     try {
       return await _locationService.hasPermission();
@@ -127,7 +118,6 @@ class LocationProvider with ChangeNotifier {
     }
   }
 
-  /// Calculate distance to a location
   double? calculateDistanceTo(double latitude, double longitude) {
     if (_currentPosition == null) return null;
     
@@ -139,7 +129,6 @@ class LocationProvider with ChangeNotifier {
     );
   }
 
-  /// Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

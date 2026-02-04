@@ -4,7 +4,6 @@ import 'department_model.dart';
 
 part 'team_model.g.dart';
 
-/// Team model representing a team in the organization
 @JsonSerializable(explicitToJson: true)
 class Team {
   @JsonKey(name: '_id')
@@ -16,10 +15,9 @@ class Team {
   @JsonKey(name: 'department', fromJson: _departmentFromJson, toJson: _departmentToJson)
   final Department? department;
   
-  // Helper method to handle department field that can be String or Object
   static Department? _departmentFromJson(dynamic json) {
     if (json == null) return null;
-    if (json is String) return null; // Just an ID, can't create full object
+    if (json is String) return null;
     if (json is Map<String, dynamic>) return Department.fromJson(json);
     return null;
   }
@@ -31,10 +29,9 @@ class Team {
   @JsonKey(name: 'leader', fromJson: _userFromJson)
   final User? leader;
   
-  // Helper method to handle user field that can be String or Object
   static User? _userFromJson(dynamic json) {
     if (json == null) return null;
-    if (json is String) return null; // Just an ID, can't create full object
+    if (json is String) return null;
     if (json is Map<String, dynamic>) return User.fromJson(json);
     return null;
   }
@@ -42,7 +39,6 @@ class Team {
   @JsonKey(name: 'members', fromJson: _membersFromJson)
   final List<User> members;
   
-  // Helper method to handle members array
   static List<User> _membersFromJson(dynamic json) {
     if (json == null) return [];
     if (json is! List) return [];
@@ -90,32 +86,25 @@ class Team {
     this.memberCount,
   });
 
-  /// Get total member count
   int get totalMembers => memberCount ?? members.length;
 
-  /// Check if user is a member
   bool isMember(String userId) {
     return members.any((member) => member.id == userId);
   }
 
-  /// Check if user is the leader
   bool isLeader(String userId) {
     return leader?.id == userId;
   }
 
-  /// Get member names as comma-separated string
   String get memberNames {
     if (members.isEmpty) return 'No members';
     return members.map((m) => m.fullName).join(', ');
   }
 
-  /// Factory constructor for creating a new Team instance from JSON
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
 
-  /// Convert Team instance to JSON
   Map<String, dynamic> toJson() => _$TeamToJson(this);
 
-  /// Copy with method for creating modified copies
   Team copyWith({
     String? id,
     String? name,

@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'notification_model.g.dart';
 
-/// Notification model representing a system notification
 @JsonSerializable()
 class NotificationModel {
   @JsonKey(name: '_id')
@@ -17,10 +16,8 @@ class NotificationModel {
   final List<String> readBy;
   final DateTime timestamp;
   
-  // Alias for compatibility
   DateTime get createdAt => timestamp;
   
-  // Convenience getter to check if read
   bool get isRead => readBy.isNotEmpty;
   
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -39,19 +36,14 @@ class NotificationModel {
     this.senderName,
   });
 
-  /// Check if notification is read by specific user
   bool isReadBy(String userId) => readBy.contains(userId);
 
-  /// Check if notification is unread by specific user
   bool isUnreadBy(String userId) => !readBy.contains(userId);
 
-  /// Get read count
   int get readCount => readBy.length;
 
-  /// Get unread count
   int get unreadCount => targetUsers.length - readBy.length;
 
-  /// Factory method to create NotificationModel from JSON
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     String senderId = '';
     String? senderName;
@@ -92,10 +84,8 @@ class NotificationModel {
     );
   }
 
-  /// Method to convert NotificationModel to JSON
   Map<String, dynamic> toJson() => _$NotificationModelToJson(this);
 
-  /// Copy method for immutable updates
   NotificationModel copyWith({
     String? id,
     String? title,

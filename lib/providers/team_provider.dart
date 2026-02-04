@@ -4,24 +4,20 @@ import '../models/department_model.dart';
 import '../services/team_service.dart';
 import '../services/department_service.dart';
 
-/// Provider for managing teams and departments state
 class TeamProvider with ChangeNotifier {
   final TeamService _teamService = TeamService();
   final DepartmentService _departmentService = DepartmentService();
 
-  // State
   List<Team> _teams = [];
   List<Department> _departments = [];
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Getters
   List<Team> get teams => _teams;
   List<Department> get departments => _departments;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Load all teams from API
   Future<void> loadTeams({bool? isActive, String? departmentId}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -42,7 +38,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Load all departments from API
   Future<void> loadDepartments({bool? isActive}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,14 +55,12 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Load both teams and departments
   Future<void> loadAll() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      // Load both in parallel without triggering individual loading states
       final results = await Future.wait([
         _teamService.getTeams(isActive: true),
         _departmentService.getDepartments(isActive: true),
@@ -85,7 +78,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Create a new team
   Future<bool> createTeam({
     required String name,
     String? description,
@@ -117,7 +109,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Update an existing team
   Future<bool> updateTeam({
     required String teamId,
     String? name,
@@ -156,7 +147,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Delete a team
   Future<bool> deleteTeam(String teamId) async {
     _errorMessage = null;
 
@@ -173,7 +163,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Add member to team
   Future<bool> addMemberToTeam(String teamId, String userId) async {
     _errorMessage = null;
 
@@ -193,7 +182,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Remove member from team
   Future<bool> removeMemberFromTeam(String teamId, String userId) async {
     _errorMessage = null;
 
@@ -213,7 +201,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Create a new department
   Future<bool> createDepartment({
     required String name,
     String? description,
@@ -245,7 +232,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Update an existing department
   Future<bool> updateDepartment({
     required String departmentId,
     String? name,
@@ -286,7 +272,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Delete a department
   Future<bool> deleteDepartment(String departmentId) async {
     _errorMessage = null;
 
@@ -303,12 +288,10 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Get teams by department
   List<Team> getTeamsByDepartment(String departmentId) {
     return _teams.where((team) => team.department?.id == departmentId).toList();
   }
 
-  /// Get team by ID
   Team? getTeamById(String teamId) {
     try {
       return _teams.firstWhere((team) => team.id == teamId);
@@ -317,7 +300,6 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Get department by ID
   Department? getDepartmentById(String departmentId) {
     try {
       return _departments.firstWhere((dept) => dept.id == departmentId);
@@ -326,13 +308,11 @@ class TeamProvider with ChangeNotifier {
     }
   }
 
-  /// Clear error message
   void clearError() {
     _errorMessage = null;
     notifyListeners();
   }
 
-  /// Refresh all data
   Future<void> refresh() async {
     await loadAll();
   }

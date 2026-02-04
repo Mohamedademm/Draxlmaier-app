@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// App Localizations Delegate
 class AppLocalizations {
   final Locale locale;
 
@@ -14,7 +13,6 @@ class AppLocalizations {
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
-      // General
       'app_name': 'Employee Communication',
       'welcome': 'Welcome',
       'loading': 'Loading...',
@@ -29,7 +27,6 @@ class AppLocalizations {
       'yes': 'Yes',
       'no': 'No',
       
-      // Auth
       'login': 'Login',
       'logout': 'Logout',
       'email': 'Email',
@@ -39,7 +36,6 @@ class AppLocalizations {
       'invalid_credentials': 'Invalid credentials',
       'login_success': 'Login successful',
       
-      // Navigation
       'home': 'Home',
       'chats': 'Chats',
       'notifications': 'Notifications',
@@ -47,7 +43,6 @@ class AppLocalizations {
       'profile': 'Profile',
       'settings': 'Settings',
       
-      // Dashboard
       'total_users': 'Total Users',
       'active_users': 'Active Users',
       'unread': 'Unread',
@@ -59,7 +54,6 @@ class AppLocalizations {
       'view_team_map': 'View Team Map',
       'see_employee_locations': 'See employee locations',
       
-      // Users
       'users': 'Users',
       'add_user': 'Add User',
       'first_name': 'First Name',
@@ -72,33 +66,28 @@ class AppLocalizations {
       'manager': 'Manager',
       'employee': 'Employee',
       
-      // Messages
       'messages': 'Messages',
       'new_message': 'New Message',
       'type_message': 'Type a message...',
       'no_messages': 'No messages yet',
       'conversations': 'Conversations',
       
-      // Notifications
       'no_notifications': 'No notifications',
       'notification_title': 'Title',
       'notification_message': 'Message',
       'target_users': 'Target Users',
       'send_to_all': 'Send to all users',
       
-      // Location
       'my_location': 'My Location',
       'team_locations': 'Team Locations',
       'location_not_available': 'Location not available on web',
       
-      // Errors
       'error': 'Error',
       'something_went_wrong': 'Something went wrong',
       'network_error': 'Network error',
       'try_again': 'Try again',
     },
     'fr': {
-      // Général
       'app_name': 'Communication Employés',
       'welcome': 'Bienvenue',
       'loading': 'Chargement...',
@@ -113,7 +102,6 @@ class AppLocalizations {
       'yes': 'Oui',
       'no': 'Non',
       
-      // Authentification
       'login': 'Connexion',
       'logout': 'Déconnexion',
       'email': 'Email',
@@ -123,7 +111,6 @@ class AppLocalizations {
       'invalid_credentials': 'Identifiants invalides',
       'login_success': 'Connexion réussie',
       
-      // Navigation
       'home': 'Accueil',
       'chats': 'Discussions',
       'notifications': 'Notifications',
@@ -131,7 +118,6 @@ class AppLocalizations {
       'profile': 'Profil',
       'settings': 'Paramètres',
       
-      // Tableau de bord
       'total_users': 'Utilisateurs totaux',
       'active_users': 'Utilisateurs actifs',
       'unread': 'Non lus',
@@ -143,7 +129,6 @@ class AppLocalizations {
       'view_team_map': 'Voir la carte d\'équipe',
       'see_employee_locations': 'Voir les emplacements des employés',
       
-      // Utilisateurs
       'users': 'Utilisateurs',
       'add_user': 'Ajouter un utilisateur',
       'first_name': 'Prénom',
@@ -156,26 +141,22 @@ class AppLocalizations {
       'manager': 'Manager',
       'employee': 'Employé',
       
-      // Messages
       'messages': 'Messages',
       'new_message': 'Nouveau message',
       'type_message': 'Tapez un message...',
       'no_messages': 'Aucun message',
       'conversations': 'Conversations',
       
-      // Notifications
       'no_notifications': 'Aucune notification',
       'notification_title': 'Titre',
       'notification_message': 'Message',
       'target_users': 'Utilisateurs cibles',
       'send_to_all': 'Envoyer à tous',
       
-      // Localisation
       'my_location': 'Ma position',
       'team_locations': 'Positions de l\'équipe',
       'location_not_available': 'Localisation non disponible sur web',
       
-      // Erreurs
       'error': 'Erreur',
       'something_went_wrong': 'Une erreur s\'est produite',
       'network_error': 'Erreur réseau',
@@ -187,7 +168,6 @@ class AppLocalizations {
     return _localizedValues[locale.languageCode]?[key] ?? key;
   }
 
-  // Getters for common translations
   String get appName => translate('app_name');
   String get welcome => translate('welcome');
   String get loading => translate('loading');

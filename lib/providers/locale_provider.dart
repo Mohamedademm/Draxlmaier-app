@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Locale Provider for managing app language
 class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('fr'); // Default to French
+  Locale _locale = const Locale('fr');
   
   static const String _localeKey = 'app_locale';
 

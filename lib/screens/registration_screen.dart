@@ -21,13 +21,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   int _currentStep = 0;
   bool _isLoading = false;
 
-  // Step 1: Personal Information
   final _firstnameController = TextEditingController();
   final _lastnameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  // Step 2: Position & Department
   String? _selectedPosition;
   String? _selectedDepartment;
   final List<String> _positions = [
@@ -52,14 +50,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     'Autre'
   ];
 
-  // Step 3: Location
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _postalCodeController = TextEditingController();
   double? _latitude;
   double? _longitude;
 
-  // Step 4: Account
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
@@ -212,7 +208,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
 
       if (mounted) {
-        // Automatic login after successful registration
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Inscription réussie ! Connexion en cours...'),
@@ -221,7 +216,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
         );
         
-        // Navigate to home screen automatically
         await Future.delayed(const Duration(milliseconds: 500));
         Navigator.pushReplacementNamed(context, Routes.home);
       }
@@ -237,7 +231,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   void _getCurrentLocation() async {
-    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -248,11 +241,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     try {
       // TODO: Implement GPS location fetching
-      // For now, just simulate with default coordinates
       await Future.delayed(const Duration(seconds: 1));
       
       setState(() {
-        _latitude = 36.8065; // Tunis default
+        _latitude = 36.8065;
         _longitude = 10.1815;
       });
 
@@ -290,7 +282,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -321,7 +312,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
 
-              // Progress indicator
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Row(
@@ -344,7 +334,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
               const SizedBox(height: 24),
 
-              // Form
               Expanded(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -370,7 +359,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
 
-              // Navigation buttons
               Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(24.0),

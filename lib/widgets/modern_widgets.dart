@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/modern_theme.dart';
 
-/// Modern Card Widget with Hover Effect
 class ModernCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -68,7 +67,6 @@ class _ModernCardState extends State<ModernCard> {
   }
 }
 
-/// Modern Gradient Button
 class GradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -178,7 +176,6 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
-/// Modern Stat Card with Gradient
 class ModernStatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -222,7 +219,6 @@ class ModernStatCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // Large background icon
               Positioned(
                 right: -20,
                 bottom: -20,
@@ -232,7 +228,6 @@ class ModernStatCard extends StatelessWidget {
                   color: Colors.white.withOpacity(0.1),
                 ),
               ),
-              // Content
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -289,7 +284,6 @@ class ModernStatCard extends StatelessWidget {
   }
 }
 
-/// Modern App Bar with Gradient
 class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
@@ -347,7 +341,6 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }
 
-/// Modern Text Input
 class ModernTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -429,7 +422,6 @@ class ModernTextField extends StatelessWidget {
   }
 }
 
-/// Empty State Widget
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;

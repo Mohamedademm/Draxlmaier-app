@@ -10,7 +10,6 @@ import 'objective_detail_screen.dart';
 import '../widgets/skeleton_loader.dart';
 import '../utils/animations.dart';
 
-/// Écran des objectifs pour les employés
 class ObjectivesScreen extends StatefulWidget {
   const ObjectivesScreen({super.key});
 
@@ -98,16 +97,12 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
 
           return Column(
             children: [
-              // Statistiques en haut
               _buildStatsSection(provider),
 
-              // Barre de recherche
               _buildSearchBar(),
 
-              // Filtre par priorité
               _buildPriorityFilter(),
 
-              // Onglets
               Container(
                 color: Colors.white,
                 child: TabBar(
@@ -132,7 +127,6 @@ class _ObjectivesScreenState extends State<ObjectivesScreen>
                 ),
               ),
 
-              // Liste des objectifs
               Expanded(
                 child: TabBarView(
                   controller: _tabController,

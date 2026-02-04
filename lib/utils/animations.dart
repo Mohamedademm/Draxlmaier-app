@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Animations réutilisables pour toute l'application
 class AppAnimations {
-  // Durées d'animation
   static const Duration fast = Duration(milliseconds: 200);
   static const Duration normal = Duration(milliseconds: 300);
   static const Duration slow = Duration(milliseconds: 500);
 
-  // Courbes d'animation
   static const Curve defaultCurve = Curves.easeInOut;
   static const Curve bounceCurve = Curves.elasticOut;
   static const Curve smoothCurve = Curves.easeOutCubic;
 
-  /// Fade In Animation
   static Widget fadeIn({
     required Widget child,
     Duration duration = normal,
@@ -34,7 +30,6 @@ class AppAnimations {
     );
   }
 
-  /// Slide In Animation
   static Widget slideIn({
     required Widget child,
     Duration duration = normal,
@@ -56,7 +51,6 @@ class AppAnimations {
     );
   }
 
-  /// Scale Animation
   static Widget scale({
     required Widget child,
     Duration duration = normal,
@@ -78,7 +72,6 @@ class AppAnimations {
     );
   }
 
-  /// Fade and Slide Combined
   static Widget fadeSlide({
     required Widget child,
     Duration duration = normal,
@@ -103,7 +96,6 @@ class AppAnimations {
     );
   }
 
-  /// Staggered List Animation
   static Widget staggeredList({
     required int index,
     required Widget child,
@@ -127,7 +119,6 @@ class AppAnimations {
     );
   }
 
-  /// Shimmer Effect (Loading)
   static Widget shimmer({
     required Widget child,
     Color baseColor = const Color(0xFFE0E0E0),
@@ -160,12 +151,10 @@ class AppAnimations {
       },
       child: child,
       onEnd: () {
-        // Loop animation
       },
     );
   }
 
-  /// Pulse Animation
   static Widget pulse({
     required Widget child,
     Duration duration = const Duration(milliseconds: 1000),
@@ -183,13 +172,11 @@ class AppAnimations {
         );
       },
       onEnd: () {
-        // Reverse animation
       },
       child: child,
     );
   }
 
-  /// Bounce Animation
   static Widget bounce({
     required Widget child,
     Duration duration = const Duration(milliseconds: 600),
@@ -208,7 +195,6 @@ class AppAnimations {
     );
   }
 
-  /// Rotate Animation
   static Widget rotate({
     required Widget child,
     Duration duration = normal,
@@ -221,7 +207,7 @@ class AppAnimations {
       curve: Curves.easeInOut,
       builder: (context, value, child) {
         return Transform.rotate(
-          angle: value * 2 * 3.14159, // Full rotation
+          angle: value * 2 * 3.14159,
           child: child,
         );
       },
@@ -230,9 +216,7 @@ class AppAnimations {
   }
 }
 
-/// Page Transition Animations
 class PageTransitions {
-  /// Fade Transition
   static Route fadeTransition(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -246,7 +230,6 @@ class PageTransitions {
     );
   }
 
-  /// Slide Transition
   static Route slideTransition(
     Widget page, {
     Offset begin = const Offset(1.0, 0.0),
@@ -269,7 +252,6 @@ class PageTransitions {
     );
   }
 
-  /// Scale Transition
   static Route scaleTransition(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -292,7 +274,6 @@ class PageTransitions {
     );
   }
 
-  /// Slide and Fade Transition
   static Route slideFadeTransition(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -314,7 +295,6 @@ class PageTransitions {
     );
   }
 
-  /// Rotation Transition
   static Route rotationTransition(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -338,7 +318,6 @@ class PageTransitions {
   }
 }
 
-/// Animated List Item
 class AnimatedListItem extends StatelessWidget {
   final int index;
   final Widget child;
@@ -361,7 +340,6 @@ class AnimatedListItem extends StatelessWidget {
   }
 }
 
-/// Animated Card with Hover Effect
 class AnimatedCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;

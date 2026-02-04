@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/matricule_model.dart';
 import '../services/matricule_service.dart';
 
-/// Provider pour gérer l'état des matricules
 class MatriculeProvider with ChangeNotifier {
   final MatriculeService _service = MatriculeService();
 
@@ -11,12 +10,10 @@ class MatriculeProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Filtres
-  String? _statusFilter; // 'available', 'used', null
+  String? _statusFilter;
   String? _departmentFilter;
   String? _searchQuery;
 
-  // Getters
   List<Matricule> get matricules => _matricules;
   MatriculeStats? get stats => _stats;
   bool get isLoading => _isLoading;
@@ -25,14 +22,12 @@ class MatriculeProvider with ChangeNotifier {
   String? get departmentFilter => _departmentFilter;
   String? get searchQuery => _searchQuery;
 
-  // Matricules filtrés
   List<Matricule> get availableMatricules =>
       _matricules.where((m) => !m.isUsed).toList();
   
   List<Matricule> get usedMatricules =>
       _matricules.where((m) => m.isUsed).toList();
 
-  /// Charger tous les matricules
   Future<void> loadMatricules() async {
     _isLoading = true;
     _errorMessage = null;
@@ -55,7 +50,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Charger les statistiques
   Future<void> loadStats() async {
     try {
       _stats = await _service.getStats();
@@ -66,7 +60,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Créer un matricule
   Future<bool> createMatricule({
     required String matricule,
     required String nom,
@@ -91,7 +84,6 @@ class MatriculeProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      // Recharger les stats
       await loadStats();
 
       return true;
@@ -103,7 +95,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Import en masse depuis Excel
   Future<Map<String, int>?> importExcel(List<Map<String, String>> matricules) async {
     _isLoading = true;
     _errorMessage = null;
@@ -114,7 +105,6 @@ class MatriculeProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      // Recharger la liste
       await loadMatricules();
 
       return result;
@@ -126,7 +116,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Vérifier un matricule
   Future<MatriculeCheckResult?> checkMatricule(String matricule) async {
     _errorMessage = null;
 
@@ -140,7 +129,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Mettre à jour un matricule
   Future<bool> updateMatricule({
     required String id,
     String? nom,
@@ -177,7 +165,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Supprimer un matricule
   Future<bool> deleteMatricule(String id) async {
     _isLoading = true;
     _errorMessage = null;
@@ -189,7 +176,6 @@ class MatriculeProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      // Recharger les stats
       await loadStats();
 
       return true;
@@ -201,7 +187,6 @@ class MatriculeProvider with ChangeNotifier {
     }
   }
 
-  /// Appliquer les filtres
   void setFilters({
     String? status,
     String? department,
@@ -213,7 +198,6 @@ class MatriculeProvider with ChangeNotifier {
     loadMatricules();
   }
 
-  /// Réinitialiser les filtres
   void clearFilters() {
     _statusFilter = null;
     _departmentFilter = null;
@@ -221,7 +205,6 @@ class MatriculeProvider with ChangeNotifier {
     loadMatricules();
   }
 
-  /// Effacer l'erreur
   void clearError() {
     _errorMessage = null;
     notifyListeners();

@@ -6,8 +6,6 @@ import '../services/objective_service.dart';
 import '../models/user_model.dart';
 import '../utils/department_constants.dart';
 
-/// Manager Objectives Management Screen
-/// Allows managers to create and assign objectives to employees or departments
 class ManagerObjectivesScreen extends StatefulWidget {
   const ManagerObjectivesScreen({super.key});
 
@@ -21,8 +19,7 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
   final _descriptionController = TextEditingController();
   final _objectiveService = ObjectiveService();
   
-  // New: Type selection
-  String _assignmentType = 'employee'; // 'employee' or 'department'
+  String _assignmentType = 'employee';
   
   String? _selectedEmployeeId;
   String? _selectedDepartment;
@@ -75,7 +72,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
   Future<void> _createObjective() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validation based on assignment type
     if (_assignmentType == 'employee') {
       if (_selectedEmployeeId == null) {
         _showSnackBar('Veuillez sélectionner un employé', Colors.orange);
@@ -97,7 +93,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
 
     try {
       if (_assignmentType == 'employee') {
-        // Create objective for single employee
         await _objectiveService.createObjective(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
@@ -112,21 +107,18 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
           Navigator.pop(context);
         }
       } else {
-        // Create ONE department objective (not multiple)
         final userProvider = context.read<UserProvider>();
         final teamProvider = context.read<TeamProvider>();
         
-        // Find department name for employee filtering
         final departmentObj = teamProvider.departments.firstWhere(
           (d) => d.id == _selectedDepartment,
           orElse: () => throw Exception('Department not found'), 
         );
         
-        // Filter using department NAME because UserModel stores department as a String name
         final departmentEmployees = userProvider.users
             .where((user) => 
                 user.role == UserRole.employee && 
-                user.department == departmentObj.name) // Use name from object
+                user.department == departmentObj.name)
             .toList();
 
         if (departmentEmployees.isEmpty) {
@@ -138,8 +130,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
           return;
         }
 
-        // Use the first employee as representative for the department objective
-        // The department field will indicate it's a department-wide objective
         await _objectiveService.createObjective(
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
@@ -147,7 +137,7 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
           startDate: DateTime.now(),
           dueDate: _deadline!,
           assignedToId: departmentEmployees.first.id,
-          departmentId: _selectedDepartment, // This sends the ID (ObjectId)
+          departmentId: _selectedDepartment,
         );
 
         if (mounted) {
@@ -238,7 +228,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Filter employees only
           final employees = userProvider.users
               .where((user) => user.role == UserRole.employee)
               .toList();
@@ -277,7 +266,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Assignment Type Selection - NEW
                   TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 600),
                     tween: Tween(begin: 0.0, end: 1.0),
@@ -357,7 +345,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Employee or Department Selection
                   TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 700),
                     tween: Tween(begin: 0.0, end: 1.0),
@@ -428,7 +415,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Objective Details
                   TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 800),
                     tween: Tween(begin: 0.0, end: 1.0),
@@ -479,7 +465,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 
-                                // Title
                                 _buildModernTextField(
                                   controller: _titleController,
                                   label: 'Titre',
@@ -493,7 +478,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Description
                                 _buildModernTextField(
                                   controller: _descriptionController,
                                   label: 'Description',
@@ -508,11 +492,9 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                // Priority
                                 _buildModernPriorityDropdown(),
                                 const SizedBox(height: 16),
 
-                                // Deadline
                                 _buildModernDatePicker(),
                               ],
                             ),
@@ -523,7 +505,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // Create Button
                   TweenAnimationBuilder<double>(
                     duration: const Duration(milliseconds: 900),
                     tween: Tween(begin: 0.0, end: 1.0),
@@ -595,7 +576,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Type Selection Option
   Widget _buildTypeOption({
     required String type,
     required IconData icon,
@@ -607,7 +587,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
       onTap: () {
         setState(() {
           _assignmentType = type;
-          // Reset selections when switching types
           _selectedEmployeeId = null;
           _selectedDepartment = null;
         });
@@ -666,7 +645,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Modern Employee Dropdown
   Widget _buildModernEmployeeDropdown(List<User> employees) {
     return Container(
       decoration: BoxDecoration(
@@ -752,7 +730,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Modern Department Dropdown with Dynamic Data
   Widget _buildModernDepartmentDropdown() {
     return Consumer<TeamProvider>(
       builder: (context, teamProvider, _) {
@@ -814,7 +791,7 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
             ),
             items: departments.map((department) {
               return DropdownMenuItem(
-                value: department.id, // Use ID as value
+                value: department.id,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -857,7 +834,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Modern Text Field
   Widget _buildModernTextField({
     required TextEditingController controller,
     required String label,
@@ -907,7 +883,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Modern Priority Dropdown
   Widget _buildModernPriorityDropdown() {
     return Container(
       decoration: BoxDecoration(
@@ -979,7 +954,6 @@ class _ManagerObjectivesScreenState extends State<ManagerObjectivesScreen> {
     );
   }
 
-  // Helper: Build Modern Date Picker
   Widget _buildModernDatePicker() {
     return InkWell(
       onTap: _selectDate,

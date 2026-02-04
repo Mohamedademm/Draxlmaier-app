@@ -1,44 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-/// Helper functions for date and time formatting
 class DateTimeHelper {
-  /// Format date to a readable string (e.g., "Jan 15, 2024")
   static String formatDate(DateTime date) {
     return DateFormat('MMM dd, yyyy').format(date);
   }
 
-  /// Format time to a readable string (e.g., "2:30 PM")
   static String formatTime(DateTime date) {
     return DateFormat('h:mm a').format(date);
   }
 
-  /// Format date and time together (e.g., "Jan 15, 2024 2:30 PM")
   static String formatDateTime(DateTime date) {
     return DateFormat('MMM dd, yyyy h:mm a').format(date);
   }
 
-  /// Format time for chat messages (shows time or date depending on when message was sent)
   static String formatChatTime(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      // Today - show time only
       return formatTime(date);
     } else if (difference.inDays == 1) {
-      // Yesterday
       return 'Yesterday';
     } else if (difference.inDays < 7) {
-      // Within a week - show day name
       return DateFormat('EEEE').format(date);
     } else {
-      // Older - show date
       return formatDate(date);
     }
   }
 
-  /// Get relative time string (e.g., "2 minutes ago", "1 hour ago")
   static String getRelativeTime(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -59,7 +49,6 @@ class DateTimeHelper {
     }
   }
 
-  /// Check if date is today
   static bool isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year &&
@@ -67,7 +56,6 @@ class DateTimeHelper {
         date.day == now.day;
   }
 
-  /// Check if date is yesterday
   static bool isYesterday(DateTime date) {
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     return date.year == yesterday.year &&
@@ -76,9 +64,7 @@ class DateTimeHelper {
   }
 }
 
-/// Helper functions for validation
 class ValidationHelper {
-  /// Validate email
   static bool isValidEmail(String email) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -86,12 +72,10 @@ class ValidationHelper {
     return emailRegex.hasMatch(email);
   }
 
-  /// Validate password (minimum 3 characters - accepte mots de passe simples)
   static bool isValidPassword(String password) {
     return password.length >= 3;
   }
 
-  /// Validate name (not empty and contains only letters)
   static bool isValidName(String name) {
     if (name.trim().isEmpty) return false;
     final nameRegex = RegExp(r'^[a-zA-Z\s]+$');
@@ -99,9 +83,7 @@ class ValidationHelper {
   }
 }
 
-/// Helper functions for UI
 class UiHelper {
-  /// Show snackbar
   static void showSnackBar(
     BuildContext context,
     String message, {
@@ -121,7 +103,6 @@ class UiHelper {
     );
   }
 
-  /// Show loading dialog
   static void showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -132,12 +113,10 @@ class UiHelper {
     );
   }
 
-  /// Hide loading dialog
   static void hideLoadingDialog(BuildContext context) {
     Navigator.of(context).pop();
   }
 
-  /// Show error dialog
   static void showErrorDialog(
     BuildContext context,
     String title,
@@ -158,7 +137,6 @@ class UiHelper {
     );
   }
 
-  /// Show success dialog
   static void showSuccessDialog(
     BuildContext context,
     String title,

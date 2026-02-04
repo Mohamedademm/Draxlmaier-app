@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Theme Provider pour la personnalisation des couleurs par l'admin
 class ThemeProvider with ChangeNotifier {
   static const String _primaryColorKey = 'primary_color';
   static const String _accentColorKey = 'accent_color';
@@ -22,7 +21,6 @@ class ThemeProvider with ChangeNotifier {
     _loadColors();
   }
   
-  /// Charger les couleurs depuis SharedPreferences
   Future<void> _loadColors() async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -47,7 +45,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Mettre à jour la couleur primaire
   Future<void> updatePrimaryColor(Color color) async {
     _primaryColor = color;
     final prefs = await SharedPreferences.getInstance();
@@ -55,7 +52,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Mettre à jour la couleur d'accent
   Future<void> updateAccentColor(Color color) async {
     _accentColor = color;
     final prefs = await SharedPreferences.getInstance();
@@ -63,7 +59,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Mettre à jour la couleur de fond
   Future<void> updateBackgroundColor(Color color) async {
     _backgroundColor = color;
     final prefs = await SharedPreferences.getInstance();
@@ -71,7 +66,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Basculer le mode sombre
   Future<void> toggleThemeMode(bool isDark) async {
     _isDarkMode = isDark;
     final prefs = await SharedPreferences.getInstance();
@@ -79,7 +73,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Réinitialiser aux couleurs par défaut
   Future<void> resetToDefault() async {
     _primaryColor = const Color(0xFF0F4C81);
     _accentColor = const Color(0xFFE63946);
@@ -95,7 +88,6 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
   
-  /// Générer le ThemeData personnalisé
   ThemeData getTheme() {
     return ThemeData(
       useMaterial3: true,

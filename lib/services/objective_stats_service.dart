@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 import 'api_service.dart';
 
-/// Service for objective statistics and bulk operations
 class ObjectiveStatsService {
   final String baseUrl = '${ApiConstants.baseUrl}/objectives';
   final ApiService _apiService = ApiService();
@@ -16,7 +15,6 @@ class ObjectiveStatsService {
     };
   }
 
-  /// Get objectives statistics
   Future<Map<String, dynamic>> getStats() async {
     try {
       final headers = await _getHeaders();
@@ -36,7 +34,6 @@ class ObjectiveStatsService {
     }
   }
 
-  /// Bulk update objectives
   Future<void> bulkUpdate({
     required List<String> objectiveIds,
     required Map<String, dynamic> updates,
@@ -61,7 +58,6 @@ class ObjectiveStatsService {
     }
   }
 
-  /// Bulk delete objectives
   Future<void> bulkDelete(List<String> objectiveIds) async {
     try {
       final headers = await _getHeaders();

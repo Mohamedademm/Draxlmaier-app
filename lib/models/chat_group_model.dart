@@ -1,4 +1,3 @@
-/// ChatGroup model representing a group chat
 class ChatGroup {
   final String id;
   final String name;
@@ -33,19 +32,14 @@ class ChatGroup {
     this.unreadCount = 0,
   });
 
-  /// Get member count
   int get memberCount => members.length;
 
-  /// Check if user is a member
   bool isMember(String userId) => members.contains(userId);
   
-  /// Check if user is an admin
   bool isAdmin(String userId) => admins?.contains(userId) ?? false;
   
-  /// Check if it's a department group
   bool get isDepartmentGroup => type == 'department';
 
-  /// Factory method to create ChatGroup from JSON
   factory ChatGroup.fromJson(Map<String, dynamic> json) {
     return ChatGroup(
       id: json['_id'] ?? json['id'] ?? '',
@@ -68,7 +62,6 @@ class ChatGroup {
     );
   }
 
-  /// Method to convert ChatGroup to JSON
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -85,7 +78,6 @@ class ChatGroup {
     };
   }
 
-  /// Copy method for immutable updates
   ChatGroup copyWith({
     String? id,
     String? name,

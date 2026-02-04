@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/notification_model.dart';
 import '../utils/helpers.dart';
 
-/// Notification card widget
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
   final bool isRead;

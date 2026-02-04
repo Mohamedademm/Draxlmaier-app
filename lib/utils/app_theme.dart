@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
 
-/// App theme configuration
 class AppTheme {
-  // Primary colors
   static const Color primaryColor = Color(0xFF2196F3);
   static const Color primaryDark = Color(0xFF1976D2);
   static const Color primaryLight = Color(0xFFBBDEFB);
   static const Color accentColor = Color(0xFFFF5722);
   
-  // Status colors
   static const Color successColor = Color(0xFF4CAF50);
   static const Color warningColor = Color(0xFFFFC107);
   static const Color errorColor = Color(0xFFF44336);
   static const Color infoColor = Color(0xFF2196F3);
   
-  // Text colors
   static const Color textPrimary = Color(0xFF212121);
   static const Color textSecondary = Color(0xFF757575);
   static const Color textHint = Color(0xFFBDBDBD);
   static const Color textWhite = Color(0xFFFFFFFF);
   
-  // Background colors
   static const Color backgroundColor = Color(0xFFF5F5F5);
   static const Color surfaceColor = Color(0xFFFFFFFF);
   static const Color cardColor = Color(0xFFFFFFFF);
   
-  // Light theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: const ColorScheme.light(
@@ -100,7 +94,6 @@ class AppTheme {
     ),
   );
 
-  // Dark theme
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     colorScheme: const ColorScheme.dark(

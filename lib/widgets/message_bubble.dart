@@ -3,7 +3,6 @@ import '../models/message_model.dart';
 import '../utils/helpers.dart';
 import '../utils/app_theme.dart';
 
-/// Message bubble widget for chat messages
 class MessageBubble extends StatelessWidget {
   final Message message;
   final bool showSenderName;

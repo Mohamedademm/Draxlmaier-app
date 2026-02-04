@@ -443,7 +443,6 @@ class _AdminDepartmentsScreenState extends State<AdminDepartmentsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Filter and stats bar
                 Container(
                   padding: const EdgeInsets.all(16),
                   color: Colors.white,
@@ -466,7 +465,6 @@ class _AdminDepartmentsScreenState extends State<AdminDepartmentsScreen> {
                     ],
                   ),
                 ),
-                // Departments list
                 Expanded(
                   child: _departments.isEmpty
                       ? Center(

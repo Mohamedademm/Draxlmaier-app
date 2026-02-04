@@ -52,7 +52,6 @@ class ErrorHandler {
     if (exception is FormatException) {
       return 'Format de données invalide';
     }
-    // Add more specific exception handling here
     return exception.toString().replaceAll('Exception: ', '');
   }
 }

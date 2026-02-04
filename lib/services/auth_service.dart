@@ -1,11 +1,9 @@
 import '../models/user_model.dart';
 import 'api_service.dart';
 
-/// Authentication service handling user login and token management
 class AuthService {
   final ApiService _apiService = ApiService();
 
-  /// Login with email and password
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await _apiService.post('/auth/login', {
@@ -25,12 +23,10 @@ class AuthService {
     }
   }
 
-  /// Logout and clear token
   Future<void> logout() async {
     await _apiService.clearToken();
   }
 
-  /// Get current user profile
   Future<User> getCurrentUser() async {
     try {
       final response = await _apiService.get('/auth/me');
@@ -41,13 +37,11 @@ class AuthService {
     }
   }
 
-  /// Check if user is authenticated
   Future<bool> isAuthenticated() async {
     final token = await _apiService.getToken();
     return token != null && token.isNotEmpty;
   }
 
-  /// Update FCM token for push notifications
   Future<void> updateFcmToken(String fcmToken) async {
     try {
       await _apiService.post('/auth/fcm-token', {
@@ -58,7 +52,6 @@ class AuthService {
     }
   }
 
-  /// Register new user (public endpoint)
   Future<Map<String, dynamic>> register({
     String? matricule,
     required String firstname,
@@ -93,7 +86,6 @@ class AuthService {
 
       final data = _apiService.handleResponse(response);
       
-      // Save token for automatic login after registration
       if (data['token'] != null) {
         await _apiService.setToken(data['token']);
       }
@@ -104,7 +96,6 @@ class AuthService {
     }
   }
 
-  /// Forgot Password - Request reset token
   Future<void> forgotPassword(String email) async {
     try {
       final response = await _apiService.post('/auth/forgotpassword', {
@@ -116,7 +107,6 @@ class AuthService {
     }
   }
 
-  /// Register with matricule
   Future<Map<String, dynamic>> registerWithMatricule({
     required String matricule,
     required String email,

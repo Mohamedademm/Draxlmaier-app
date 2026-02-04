@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 
-/// Modern Settings Screen with Dark Mode Toggle
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -13,7 +12,6 @@ class SettingsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
-          // Modern AppBar with gradient
           SliverAppBar(
             expandedHeight: 160.0,
             floating: false,
@@ -76,28 +74,24 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           
-          // Content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Appearance Section
                   _buildSectionTitle('Apparence', Icons.palette_rounded),
                   const SizedBox(height: 12),
                   _buildAppearanceSection(context),
                   
                   const SizedBox(height: 24),
                   
-                  // Account Section
                   _buildSectionTitle('Compte', Icons.person_rounded),
                   const SizedBox(height: 12),
                   _buildAccountSection(context),
                   
                   const SizedBox(height: 24),
                   
-                  // About Section
                   _buildSectionTitle('À propos', Icons.info_rounded),
                   const SizedBox(height: 12),
                   _buildAboutSection(context),
@@ -173,7 +167,6 @@ class SettingsScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // Dark Mode Toggle
                 _buildModernSettingsTile(
                   icon: themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
                   iconGradient: themeProvider.isDarkMode 
@@ -219,7 +212,6 @@ class SettingsScreen extends StatelessWidget {
                 
                 const Divider(height: 1),
                 
-                // Theme Preview
                 _buildModernSettingsTile(
                   icon: Icons.palette_rounded,
                   iconGradient: const LinearGradient(
@@ -299,7 +291,6 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'Gérer vos préférences',
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
               onTap: () {
-                // Navigate to notifications settings
               },
             ),
             
@@ -314,7 +305,6 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'Mot de passe et confidentialité',
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
               onTap: () {
-                // Navigate to security settings
               },
             ),
           ],
@@ -376,7 +366,6 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'Besoin d\'assistance ?',
               trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
               onTap: () {
-                // Navigate to help
               },
             ),
           ],
@@ -402,7 +391,6 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Icon with gradient
               Container(
                 width: 48,
                 height: 48,
@@ -422,7 +410,6 @@ class SettingsScreen extends StatelessWidget {
               
               const SizedBox(width: 16),
               
-              // Title and subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,7 +436,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               
-              // Trailing
               if (trailing != null) ...[
                 const SizedBox(width: 12),
                 trailing,
@@ -471,7 +457,6 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-/// Modern Theme Preview Modal
 class ThemePreviewModal extends StatelessWidget {
   const ThemePreviewModal({super.key});
 
@@ -488,7 +473,6 @@ class ThemePreviewModal extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Handle
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -499,7 +483,6 @@ class ThemePreviewModal extends StatelessWidget {
             ),
           ),
           
-          // Header
           Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -546,13 +529,11 @@ class ThemePreviewModal extends StatelessWidget {
             ),
           ),
           
-          // Preview Content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  // AppBar Preview
                   _buildPreviewCard(
                     'AppBar',
                     Container(
@@ -578,7 +559,6 @@ class ThemePreviewModal extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Cards Preview
                   _buildPreviewCard(
                     'Cartes',
                     Column(
@@ -594,7 +574,6 @@ class ThemePreviewModal extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Buttons Preview
                   _buildPreviewCard(
                     'Boutons',
                     Row(

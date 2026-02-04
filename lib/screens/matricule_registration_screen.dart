@@ -4,7 +4,6 @@ import '../services/matricule_service.dart';
 import '../theme/modern_theme.dart';
 import '../utils/constants.dart';
 
-/// Écran d'inscription moderne avec système de matricule
 class MatriculeRegistrationScreen extends StatefulWidget {
   const MatriculeRegistrationScreen({super.key});
 
@@ -27,13 +26,11 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   
-  // Données du matricule vérifié
   String? _nom;
   String? _prenom;
   String? _poste;
   String? _department;
 
-  // Localisation
   String? _selectedLocation;
   String? _selectedSubLocation;
 
@@ -211,7 +208,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Header with gradient
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: const BoxDecoration(
@@ -225,7 +221,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
                           ),
                           child: Column(
                             children: [
-                              // Logo with animation
                               TweenAnimationBuilder<double>(
                                 duration: const Duration(milliseconds: 1000),
                                 tween: Tween(begin: 0.0, end: 1.0),
@@ -279,17 +274,14 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
                           ),
                         ),
                         
-                        // Content
                         Padding(
                           padding: const EdgeInsets.all(32),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
 
-                              // Étape 1: Matricule
                               _buildMatriculeSection(),
 
-                              // Étape 2: Informations (affichées après vérification)
                               if (_matriculeVerified) ...[
                                 const SizedBox(height: 24),
                                 _buildInfoSection(),
@@ -303,7 +295,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
 
                               const SizedBox(height: 24),
                               
-                              // Lien vers connexion
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -616,7 +607,7 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF4B5563), // Hex color for grey-800 to match ModernTheme somewhat
+            color: Color(0xFF4B5563),
           ),
         ),
         const SizedBox(height: 8),
@@ -625,7 +616,7 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF0F4C81), width: 1.5), // ModernTheme.primary
+            border: Border.all(color: const Color(0xFF0F4C81), width: 1.5),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -654,7 +645,7 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
               onChanged: (newValue) {
                 setState(() {
                   _selectedLocation = newValue;
-                  _selectedSubLocation = null; // Reset sub-location
+                  _selectedSubLocation = null;
                 });
               },
             ),
@@ -673,9 +664,9 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: _selectedLocation == null ? Colors.grey.shade100 : Colors.grey.shade200, // Background
+            color: _selectedLocation == null ? Colors.grey.shade100 : Colors.grey.shade200,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300), // Lighter border for disabled look or normal
+            border: Border.all(color: Colors.grey.shade300),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -734,7 +725,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
         ),
         const SizedBox(height: ModernTheme.spacingM),
         
-        // Email
         TextFormField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
@@ -761,7 +751,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
         ),
         const SizedBox(height: ModernTheme.spacingM),
         
-        // Mot de passe
         TextFormField(
           controller: _passwordController,
           obscureText: _obscurePassword,
@@ -796,7 +785,6 @@ class _MatriculeRegistrationScreenState extends State<MatriculeRegistrationScree
         ),
         const SizedBox(height: ModernTheme.spacingM),
         
-        // Confirmer mot de passe
         TextFormField(
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,

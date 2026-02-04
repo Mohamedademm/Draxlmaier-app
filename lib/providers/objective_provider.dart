@@ -1,10 +1,8 @@
-// import 'dart:io'; // Removed for Web compatibility
 
 import 'package:flutter/foundation.dart';
 import '../models/objective_model.dart';
 import '../services/objective_service.dart';
 
-/// Provider pour gérer l'état des objectifs
 class ObjectiveProvider with ChangeNotifier {
   final ObjectiveService _objectiveService = ObjectiveService();
 
@@ -15,7 +13,6 @@ class ObjectiveProvider with ChangeNotifier {
   String? _error;
   Map<String, dynamic> _stats = {};
 
-  // Getters
   List<Objective> get objectives => _objectives;
   List<Objective> get teamObjectives => _teamObjectives;
   Objective? get selectedObjective => _selectedObjective;
@@ -23,7 +20,6 @@ class ObjectiveProvider with ChangeNotifier {
   String? get error => _error;
   Map<String, dynamic> get stats => _stats;
 
-  // Filtres
   List<Objective> get todoObjectives => 
       _objectives.where((o) => o.status == ObjectiveStatus.todo).toList();
   
@@ -39,7 +35,6 @@ class ObjectiveProvider with ChangeNotifier {
   List<Objective> get overdueObjectives => 
       _objectives.where((o) => o.isOverdue).toList();
 
-  /// Récupérer mes objectifs
   Future<void> fetchMyObjectives({
     String? status,
     String? priority,
@@ -54,7 +49,6 @@ class ObjectiveProvider with ChangeNotifier {
         priority: priority,
       );
 
-      // Trier par date d'échéance
       _objectives.sort((a, b) => a.dueDate.compareTo(b.dueDate));
 
       _isLoading = false;
@@ -66,7 +60,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Récupérer les objectifs de l'équipe (manager)
   Future<void> fetchTeamObjectives({
     String? teamId,
     String? status,
@@ -90,7 +83,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Récupérer un objectif par ID
   Future<void> fetchObjectiveById(String id) async {
     try {
       _isLoading = true;
@@ -108,7 +100,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Créer un nouvel objectif (manager)
   Future<bool> createObjective({
     required String title,
     required String description,
@@ -152,7 +143,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Mettre à jour le statut d'un objectif
   Future<bool> updateStatus({
     required String id,
     required String status,
@@ -167,7 +157,6 @@ class ObjectiveProvider with ChangeNotifier {
         blockReason: blockReason,
       );
 
-      // Mettre à jour dans la liste
       final index = _objectives.indexWhere((o) => o.id == id);
       if (index != -1) {
         _objectives[index] = updatedObjective;
@@ -186,7 +175,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Mettre à jour la progression
   Future<bool> updateProgress({
     required String id,
     required int progress,
@@ -199,7 +187,6 @@ class ObjectiveProvider with ChangeNotifier {
         progress: progress,
       );
 
-      // Mettre à jour dans la liste
       final index = _objectives.indexWhere((o) => o.id == id);
       if (index != -1) {
         _objectives[index] = updatedObjective;
@@ -218,7 +205,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Ajouter un commentaire
   Future<bool> addComment({
     required String id,
     required String text,
@@ -231,7 +217,6 @@ class ObjectiveProvider with ChangeNotifier {
         text: text,
       );
 
-      // Mettre à jour dans la liste
       final index = _objectives.indexWhere((o) => o.id == id);
       if (index != -1) {
         _objectives[index] = updatedObjective;
@@ -250,19 +235,7 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /*
-  /// Ajouter une pièce jointe
-  // DISABLED FOR WEB COMPATIBILITY
-  Future<bool> uploadAttachment({
-    required String id,
-    required dynamic file, // dynamic to avoid File type
-  }) async {
-    // ... implementation disabled
-    return false;
-  }
-  */
 
-  /// Ajouter une sous-tâche
   Future<bool> addSubTask({
     required String id,
     required String title,
@@ -282,7 +255,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Basculer l'état d'une sous-tâche
   Future<bool> toggleSubTask({
     required String objectiveId,
     required String subTaskId,
@@ -302,7 +274,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Supprimer une sous-tâche
   Future<bool> deleteSubTask({
     required String objectiveId,
     required String subTaskId,
@@ -333,7 +304,6 @@ class ObjectiveProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Mettre à jour un objectif (manager)
   Future<bool> updateObjective({
     required String id,
     String? title,
@@ -358,7 +328,6 @@ class ObjectiveProvider with ChangeNotifier {
         notes: notes,
       );
 
-      // Mettre à jour dans les listes
       final index = _objectives.indexWhere((o) => o.id == id);
       if (index != -1) {
         _objectives[index] = updatedObjective;
@@ -382,7 +351,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Supprimer un objectif (manager)
   Future<bool> deleteObjective(String id) async {
     try {
       _error = null;
@@ -405,7 +373,6 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Récupérer les statistiques
   Future<void> fetchStats() async {
     try {
       _stats = await _objectiveService.getObjectiveStats();
@@ -416,25 +383,21 @@ class ObjectiveProvider with ChangeNotifier {
     }
   }
 
-  /// Rafraîchir les données
   Future<void> refresh() async {
     await fetchMyObjectives();
     await fetchStats();
   }
 
-  /// Réinitialiser les erreurs
   void clearError() {
     _error = null;
     notifyListeners();
   }
 
-  /// Sélectionner un objectif
   void selectObjective(Objective objective) {
     _selectedObjective = objective;
     notifyListeners();
   }
 
-  /// Désélectionner l'objectif actuel
   void clearSelectedObjective() {
     _selectedObjective = null;
     notifyListeners();

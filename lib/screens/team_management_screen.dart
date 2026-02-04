@@ -9,7 +9,6 @@ import '../models/department_model.dart';
 import '../theme/modern_theme.dart';
 import '../widgets/modern_widgets.dart';
 
-/// Advanced Team Management Screen for Admin
 class TeamManagementScreen extends StatefulWidget {
   const TeamManagementScreen({super.key});
 
@@ -60,7 +59,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    // Check admin permission
     if (!authProvider.canManageUsers) {
       return const Scaffold(
         appBar: ModernAppBar(title: 'Accès refusé'),
@@ -162,7 +160,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
         animation: _tabController.animation!,
         builder: (context, child) {
           final index = _tabController.index;
-          if (index == 2) return const SizedBox.shrink(); // No FAB for Permissions tab
+          if (index == 2) return const SizedBox.shrink();
           
           return FloatingActionButton.extended(
             onPressed: () {
@@ -182,7 +180,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== TEAMS TAB ====================
   Widget _buildTeamsTab(TeamProvider teamProvider) {
     if (teamProvider.teams.isEmpty) {
       return Center(
@@ -209,7 +206,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
             _buildStatsCards(teamProvider),
             const SizedBox(height: 24),
             ...teamProvider.teams.map((team) => _buildTeamCard(team)),
-            const SizedBox(height: 80), // Space for FAB
+            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -383,7 +380,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== DEPARTMENTS TAB ====================
   Widget _buildDepartmentsTab(TeamProvider teamProvider) {
     if (teamProvider.departments.isEmpty) {
       return Center(
@@ -409,7 +405,7 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
           itemCount: teamProvider.departments.length + 1,
           itemBuilder: (context, index) {
             if (index == teamProvider.departments.length) {
-              return const SizedBox(height: 80); // Space for FAB
+              return const SizedBox(height: 80);
             }
             
             final dept = teamProvider.departments[index];
@@ -434,16 +430,15 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
   }
 
   Widget _buildDepartmentCard(Department department) {
-    // Get team count from provider
     final teamProvider = context.watch<TeamProvider>();
     final teamCount = teamProvider.teams.where((team) => team.department?.id == department.id).length;
     
     final colors = [
-      const Color(0xFF6366F1), // Purple
-      const Color(0xFF0EA5E9), // Blue
-      const Color(0xFF10B981), // Green
-      const Color(0xFFF59E0B), // Orange
-      const Color(0xFFEF4444), // Red
+      const Color(0xFF6366F1),
+      const Color(0xFF0EA5E9),
+      const Color(0xFF10B981),
+      const Color(0xFFF59E0B),
+      const Color(0xFFEF4444),
     ];
     final departmentColor = colors[department.name.hashCode % colors.length];
 
@@ -466,12 +461,10 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Could navigate to department details
           },
           borderRadius: BorderRadius.circular(20),
           child: Column(
             children: [
-              // Header
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -490,7 +483,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                 ),
                 child: Row(
                   children: [
-                    // Icon with gradient
                     Container(
                       width: 56,
                       height: 56,
@@ -517,7 +509,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                     ),
                     const SizedBox(width: 16),
                     
-                    // Title and description
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,7 +536,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                       ),
                     ),
                     
-                    // Menu button
                     PopupMenuButton<String>(
                       icon: Icon(Icons.more_vert, color: Colors.grey.shade600),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -583,15 +573,12 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                 ),
               ),
               
-              // Info section
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    // Status and location row
                     Row(
                       children: [
-                        // Status badge
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
@@ -660,7 +647,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                         
                         const Spacer(),
                         
-                        // Teams count badge
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
@@ -697,7 +683,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                     
                     const SizedBox(height: 16),
                     
-                    // Stats row
                     Row(
                       children: [
                         Expanded(
@@ -720,7 +705,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                       ],
                     ),
                     
-                    // Manager info
                     if (department.manager != null) ...[
                       const SizedBox(height: 16),
                       Container(
@@ -914,7 +898,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== PERMISSIONS TAB ====================
   Widget _buildPermissionsTab() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -1034,7 +1017,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== CREATE TEAM DIALOG ====================
   void _showCreateTeamDialog() {
     final nameController = TextEditingController();
     final descController = TextEditingController();
@@ -1059,7 +1041,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Gradient Header
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                   decoration: const BoxDecoration(
@@ -1108,7 +1089,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                 ),
                 
-                // Content
                 Flexible(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24),
@@ -1116,7 +1096,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Team Name Field
                         _buildModernTeamField(
                           controller: nameController,
                           label: 'Nom de l\'équipe',
@@ -1127,7 +1106,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                         ),
                         const SizedBox(height: 20),
                         
-                        // Description Field
                         _buildModernTeamField(
                           controller: descController,
                           label: 'Description',
@@ -1139,7 +1117,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                         ),
                         const SizedBox(height: 20),
                         
-                        // Department Dropdown
                         Row(
                           children: [
                             Container(
@@ -1211,7 +1188,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                         ),
                         const SizedBox(height: 20),
                         
-                        // Team Leader Dropdown
                         Row(
                           children: [
                             Container(
@@ -1283,7 +1259,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                         ),
                         const SizedBox(height: 20),
                         
-                        // Color Selection
                         Row(
                           children: [
                             Container(
@@ -1360,7 +1335,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                 ),
                 
-                // Action Buttons
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -1375,7 +1349,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Cancel Button
                       Material(
                         color: Colors.transparent,
                         child: InkWell(
@@ -1420,13 +1393,11 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                       ),
                       const SizedBox(width: 12),
                       
-                      // Create Button
                       Material(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         child: InkWell(
                           onTap: () async {
-                            // Validation
                             if (nameController.text.isEmpty || selectedDepartmentId == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -1534,7 +1505,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== EDIT TEAM DIALOG ====================
   void _showEditTeamDialog(Team team) {
     final nameController = TextEditingController(text: team.name);
     final descController = TextEditingController(text: team.description ?? '');
@@ -1695,7 +1665,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== DELETE TEAM ====================
   void _confirmDeleteTeam(Team team) {
     showDialog(
       context: context,
@@ -1733,7 +1702,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== MANAGE MEMBERS ====================
   void _showManageMembersDialog(Team team) {
     showDialog(
       context: context,
@@ -1862,7 +1830,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
   }
 
 
-  // ==================== CREATE DEPARTMENT DIALOG ====================
   void _showCreateDepartmentDialog() {
     final nameController = TextEditingController();
     final descController = TextEditingController();
@@ -1899,7 +1866,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nom
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
@@ -1913,7 +1879,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                   const SizedBox(height: 16),
                   
-                  // Description
                   TextField(
                     controller: descController,
                     maxLines: 3,
@@ -1928,7 +1893,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                   const SizedBox(height: 16),
                   
-                  // Localisation
                   TextField(
                     controller: locationController,
                     decoration: InputDecoration(
@@ -1942,7 +1906,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                   const SizedBox(height: 16),
                   
-                  // Budget et Employés
                   Row(
                     children: [
                       Expanded(
@@ -1976,7 +1939,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
                   ),
                   const SizedBox(height: 16),
                   
-                  // Manager
                   Consumer<UserProvider>(
                     builder: (context, userProvider, child) {
                       return DropdownButtonFormField<String>(
@@ -2067,7 +2029,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== EDIT DEPARTMENT DIALOG ====================
   void _showEditDepartmentDialog(Department department) {
     final nameController = TextEditingController(text: department.name);
     final descController = TextEditingController(text: department.description ?? '');
@@ -2206,7 +2167,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== DELETE DEPARTMENT ====================
   void _confirmDeleteDepartment(Department department) {
     showDialog(
       context: context,
@@ -2244,7 +2204,6 @@ class _TeamManagementScreenState extends State<TeamManagementScreen>
     );
   }
 
-  // ==================== HELPER METHODS ====================
   Widget _buildModernTeamField({
     required TextEditingController controller,
     required String label,

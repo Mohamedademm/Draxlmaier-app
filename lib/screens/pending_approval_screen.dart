@@ -46,7 +46,6 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> with Sing
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Animated Status Icon
                     AnimatedBuilder(
                       animation: _controller,
                       builder: (context, child) {
@@ -91,7 +90,6 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> with Sing
                     
                     const SizedBox(height: ModernTheme.spacingXL),
                     
-                    // Information Box
                     Container(
                       padding: const EdgeInsets.all(ModernTheme.spacingM),
                       decoration: BoxDecoration(

@@ -1,4 +1,3 @@
-/// Données des localisations et sous-localisations de Tunisie
 class LocationData {
   static const Map<String, List<String>> locations = {
     'Tunis': [
